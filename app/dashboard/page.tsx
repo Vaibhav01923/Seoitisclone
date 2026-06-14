@@ -276,7 +276,7 @@ function DashboardPage() {
           <div className="bg-white border border-stone-200 rounded-xl p-8 text-center mb-6">
             <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-sm font-medium text-gray-700">Submitting prompts to AI engines...</p>
-            <p className="text-xs text-gray-400 mt-1">Running {brand.trackedPrompts.length} prompts × {selectedEngines.length} engines</p>
+            <p className="text-xs text-gray-400 mt-1">Running {Math.min(brand.trackedPrompts.length, 20)} prompts × {selectedEngines.length} engines</p>
           </div>
         )}
 
@@ -339,27 +339,45 @@ function DashboardPage() {
             {/* Overview */}
             {activeTab === "overview" && (
               <div className="space-y-3">
-                {brand.trackedPrompts.map((p) => {
-                  const promptResults = results.filter((r) => r.promptId === p.id);
+                {(() => {
+                  const scannedPromptIds = new Set(results.map((r) => r.promptId));
+                  const unscanned = brand.trackedPrompts.filter((p) => !scannedPromptIds.has(p.id));
                   return (
-                    <div key={p.id} className="bg-white border border-stone-200 rounded-xl p-4">
-                      <p className="text-sm font-medium text-gray-800 mb-3">{p.text}</p>
-                      <div className="flex items-center gap-4">
-                        {promptResults.map((r) => (
-                          <div key={r.engine} className="flex items-center gap-1.5">
-                            <div className={`w-2 h-2 rounded-full ${ENGINE_COLORS[r.engine]}`} />
-                            <span className="text-xs text-gray-500">{ENGINE_LABELS[r.engine]}</span>
-                            {r.brandMentioned ? (
-                              <span className="text-xs font-medium text-red-600">#{r.brandRank ?? "✓"}</span>
-                            ) : (
-                              <span className="text-xs text-red-400">absent</span>
-                            )}
+                    <>
+                      {brand.trackedPrompts.filter((p) => scannedPromptIds.has(p.id)).map((p) => {
+                        const promptResults = results.filter((r) => r.promptId === p.id);
+                        return (
+                          <div key={p.id} className="bg-white border border-stone-200 rounded-xl p-4">
+                            <p className="text-sm font-medium text-gray-800 mb-3">{p.text}</p>
+                            <div className="flex items-center gap-4">
+                              {promptResults.map((r) => (
+                                <div key={r.engine} className="flex items-center gap-1.5">
+                                  <div className={`w-2 h-2 rounded-full ${ENGINE_COLORS[r.engine]}`} />
+                                  <span className="text-xs text-gray-500">{ENGINE_LABELS[r.engine]}</span>
+                                  {r.brandMentioned ? (
+                                    <span className="text-xs font-medium text-red-600">#{r.brandRank ?? "✓"}</span>
+                                  ) : (
+                                    <span className="text-xs text-gray-400">absent</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                        );
+                      })}
+                      {unscanned.length > 0 && (
+                        <div className="bg-white border border-dashed border-stone-200 rounded-xl p-4">
+                          <p className="text-xs text-gray-400 mb-2">{unscanned.length} prompts not yet scanned</p>
+                          <div className="space-y-1">
+                            {unscanned.map((p) => (
+                              <p key={p.id} className="text-xs text-gray-500 truncate">— {p.text}</p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
                   );
-                })}
+                })()}
               </div>
             )}
 

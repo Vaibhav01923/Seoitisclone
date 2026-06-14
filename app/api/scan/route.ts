@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
     ? brand.trackedPrompts.filter((p) => promptIds.includes(p.id))
     : brand.trackedPrompts;
 
-  const promptsToRun = prompts.slice(0, 10);
+  const promptsToRun = prompts.slice(0, 20);
   const jobs: Array<{ prompt: typeof prompts[0]; engine: AIEngine }> = [];
   for (const p of promptsToRun) {
     for (const e of engines) {
