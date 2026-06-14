@@ -54,7 +54,8 @@ async function crawlSite(domain: string): Promise<string> {
 }
 
 export async function POST(req: NextRequest) {
-  const { domain, competitors: userCompetitors, userId } = await req.json();
+  const body = await req.json();
+  const { domain, competitors: userCompetitors } = body;
   if (!domain) return NextResponse.json({ error: "domain is required" }, { status: 400 });
 
   let content: string;
@@ -121,7 +122,11 @@ ${content}`;
 
   const db = clientFromRequest(req);
 
-  // Upsert brand (reuse existing record if same domain)
+  // Get user id from the server-side session
+  const { data: { user } } = await db.auth.getUser();
+  const userId = user?.id;
+
+  // Upsert brand — conflict on (domain, user_id) so each user can track the same domain independently
   const { data: brandRow, error: brandErr } = await db
     .from("brands")
     .upsert(
@@ -132,9 +137,9 @@ ${content}`;
         description: extracted.description,
         target_audience: extracted.targetAudience,
         competitors: extracted.competitors,
-        ...(userId ? { user_id: userId } : {}),
+        user_id: userId,
       },
-      { onConflict: "domain" }
+      { onConflict: "domain,user_id" }
     )
     .select()
     .single();
