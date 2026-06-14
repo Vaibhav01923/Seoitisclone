@@ -4,7 +4,7 @@ import OpenAI from "openai";
 import { BrandData, TrackedPrompt } from "@/lib/types";
 import { serverClient } from "@/lib/supabase";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const getClient = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function fetchPage(url: string): Promise<string> {
   try {
@@ -103,7 +103,7 @@ Return ONLY valid JSON, no markdown.
 Website content:
 ${content}`;
 
-  const message = await client.chat.completions.create({
+  const message = await getClient().chat.completions.create({
     model: "gpt-4o-mini",
     max_tokens: 2000,
     messages: [{ role: "user", content: prompt }],

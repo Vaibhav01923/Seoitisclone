@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import * as cheerio from "cheerio";
 import OpenAI from "openai";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const getClient = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function fetchPage(url: string): Promise<string> {
   const res = await fetch(url, {
@@ -115,7 +115,7 @@ Rules:
 Website content:
 ${combinedContent}`;
 
-  const message = await client.chat.completions.create({
+  const message = await getClient().chat.completions.create({
     model: "gpt-4o-mini",
     max_tokens: 1500,
     messages: [{ role: "user", content: prompt }],

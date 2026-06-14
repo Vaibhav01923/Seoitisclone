@@ -1,0 +1,852 @@
+- generic [active] [ref=e1]:
+  - generic:
+    - generic:
+      - link "Skip to main content" [ref=e2] [cursor=pointer]
+      - link "Accessibility help" [ref=e3] [cursor=pointer]:
+        - /url: https://support.google.com/websearch/answer/181196?hl=en-IN
+  - generic [ref=e8]:
+    - search [ref=e9]:
+      - generic [ref=e11]:
+        - generic:
+          - generic:
+            - generic:
+              - img
+        - 'link "World Cup 2026: The art of the rabona" [ref=e13] [cursor=pointer]':
+          - /url: https://www.google.com/webhp?hl=en&ictx=2&sa=X&ved=0ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQPQgK
+          - 'img "World Cup 2026: The art of the rabona" [ref=e14]'
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - combobox "Search" [ref=e19]: what is the best tool for tracking brand mentions in ChatGPT what is the best tool for tracking brand mentions in ChatGPT
+            - generic [ref=e20]:
+              - button "Clear" [ref=e22] [cursor=pointer]:
+                - img [ref=e24]
+              - generic [ref=e27]:
+                - button "Search by voice" [ref=e28] [cursor=pointer]:
+                  - img [ref=e29]
+                - button "Search by image" [ref=e31] [cursor=pointer]:
+                  - img [ref=e32]
+          - button "Search" [ref=e34] [cursor=pointer]:
+            - img [ref=e37]
+    - generic [ref=e39]:
+      - button "Settings" [ref=e41] [cursor=pointer]:
+        - img [ref=e44]
+      - generic [ref=e47]:
+        - button "Google apps" [ref=e49] [cursor=pointer]:
+          - img [ref=e50]
+        - link "Sign in" [ref=e54] [cursor=pointer]:
+          - /url: https://accounts.google.com/ServiceLogin?hl=en&passive=true&continue=https://www.google.com/search%3Fq%3Dwhat%2Bis%2Bthe%2Bbest%2Btool%2Bfor%2Btracking%2Bbrand%2Bmentions%2Bin%2BChatGPT%26sei%3Do9Atat2PM-STseMP-JfkwQE&ec=futura_srp_og_si_72236_p
+  - generic [ref=e56]:
+    - navigation [ref=e62]:
+      - generic [ref=e68]:
+        - list [ref=e69]:
+          - listitem [ref=e70]:
+            - link "AI Mode" [ref=e73] [cursor=pointer]:
+              - /url: /search?q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sca_esv=0769902f71503f71&udm=50&fbs=ADc_l-aN0CWEZBOHjofHoaMMDiKpV6Bbbmx4QVaoKkiRQ2jlwvCHF0Eqz8cUq4JjDCZnrJEJPua1MxnlJWIzg-ca3uHtIoKdi0gAHS3m0W86wI_pK79ixcKZItb891ui7Ss-XAzDGy8Knqm-GBZ7Hr7O0geJ5qo8JRBFVi7ZXEKkfY9PQNrvWipHnjONTk5iWEjrkVthZbeqXVBnuxYNUEr_BoH20HL-zQ&aep=1&ntc=1&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ2J8OegQIEBAD
+              - generic [ref=e76]: AI Mode
+          - listitem [ref=e77]:
+            - link "All" [disabled] [ref=e78]:
+              - generic [ref=e80]: All
+          - listitem [ref=e81]:
+            - link "Short videos" [ref=e82] [cursor=pointer]:
+              - /url: /search?sca_esv=0769902f71503f71&udm=39&fbs=ADc_l-aN0CWEZBOHjofHoaMMDiKpV6Bbbmx4QVaoKkiRQ2jlwvCHF0Eqz8cUq4JjDCZnrJEJPua1MxnlJWIzg-ca3uHtIoKdi0gAHS3m0W86wI_pK79ixcKZItb891ui7Ss-XAzDGy8Knqm-GBZ7Hr7O0geJ5qo8JRBFVi7ZXEKkfY9PQNrvWipHnjONTk5iWEjrkVthZbeqXVBnuxYNUEr_BoH20HL-zQ&q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQs6gLegQIGRAB
+              - generic [ref=e84]: Short videos
+          - listitem [ref=e85]:
+            - link "Videos" [ref=e86] [cursor=pointer]:
+              - /url: /search?sca_esv=0769902f71503f71&udm=7&fbs=ADc_l-aN0CWEZBOHjofHoaMMDiKpV6Bbbmx4QVaoKkiRQ2jlwvCHF0Eqz8cUq4JjDCZnrJEJPua1MxnlJWIzg-ca3uHtIoKdi0gAHS3m0W86wI_pK79ixcKZItb891ui7Ss-XAzDGy8Knqm-GBZ7Hr7O0geJ5qo8JRBFVi7ZXEKkfY9PQNrvWipHnjONTk5iWEjrkVthZbeqXVBnuxYNUEr_BoH20HL-zQ&q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQtKgLegQIFxAB
+              - generic [ref=e88]: Videos
+          - listitem [ref=e89]:
+            - link "Images" [ref=e90] [cursor=pointer]:
+              - /url: /search?sca_esv=0769902f71503f71&udm=2&fbs=ADc_l-aN0CWEZBOHjofHoaMMDiKpV6Bbbmx4QVaoKkiRQ2jlwvCHF0Eqz8cUq4JjDCZnrJEJPua1MxnlJWIzg-ca3uHtIoKdi0gAHS3m0W86wI_pK79ixcKZItb891ui7Ss-XAzDGy8Knqm-GBZ7Hr7O0geJ5qo8JRBFVi7ZXEKkfY9PQNrvWipHnjONTk5iWEjrkVthZbeqXVBnuxYNUEr_BoH20HL-zQ&q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQtKgLegQIFhAB
+              - generic [ref=e92]: Images
+          - listitem [ref=e93]:
+            - link "Forums" [ref=e94] [cursor=pointer]:
+              - /url: /search?sca_esv=0769902f71503f71&udm=18&fbs=ADc_l-aN0CWEZBOHjofHoaMMDiKpV6Bbbmx4QVaoKkiRQ2jlwvCHF0Eqz8cUq4JjDCZnrJEJPua1MxnlJWIzg-ca3uHtIoKdi0gAHS3m0W86wI_pK79ixcKZItb891ui7Ss-XAzDGy8Knqm-GBZ7Hr7O0geJ5qo8JRBFVi7ZXEKkfY9PQNrvWipHnjONTk5iWEjrkVthZbeqXVBnuxYNUEr_BoH20HL-zQ&q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQs6gLegQIFBAB
+              - generic [ref=e96]: Forums
+          - listitem [ref=e97]:
+            - link "Shopping" [ref=e98] [cursor=pointer]:
+              - /url: /search?sca_esv=0769902f71503f71&udm=28&fbs=ADc_l-aN0CWEZBOHjofHoaMMDiKpV6Bbbmx4QVaoKkiRQ2jlwvCHF0Eqz8cUq4JjDCZnrJEJPua1MxnlJWIzg-ca3uHtIoKdi0gAHS3m0W86wI_pK79ixcKZItb891ui7Ss-XAzDGy8Knqm-GBZ7Hr7O0geJ5qo8JRBFVi7ZXEKkfY9PQNrvWipHnjONTk5iWEjrkVthZbeqXVBnuxYNUEr_BoH20HL-zQ&q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&ved=1t:220175&ictx=111
+              - generic [ref=e100]: Shopping
+          - listitem [ref=e101]:
+            - button "More filters" [ref=e102] [cursor=pointer]:
+              - generic "More filters" [ref=e103]:
+                - generic [ref=e104]:
+                  - generic [ref=e105]: More
+                  - img [ref=e107]
+        - button "Tools" [ref=e110] [cursor=pointer]:
+          - generic [ref=e112]:
+            - generic [ref=e113]: Tools
+            - img [ref=e115]
+    - heading "Search Results" [level=1] [ref=e117]
+    - generic [ref=e122]:
+      - generic [ref=e123]:
+        - region "Ads" [ref=e128]:
+          - generic [ref=e129]:
+            - heading "Sponsored results" [level=2] [ref=e136]
+            - generic [ref=e137]:
+              - generic [ref=e144]:
+                - generic [ref=e150]:
+                  - generic [ref=e151]:
+                    - link "Track Website Traffic business.google.com https://business.google.com › setup › today" [ref=e152] [cursor=pointer]:
+                      - /url: https://sites.google.com/preload
+                      - heading "Track Website Traffic" [level=3] [ref=e153]
+                      - generic [ref=e155]:
+                        - img [ref=e160]
+                        - generic [ref=e162]:
+                          - generic [ref=e164]: business.google.com
+                          - generic [ref=e165]: https://business.google.com › setup › today
+                    - button "Why this ad?" [ref=e168] [cursor=pointer]:
+                      - img [ref=e170]
+                  - generic [ref=e175]:
+                    - text: Audience Insights Hub — See which pages drive results with clear actionable reports. Start
+                    - emphasis [ref=e176]: tracking
+                    - text: today and see which campaigns and pages drive results.
+                  - generic [ref=e177]:
+                    - link "Google Analytics Official Set up free tracking and understand audience behavior online." [ref=e181] [cursor=pointer]:
+                      - /url: /aclk?sa=L&ai=DChsSEwjN5_mmmYWVAxUIFYMDHWpPHAsYACICCAEQAxoCc2Y&ae=2&aspm=1&co=1&ase=2&gclid=EAIaIQobChMIzef5ppmFlQMVCBWDAx1qTxwLEAAYASABEgL-CPD_BwE&cid=CAAS0gHkaIzFKWcJXBvnMblkWj-qnqCtAuuGuMvPaPRPkTBgnMBJCAhpzjbmENs5fWyGR8RBZ1grp6QJbXEa99NYuDths4jJOSLgyvF4QFGnlLZ5XiLgANWXsHwTemuDrVKXEYtMe2wpBaW4wVqwyf3yodQbBvPTq2Emy87kJOo9yRFYbfDakqzf25Y5ET8NM4J7VP_W3pe3mlmb-h7p4iWcSmu6mmoNgE2uLWKFHU9qeMgQ5RK4xi79TsltnCU5Hs58m4A1zpkX3icwiDltB612J7_5Iz4&cce=2&category=acrcp_v1_35&sig=AOD64_15BvQ3CQHLwV5M8_S3xxvFBBQ2wQ&adurl=&q=
+                      - generic [ref=e182]: Google Analytics Official
+                      - generic [ref=e185]: Set up free tracking and understand audience behavior online.
+                    - link "Free Analytics Setup Make smarter decisions with real time website and app data." [ref=e189] [cursor=pointer]:
+                      - /url: /aclk?sa=L&ai=DChsSEwjN5_mmmYWVAxUIFYMDHWpPHAsYACICCAEQBRoCc2Y&ae=2&aspm=1&co=1&ase=2&gclid=EAIaIQobChMIzef5ppmFlQMVCBWDAx1qTxwLEAAYASACEgIEVfD_BwE&cid=CAAS0gHkaIzFKWcJXBvnMblkWj-qnqCtAuuGuMvPaPRPkTBgnMBJCAhpzjbmENs5fWyGR8RBZ1grp6QJbXEa99NYuDths4jJOSLgyvF4QFGnlLZ5XiLgANWXsHwTemuDrVKXEYtMe2wpBaW4wVqwyf3yodQbBvPTq2Emy87kJOo9yRFYbfDakqzf25Y5ET8NM4J7VP_W3pe3mlmb-h7p4iWcSmu6mmoNgE2uLWKFHU9qeMgQ5RK4xi79TsltnCU5Hs58m4A1zpkX3icwiDltB612J7_5Iz4&cce=2&category=acrcp_v1_35&sig=AOD64_0jQqZh_iYwvdo2F7GZ4dzoE13awQ&adurl=&q=
+                      - generic [ref=e190]: Free Analytics Setup
+                      - generic [ref=e193]: Make smarter decisions with real time website and app data.
+                - generic [ref=e200]:
+                  - generic [ref=e201]:
+                    - link "Business Logic Ek Hi Jagah Par chatgpt.com https://www.chatgpt.com" [ref=e202] [cursor=pointer]:
+                      - /url: https://chatgpt.com/business/
+                      - heading "Business Logic Ek Hi Jagah Par" [level=3] [ref=e203]
+                      - generic [ref=e209]:
+                        - generic [ref=e211]: chatgpt.com
+                        - generic [ref=e212]: https://www.chatgpt.com
+                    - button "Why this ad?" [ref=e215] [cursor=pointer]:
+                      - img [ref=e217]
+                  - generic [ref=e222]:
+                    - text: Business Ke Liye OpenAI — Apne Kaam, Jaankari Aur Workflow Ko Ek Surakshit Platform Par Ek Saath Jode. Workflow Organize Karne Aur
+                    - emphasis [ref=e223]: Company
+                    - text: Ke Kaam Karne Ki Speed Badhane Ke Liye Behtareen AI.
+                    - emphasis [ref=e224]: ChatGPT
+                    - text: ", Aapke Liye."
+                  - generic [ref=e226]:
+                    - text: ‎
+                    - link "ChatGPT Deep Research" [ref=e227] [cursor=pointer]:
+                      - /url: https://chatgpt.com/features/deep-research/
+                    - text: · ‎
+                    - link "ChatGPT App Paaye" [ref=e228] [cursor=pointer]:
+                      - /url: https://chatgpt.com/download/
+                    - text: · ‎
+                    - link "Apne tools connect karein" [ref=e229] [cursor=pointer]:
+                      - /url: https://chatgpt.com/features/apps/
+                    - text: · ‎
+                    - link "OpenAI Tools Dekhein" [ref=e230] [cursor=pointer]:
+                      - /url: https://chatgpt.com/business/
+              - button "Hide sponsored results" [ref=e232] [cursor=pointer]:
+                - separator [ref=e233]
+                - generic [ref=e234]:
+                  - generic [ref=e235]: Hide sponsored results
+                  - img [ref=e237]
+        - generic [ref=e253]:
+          - generic [ref=e256]:
+            - generic [ref=e258]:
+              - generic [ref=e259]:
+                - img [ref=e260]
+                - heading "AI Overview" [level=2] [ref=e262]
+              - generic [ref=e264]:
+                - button "Change language to Hindi" [ref=e265] [cursor=pointer]:
+                  - generic [ref=e267]: हिन्दी
+                - button "Listen" [ref=e269]:
+                  - img [ref=e274] [cursor=pointer]
+              - button "About this result" [ref=e279]:
+                - img [ref=e281]
+            - generic [ref=e304]:
+              - generic [ref=e307]:
+                - generic [ref=e308]:
+                  - text: The best tools for tracking brand mentions in ChatGPT are
+                  - mark [ref=e309]:
+                    - text: specialized
+                    - strong [ref=e310]: AI Search Visibility (AEO)
+                    - text: and
+                    - strong [ref=e311]: Answer Engine Optimization
+                    - text: platforms
+                  - text: . Rather than traditional SEO, these tools automatically run synthetic queries to measure how often, where, and with what sentiment your brand appears in ChatGPT’s responses.
+                  - generic [ref=e313]:
+                    - link "Reddit (+3) – View related links" [ref=e314] [cursor=pointer]:
+                      - /url: https://www.reddit.com/r/SEO_for_AI/comments/1ozk9kx/getting_started_with_tracking_chatgpt_brand/
+                    - button "Reddit (+3) – View related links" [ref=e315] [cursor=pointer]:
+                      - generic [ref=e317]:
+                        - generic [ref=e318]: Reddit
+                        - generic [ref=e319]: "+3"
+                - generic [ref=e320]: "Top platforms to consider based on your needs include:"
+                - list [ref=e322]:
+                  - listitem [ref=e323]:
+                    - generic [ref=e324]:
+                      - strong [ref=e325]: "Rank Prompt:"
+                      - text: Best overall for cross-platform AI brand tracking. It actively scans ChatGPT, Gemini, and Perplexity in real-time to analyze your AI Share of Voice and citation accuracy.
+                  - listitem [ref=e326]:
+                    - generic [ref=e327]:
+                      - strong [ref=e328]: "Semrush AI Visibility Toolkit:"
+                      - text: Best for enterprise and established teams. It pairs brand mention data with traditional SEO tools, tracking citations and sentiment across ChatGPT and other major AI models.
+                  - listitem [ref=e329]:
+                    - generic [ref=e330]:
+                      - strong [ref=e331]: "SE Ranking (ChatGPT Visibility Tracker):"
+                      - text: Excellent for automating tracking. It highlights how your brand is described, whether links are included, and how your competitors perform.
+                  - listitem [ref=e332]:
+                    - generic [ref=e333]:
+                      - strong [ref=e334]: "Gracker AI & Otterly:"
+                      - text: Highly recommended for startups and SMBs looking for a simple, budget-friendly way to monitor citation sources and identify content gaps.
+                    - generic [ref=e336]:
+                      - link [ref=e337] [cursor=pointer]:
+                        - /url: https://www.youtube.com/watch?v=YhHpPR-k_Dk
+                      - button [ref=e338] [cursor=pointer]:
+                        - generic [ref=e340]:
+                          - generic [ref=e341]: YouTube
+                          - generic [ref=e342]: "+6"
+                - generic [ref=e344]: "If you'd like, let me know:"
+                - list [ref=e346]:
+                  - listitem [ref=e347]:
+                    - generic [ref=e348]:
+                      - text: Your
+                      - strong [ref=e349]: target industry
+                      - text: or niche
+                  - listitem [ref=e350]:
+                    - generic [ref=e351]:
+                      - text: Your
+                      - strong [ref=e352]: budget
+                  - listitem [ref=e353]:
+                    - generic [ref=e354]:
+                      - text: Whether you also need to monitor other AI models like
+                      - strong [ref=e355]: Gemini or Perplexity
+                - generic [ref=e357]: I can help you narrow down the best solution for your specific brand.
+              - generic [ref=e362]:
+                - generic [ref=e364]:
+                  - button "9 sites" [ref=e365] [cursor=pointer]:
+                    - generic [ref=e374]: 9 sites
+                  - button "About this result" [ref=e379] [cursor=pointer]:
+                    - img [ref=e381]
+                - list [ref=e384]:
+                  - listitem [ref=e385]:
+                    - generic [ref=e386]:
+                      - link "Getting started with tracking chatgpt brand mentions ... - Reddit. Opens in new tab." [ref=e387] [cursor=pointer]:
+                        - /url: https://www.reddit.com/r/SEO_for_AI/comments/1ozk9kx/getting_started_with_tracking_chatgpt_brand/
+                      - generic [ref=e388]:
+                        - generic [ref=e390]:
+                          - generic [ref=e391]: Getting started with tracking chatgpt brand mentions ... - Reddit
+                          - generic [ref=e392]: 17 Nov 2025 — PlateLunchCollective. • 7mo ago. I started tracking these tools a while back when I started seeing them show in Search Console. Br...
+                        - generic [ref=e394]:
+                          - generic [ref=e398]:
+                            - generic [ref=e399]: Reddit
+                            - generic [ref=e400]: ·
+                            - generic [ref=e401]: r/SEO_for_AI
+                          - button "About this result" [ref=e405] [cursor=pointer]:
+                            - img [ref=e407]
+                  - listitem [ref=e411]:
+                    - generic [ref=e412]:
+                      - link "Track Brand Mentions in ChatGPT, Google AI & More. Opens in new tab." [ref=e413] [cursor=pointer]:
+                        - /url: https://www.youtube.com/watch?v=YhHpPR-k_Dk
+                      - generic [ref=e414]:
+                        - generic [ref=e415]:
+                          - generic [ref=e416]:
+                            - generic [ref=e417]: Track Brand Mentions in ChatGPT, Google AI & More
+                            - generic [ref=e418]: 6 Nov 2025 — i'm so glad to be putting out a video on this because we've gotten the same question over and over how do I know what AI platforms...
+                          - button [ref=e422] [cursor=pointer]:
+                            - generic [ref=e423]: 12:18
+                            - img [ref=e426]
+                            - img [ref=e430]
+                        - generic [ref=e432]:
+                          - generic [ref=e439]:
+                            - generic [ref=e440]: YouTube
+                            - generic [ref=e441]: ·
+                            - generic [ref=e442]: Exploding Topics
+                          - button [ref=e446] [cursor=pointer]:
+                            - img [ref=e448]
+                  - listitem [ref=e452]:
+                    - generic [ref=e453]:
+                      - link [ref=e454] [cursor=pointer]:
+                        - /url: https://www.youtube.com/watch?v=sCsuao9xlZo&t=291
+                      - generic [ref=e455]:
+                        - generic [ref=e456]:
+                          - generic [ref=e457]:
+                            - generic [ref=e458]: How to Rank in ChatGPT Responses and Track Every ...
+                            - generic [ref=e459]: 3 Jun 2025 — I have a video for that the link is in the description. so we've covered the nerdy. stuff neural networks tokens Bing welcome to 2...
+                          - button [ref=e463] [cursor=pointer]:
+                            - generic [ref=e465]:
+                              - img [ref=e466]
+                              - generic [ref=e468]: 1m
+                            - img [ref=e473]
+                        - generic [ref=e475]:
+                          - generic [ref=e482]:
+                            - generic [ref=e483]: YouTube
+                            - generic [ref=e484]: ·
+                            - generic [ref=e485]: Keyword_com Rank Tracker
+                          - button [ref=e489] [cursor=pointer]:
+                            - img [ref=e491]
+                - button [ref=e495] [cursor=pointer]:
+                  - generic [ref=e496]: Show all
+          - button "Show more AI Overview" [ref=e500]:
+            - generic [ref=e502] [cursor=pointer]:
+              - generic [ref=e503]: Show more
+              - img [ref=e505]
+      - main [ref=e508]:
+        - generic [ref=e512]:
+          - generic [ref=e516]:
+            - generic [ref=e518]:
+              - heading "Videos" [level=2] [ref=e519]
+              - button "About this result" [ref=e520] [cursor=pointer]:
+                - img [ref=e523]
+            - generic [ref=e526]:
+              - generic [ref=e532]:
+                - generic [ref=e533]:
+                  - generic [ref=e534]:
+                    - link "How To Track Your Brand in AI Platforms (ChatGPT, AI Mode ... YouTube Exposure Ninja 11 Aug 2025" [ref=e536] [cursor=pointer]:
+                      - /url: https://www.youtube.com/watch?v=IPjKv5wxxnw
+                      - heading "How To Track Your Brand in AI Platforms (ChatGPT, AI Mode ... YouTube Exposure Ninja 11 Aug 2025" [level=3] [ref=e537]:
+                        - generic [ref=e540]: How To Track Your Brand in AI Platforms (ChatGPT, AI Mode ...
+                        - generic [ref=e542]:
+                          - generic [ref=e543]:
+                            - text: YouTube
+                            - generic [ref=e544]: · Exposure Ninja
+                          - generic [ref=e545]: 11 Aug 2025
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - text: YouTube
+                              - generic: · Exposure Ninja
+                        - button "About this result" [ref=e546] [cursor=pointer]:
+                          - img [ref=e549]
+                  - button "How To Track Your Brand in AI Platforms (ChatGPT, AI Mode ... by Exposure Ninja on YouTube. Play on Google. 19:59" [ref=e551] [cursor=pointer]:
+                    - generic [ref=e552]:
+                      - img [ref=e558]
+                      - generic [ref=e561]:
+                        - generic [ref=e562]: 19:59
+                        - img [ref=e565]
+                - button "We're going to solve this problem and show you how to track your results in AI search optimization and how to use those results to then reverse engineer a strategy to win." [ref=e568] [cursor=pointer]:
+                  - generic [ref=e572]: We're going to solve this problem and show you how to track your results in AI search optimization and how to use those results to then reverse engineer a strategy to win.
+              - generic [ref=e578]:
+                - generic [ref=e579]:
+                  - generic [ref=e580]:
+                    - link "The Brand Mention Strategy ChatGPT Actually Uses YouTube Semrush 20 Mar 2026" [ref=e582] [cursor=pointer]:
+                      - /url: https://www.youtube.com/watch?v=JHxMyS7TaS8
+                      - heading "The Brand Mention Strategy ChatGPT Actually Uses YouTube Semrush 20 Mar 2026" [level=3] [ref=e583]:
+                        - generic [ref=e586]: The Brand Mention Strategy ChatGPT Actually Uses
+                        - generic [ref=e588]:
+                          - generic [ref=e589]:
+                            - text: YouTube
+                            - generic [ref=e590]: · Semrush
+                          - generic [ref=e591]: 20 Mar 2026
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - text: YouTube
+                              - generic: · Semrush
+                        - button "About this result" [ref=e592] [cursor=pointer]:
+                          - img [ref=e595]
+                  - button "The Brand Mention Strategy ChatGPT Actually Uses by Semrush on YouTube. Play on Google. 11:44" [ref=e597] [cursor=pointer]:
+                    - generic [ref=e598]:
+                      - img [ref=e604]
+                      - generic [ref=e607]:
+                        - generic [ref=e608]: 11:44
+                        - img [ref=e611]
+                - button "Get your brand mentioned by AI by showing up in best-of lists, Q&A forums, using press releases, and building a content machine." [ref=e614] [cursor=pointer]:
+                  - generic [ref=e618]: Get your brand mentioned by AI by showing up in best-of lists, Q&A forums, using press releases, and building a content machine.
+              - generic [ref=e624]:
+                - generic [ref=e625]:
+                  - generic [ref=e626]:
+                    - link "How to Rank in ChatGPT Responses and Track Every Brand ... YouTube Keyword_com Rank Tracker 3 Jun 2025" [ref=e628] [cursor=pointer]:
+                      - /url: https://www.youtube.com/watch?v=sCsuao9xlZo
+                      - heading "How to Rank in ChatGPT Responses and Track Every Brand ... YouTube Keyword_com Rank Tracker 3 Jun 2025" [level=3] [ref=e629]:
+                        - generic [ref=e632]: How to Rank in ChatGPT Responses and Track Every Brand ...
+                        - generic [ref=e634]:
+                          - generic [ref=e635]:
+                            - text: YouTube
+                            - generic [ref=e636]: · Keyword_com Rank Tracker
+                          - generic [ref=e637]: 3 Jun 2025
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - text: YouTube
+                              - generic: · Keyword_com Rank Tracker
+                        - button "About this result" [ref=e638] [cursor=pointer]:
+                          - img [ref=e641]
+                  - button "How to Rank in ChatGPT Responses and Track Every Brand ... by Keyword_com Rank Tracker on YouTube. Play on Google. 10:19" [ref=e643] [cursor=pointer]:
+                    - generic [ref=e644]:
+                      - img [ref=e650]
+                      - generic [ref=e653]:
+                        - generic [ref=e654]: 10:19
+                        - img [ref=e657]
+                - button "10 key moments in this video" [ref=e663] [cursor=pointer]:
+                  - generic [ref=e672]:
+                    - generic [ref=e675]: 10 key moments in this video
+                    - img [ref=e677]
+            - link "View all videos" [ref=e681] [cursor=pointer]:
+              - /url: /search?sca_esv=0769902f71503f71&udm=7&q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ8ccDKAJ6BAgdEAQ
+              - separator [ref=e682]
+              - generic [ref=e683]:
+                - generic [ref=e684]: View all
+                - img [ref=e686]
+          - generic [ref=e692]:
+            - heading "Discussions and forums" [level=2] [ref=e694]
+            - generic [ref=e695]:
+              - generic [ref=e698]:
+                - generic [ref=e700] [cursor=pointer]:
+                  - generic [ref=e703]:
+                    - link "I want to track my brand in ChatGPT. Recommendations? Reddit · r/advertising · 50+ comments · 10 months ago" [ref=e704]:
+                      - /url: https://www.reddit.com/r/advertising/comments/1mp55lw/i_want_to_track_my_brand_in_chatgpt/
+                      - generic [ref=e705]:
+                        - heading "I want to track my brand in ChatGPT. Recommendations?" [level=3] [ref=e706]:
+                          - link "I want to track my brand in ChatGPT. Recommendations?" [ref=e707]
+                        - generic [ref=e714]:
+                          - generic [ref=e715]: Reddit ·
+                          - generic [ref=e717]:
+                            - generic [ref=e718]:
+                              - generic [ref=e719]: r/advertising
+                              - generic [ref=e720]:
+                                - generic [ref=e721]: ·
+                                - generic [ref=e722]: 50+ comments
+                            - generic [ref=e723]:
+                              - generic [ref=e724]: ·
+                              - generic [ref=e725]: 10 months ago
+                    - generic [ref=e731]:
+                      - generic [ref=e735]: ·
+                      - button "About this result" [ref=e740]:
+                        - img [ref=e743]
+                  - button "I want to track my brand in ChatGPT. Recommendations? Reddit · r/advertising · 50+ comments · 10 months ago" [expanded] [ref=e745]:
+                    - img [ref=e748]
+                - list [ref=e757]:
+                  - listitem [ref=e758]:
+                    - generic [ref=e762]:
+                      - link "You can’t really do much about the process since the only sustainable approach is to ... More discussions on I want to track my brand in ChatGPT. Recommendations? Top answer · 9 votes · 10 months ago":
+                        - /url: https://www.reddit.com/r/advertising/comments/1mp55lw/i_want_to_track_my_brand_in_chatgpt/n8hduht/
+                      - generic [ref=e764]:
+                        - text: You can’t really do much about the process since the only sustainable approach is to ...
+                        - link [ref=e765] [cursor=pointer]:
+                          - /url: https://www.reddit.com/r/advertising/comments/1mp55lw/i_want_to_track_my_brand_in_chatgpt/n8hduht/
+                          - generic [ref=e766]: More
+                          - img [ref=e768]
+                      - generic [ref=e770]:
+                        - generic [ref=e771]:
+                          - img [ref=e773]
+                          - text: Top answer
+                        - text: · 9 votes · 10 months ago
+                  - listitem [ref=e775]:
+                    - generic [ref=e779]:
+                      - link "I don’t think anyone here can truly answer this. Tracking brand mentions alongside prompts ... More discussions on I want to track my brand in ChatGPT. Recommendations? 7 votes · 10 months ago":
+                        - /url: https://www.reddit.com/r/advertising/comments/1mp55lw/i_want_to_track_my_brand_in_chatgpt/n8ig889/
+                      - generic [ref=e781]:
+                        - text: I don’t think anyone here can truly answer this. Tracking brand mentions alongside prompts ...
+                        - link [ref=e782] [cursor=pointer]:
+                          - /url: https://www.reddit.com/r/advertising/comments/1mp55lw/i_want_to_track_my_brand_in_chatgpt/n8ig889/
+                          - generic [ref=e783]: More
+                          - img [ref=e785]
+                      - generic [ref=e787]: 7 votes · 10 months ago
+                  - listitem [ref=e788]:
+                    - generic [ref=e792]:
+                      - link "We started with about 50 random prompts based on what we think our audiences would type in ... More discussions on I want to track my brand in ChatGPT. Recommendations? 3 votes · 10 months ago":
+                        - /url: https://www.reddit.com/r/advertising/comments/1mp55lw/i_want_to_track_my_brand_in_chatgpt/n8h0bfw/
+                      - generic [ref=e794]:
+                        - text: We started with about 50 random prompts based on what we think our audiences would type in ...
+                        - link [ref=e795] [cursor=pointer]:
+                          - /url: https://www.reddit.com/r/advertising/comments/1mp55lw/i_want_to_track_my_brand_in_chatgpt/n8h0bfw/
+                          - generic [ref=e796]: More
+                          - img [ref=e798]
+                      - generic [ref=e800]: 3 votes · 10 months ago
+              - generic [ref=e805] [cursor=pointer]:
+                - generic [ref=e808]:
+                  - link "How to track brand visibility in AI search (ChatGPT, Gemini, etc) Quora · 4 answers · 1 month ago" [ref=e809]:
+                    - /url: https://www.quora.com/How-do-you-track-brand-visibility-in-AI-search-ChatGPT-Gemini-etc
+                    - generic [ref=e810]:
+                      - heading "How to track brand visibility in AI search (ChatGPT, Gemini, etc)" [level=3] [ref=e811]:
+                        - link "How to track brand visibility in AI search (ChatGPT, Gemini, etc)" [ref=e812]
+                      - generic [ref=e819]:
+                        - generic [ref=e820]: Quora ·
+                        - generic [ref=e823]:
+                          - generic [ref=e824]: 4 answers
+                          - generic [ref=e825]:
+                            - generic [ref=e826]: ·
+                            - generic [ref=e827]: 1 month ago
+                  - generic [ref=e833]:
+                    - generic [ref=e837]: ·
+                    - button "About this result" [ref=e842]:
+                      - img [ref=e845]
+                - button "How to track brand visibility in AI search (ChatGPT, Gemini, etc) Quora · 4 answers · 1 month ago" [ref=e847]:
+                  - img [ref=e850]
+              - generic [ref=e856] [cursor=pointer]:
+                - generic [ref=e859]:
+                  - link "How to track if my brand is being mentioned by AI tools Quora · 3 answers · 2 weeks ago" [ref=e860]:
+                    - /url: https://www.quora.com/How-do-I-track-if-my-brand-is-being-mentioned-by-AI-tools
+                    - generic [ref=e861]:
+                      - heading "How to track if my brand is being mentioned by AI tools" [level=3] [ref=e862]:
+                        - link "How to track if my brand is being mentioned by AI tools" [ref=e863]
+                      - generic [ref=e870]:
+                        - generic [ref=e871]: Quora ·
+                        - generic [ref=e874]:
+                          - generic [ref=e875]: 3 answers
+                          - generic [ref=e876]:
+                            - generic [ref=e877]: ·
+                            - generic [ref=e878]: 2 weeks ago
+                  - generic [ref=e884]:
+                    - generic [ref=e888]: ·
+                    - button "About this result" [ref=e893]:
+                      - img [ref=e896]
+                - button "How to track if my brand is being mentioned by AI tools Quora · 3 answers · 2 weeks ago" [ref=e898]:
+                  - img [ref=e901]
+              - link "See more discussions" [ref=e904] [cursor=pointer]:
+                - /url: /search?q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sca_esv=0769902f71503f71&udm=18&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ8poLegQIOBAE
+                - separator [ref=e905]
+                - generic [ref=e906]:
+                  - generic [ref=e907]: See more
+                  - img [ref=e909]
+          - generic [ref=e913]:
+            - heading "Web results" [level=2] [ref=e914]
+            - generic [ref=e915]:
+              - generic [ref=e918]:
+                - link "Getting started with tracking chatgpt brand mentions, whats ... Reddit · r/SEO_for_AI 50+ comments · 6 months ago" [ref=e920] [cursor=pointer]:
+                  - /url: https://www.reddit.com/r/SEO_for_AI/comments/1ozk9kx/getting_started_with_tracking_chatgpt_brand/
+                  - heading "Getting started with tracking chatgpt brand mentions, whats ..." [level=3] [ref=e921]
+                  - generic [ref=e927]:
+                    - generic [ref=e929]: Reddit · r/SEO_for_AI
+                    - generic [ref=e931]: 50+ comments · 6 months ago
+                - button "About this result" [ref=e932] [cursor=pointer]:
+                  - img [ref=e935]
+              - generic [ref=e938]: Hey all My seo team is trying to figure out the best tool for monitoring chatgpt mentions. We've heard of ahrefs brand radar - but unimpressed. Feels backwards ...
+              - generic [ref=e943]:
+                - link "55 answers" [ref=e944] [cursor=pointer]:
+                  - /url: https://www.reddit.com/r/SEO_for_AI/comments/1ozk9kx/getting_started_with_tracking_chatgpt_brand/npcjrzi/
+                - generic [ref=e945]: ·
+                - generic [ref=e946]: "Top answer:"
+                - generic [ref=e947]: Not sure there is a best tool as of now. They are all flawed and it's very early. I guess ...
+              - generic [ref=e950]:
+                - generic [ref=e951]:
+                  - link "I tested 4 tools that claim to track your brand on ..." [ref=e954] [cursor=pointer]:
+                    - /url: https://www.reddit.com/r/SaaS/comments/1rzxent/i_tested_4_tools_that_claim_to_track_your_brand/
+                    - generic [ref=e955]:
+                      - text: I tested 4
+                      - emphasis [ref=e956]: tools
+                      - text: that claim to
+                      - emphasis [ref=e957]: track
+                      - text: your
+                      - emphasis [ref=e958]: brand
+                      - text: on ...
+                  - generic [ref=e960]: 8 answers
+                  - generic [ref=e962]: 21 Mar 2026
+                - generic [ref=e963]:
+                  - link "Top 5 tools to monitor your brand's presence in AI ..." [ref=e966] [cursor=pointer]:
+                    - /url: https://www.reddit.com/r/ProductMarketing/comments/1k10tlt/top_5_tools_to_monitor_your_brands_presence_in_ai/
+                    - generic [ref=e967]:
+                      - emphasis [ref=e968]: Top
+                      - text: "5"
+                      - emphasis [ref=e969]: tools to
+                      - text: monitor your
+                      - emphasis [ref=e970]: brand's
+                      - text: presence in AI ...
+                  - generic [ref=e972]: 58 answers
+                  - generic [ref=e974]: 17 Apr 2025
+                - link "More results from www.reddit.com" [ref=e978] [cursor=pointer]:
+                  - /url: /search?q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT+site:www.reddit.com&sca_esv=0769902f71503f71&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQrQIoAnoECC0QAw
+          - generic [ref=e982]:
+            - generic [ref=e985]:
+              - link "7 Best Tools to Monitor ChatGPT Brand Mentions in 2026 WorkDuo | AI https://www.workduo.ai › blog › best-tools-to-monitor-..." [ref=e987] [cursor=pointer]:
+                - /url: https://www.workduo.ai/blog/best-tools-to-monitor-chatgpt-brand-mentions
+                - heading "7 Best Tools to Monitor ChatGPT Brand Mentions in 2026" [level=3] [ref=e988]
+                - generic [ref=e994]:
+                  - generic [ref=e996]: WorkDuo | AI
+                  - generic [ref=e998]: https://www.workduo.ai › blog › best-tools-to-monitor-...
+              - button "About this result" [ref=e999] [cursor=pointer]:
+                - img [ref=e1002]
+            - generic [ref=e1005]:
+              - generic [ref=e1006]: 2 Apr 2026 —
+              - generic [ref=e1007]:
+                - emphasis [ref=e1008]: "WorkDuo: Best for Monitoring ChatGPT Brand Mentions at Scale"
+                - text: ". 2. Otterly.AI: Best for Budget-Friendly ChatGPT Brand Mention Tracking. 3. Peec ..."
+              - link "Read more" [ref=e1009] [cursor=pointer]:
+                - /url: https://www.workduo.ai/blog/best-tools-to-monitor-chatgpt-brand-mentions#:~:text=WorkDuo%3A%20Best%20for%20Monitoring%20ChatGPT,for%20Quick%20ChatGPT%20Visibility%20Snapshots
+          - generic [ref=e1013]:
+            - heading "Sponsored results" [level=2] [ref=e1020]
+            - generic [ref=e1021]:
+              - generic [ref=e1028]:
+                - generic [ref=e1033]:
+                  - generic [ref=e1034]:
+                    - link "Google Analytics Official business.google.com https://business.google.com › setup › today" [ref=e1035] [cursor=pointer]:
+                      - /url: https://sites.google.com/preload
+                      - heading "Google Analytics Official" [level=3] [ref=e1036]
+                      - generic [ref=e1038]:
+                        - img [ref=e1043]
+                        - generic [ref=e1045]:
+                          - generic [ref=e1047]: business.google.com
+                          - generic [ref=e1048]: https://business.google.com › setup › today
+                    - button "Why this ad?" [ref=e1051] [cursor=pointer]:
+                      - img [ref=e1053]
+                  - generic [ref=e1058]:
+                    - text: Audience Insights Hub — See which pages drive results with clear actionable reports. Start
+                    - emphasis [ref=e1059]: tracking
+                    - text: today and see which campaigns and pages drive results.
+                - generic [ref=e1064]:
+                  - generic [ref=e1065]:
+                    - link "Monitor AI mentions, sentiment | Brand Visibility with AI Zutrix https://www.zutrix.com" [ref=e1066] [cursor=pointer]:
+                      - /url: https://zutrix.com/ai-search-visibility
+                      - heading "Monitor AI mentions, sentiment | Brand Visibility with AI" [level=3] [ref=e1067]
+                      - generic [ref=e1073]:
+                        - generic [ref=e1075]: Zutrix
+                        - generic [ref=e1076]: https://www.zutrix.com
+                    - button "Why this ad?" [ref=e1079] [cursor=pointer]:
+                      - img [ref=e1081]
+                  - generic [ref=e1086]:
+                    - text: Zutrix AI Visibility
+                    - emphasis [ref=e1087]: Tracking
+                    - text: "& SEO"
+                    - emphasis [ref=e1088]: Tools
+                    - text: .
+                    - emphasis [ref=e1089]: Track Brand Mentions
+                    - text: ", Sentiment, & Keywords. AI Search Visibility"
+                    - emphasis [ref=e1090]: Tracking
+                    - text: "- Monitor Your"
+                    - emphasis [ref=e1091]: Brand
+                    - text: "Across LLMs | Zutrix. Professional Authors. Get In Touch. Explore Tips. Highlights: 24/7 Customer Support..."
+                  - generic [ref=e1093]:
+                    - text: ‎
+                    - link "AI Search Visibility Tracking" [ref=e1094] [cursor=pointer]:
+                      - /url: /aclk?sa=L&ai=DChsSEwjN5_mmmYWVAxUIFYMDHWpPHAsYACICCAIQBRoCc2Y&co=1&ase=2&gclid=EAIaIQobChMIzef5ppmFlQMVCBWDAx1qTxwLEAMYAiAEEgLzkfD_BwE&cid=CAAS0gHkaIzFKWcJXBvnMblkWj-qnqCtAuuGuMvPaPRPkTBgnMBJCAhpzjbmENs5fWyGR8RBZ1grp6QJbXEa99NYuDths4jJOSLgyvF4QFGnlLZ5XiLgANWXsHwTemuDrVKXEYtMe2wpBaW4wVqwyf3yodQbBvPTq2Emy87kJOo9yRFYbfDakqzf25Y5ET8NM4J7VP_W3pe3mlmb-h7p4iWcSmu6mmoNgE2uLWKFHU9qeMgQ5RK4xi79TsltnCU5Hs58m4A1zpkX3icwiDltB612J7_5Iz4&cce=2&category=acrcp_v1_32&sig=AOD64_1FEWlw9PmcJeQRVb3HmEayK_IjRQ&adurl=&q=
+                    - text: · ‎
+                    - link "SERP Checker" [ref=e1095] [cursor=pointer]:
+                      - /url: https://zutrix.com/free-serp-checker
+                    - text: · ‎
+                    - link "AI Search Tracking" [ref=e1096] [cursor=pointer]:
+                      - /url: /aclk?sa=L&ai=DChsSEwjN5_mmmYWVAxUIFYMDHWpPHAsYACICCAIQBhoCc2Y&co=1&ase=2&gclid=EAIaIQobChMIzef5ppmFlQMVCBWDAx1qTxwLEAMYAiAFEgIIcfD_BwE&cid=CAAS0gHkaIzFKWcJXBvnMblkWj-qnqCtAuuGuMvPaPRPkTBgnMBJCAhpzjbmENs5fWyGR8RBZ1grp6QJbXEa99NYuDths4jJOSLgyvF4QFGnlLZ5XiLgANWXsHwTemuDrVKXEYtMe2wpBaW4wVqwyf3yodQbBvPTq2Emy87kJOo9yRFYbfDakqzf25Y5ET8NM4J7VP_W3pe3mlmb-h7p4iWcSmu6mmoNgE2uLWKFHU9qeMgQ5RK4xi79TsltnCU5Hs58m4A1zpkX3icwiDltB612J7_5Iz4&cce=2&category=acrcp_v1_32&sig=AOD64_0y0EfHhridFNUV15dEmlVyWEk0JQ&adurl=&q=
+                    - text: · ‎
+                    - link "Pricing Plans" [ref=e1097] [cursor=pointer]:
+                      - /url: https://zutrix.com/pricing
+                    - text: · ‎
+                    - link "Keyword Planner" [ref=e1098] [cursor=pointer]:
+                      - /url: https://zutrix.com/free-keyword-planner
+                  - generic [ref=e1103]: 10K+ visits in past month
+              - button "Hide sponsored results" [ref=e1105] [cursor=pointer]:
+                - separator [ref=e1106]
+                - generic [ref=e1107]:
+                  - generic [ref=e1108]: Hide sponsored results
+                  - img [ref=e1110]
+          - generic [ref=e1115]:
+            - generic [ref=e1118]:
+              - link "ChatGPT Visibility Tracking Tool for Brands and Websites SE Ranking https://seranking.com › chatgpt-visibility-tracker" [ref=e1120] [cursor=pointer]:
+                - /url: https://seranking.com/chatgpt-visibility-tracker.html
+                - heading "ChatGPT Visibility Tracking Tool for Brands and Websites" [level=3] [ref=e1121]
+                - generic [ref=e1127]:
+                  - generic [ref=e1129]: SE Ranking
+                  - generic [ref=e1131]: https://seranking.com › chatgpt-visibility-tracker
+              - button "About this result" [ref=e1132] [cursor=pointer]:
+                - img [ref=e1135]
+            - generic [ref=e1139]:
+              - emphasis [ref=e1140]: Track brand and website visibility within ChatGPT answers
+              - text: . Monitor mentions, links, and competitors, review actual answers, and get historical data.
+          - generic [ref=e1144]:
+            - generic [ref=e1147]:
+              - link "How to Monitor Brand Mentions in ChatGPT Ahrefs https://ahrefs.com › blog › monitor-brand-mentions-ch..." [ref=e1149] [cursor=pointer]:
+                - /url: https://ahrefs.com/blog/monitor-brand-mentions-chatgpt/
+                - heading "How to Monitor Brand Mentions in ChatGPT" [level=3] [ref=e1150]
+                - generic [ref=e1156]:
+                  - generic [ref=e1158]: Ahrefs
+                  - generic [ref=e1160]: https://ahrefs.com › blog › monitor-brand-mentions-ch...
+              - button "About this result" [ref=e1161] [cursor=pointer]:
+                - img [ref=e1164]
+            - generic [ref=e1167]:
+              - generic [ref=e1168]: 26 Feb 2026 —
+              - generic [ref=e1169]:
+                - text: Learn how to monitor brand mentions in ChatGPT, with free manual methods and automated tools like
+                - emphasis [ref=e1170]: Brand Radar
+                - text: to track your AI visibility.
+          - generic [ref=e1174]:
+            - generic [ref=e1177]:
+              - link "Choosing an AI Brand Visibility Monitoring Tool in 2026 SitePoint https://www.sitepoint.com › ai-brand-visibility-monitorin..." [ref=e1179] [cursor=pointer]:
+                - /url: https://www.sitepoint.com/ai-brand-visibility-monitoring-tools/
+                - heading "Choosing an AI Brand Visibility Monitoring Tool in 2026" [level=3] [ref=e1180]
+                - generic [ref=e1186]:
+                  - generic [ref=e1188]: SitePoint
+                  - generic [ref=e1190]: https://www.sitepoint.com › ai-brand-visibility-monitorin...
+              - button "About this result" [ref=e1191] [cursor=pointer]:
+                - img [ref=e1194]
+            - generic [ref=e1197]:
+              - generic [ref=e1198]: 13 Feb 2026 —
+              - generic [ref=e1199]:
+                - text: Compare the
+                - emphasis [ref=e1200]: best AI Brand Visibility Monitoring Tool
+                - text: options for tracking brand mentions across ChatGPT, AI search, and LLMs in 2026.
+          - generic [ref=e1204]:
+            - generic [ref=e1207]:
+              - link "Track Brand Mentions in ChatGPT with Keyword.com Keyword.com https://keyword.com › Blog" [ref=e1209] [cursor=pointer]:
+                - /url: https://keyword.com/blog/track-brand-mentions-chatgpt/
+                - heading "Track Brand Mentions in ChatGPT with Keyword.com" [level=3] [ref=e1210]
+                - generic [ref=e1216]:
+                  - generic [ref=e1218]: Keyword.com
+                  - generic [ref=e1220]: https://keyword.com › Blog
+              - button "About this result" [ref=e1221] [cursor=pointer]:
+                - img [ref=e1224]
+            - generic [ref=e1227]:
+              - generic [ref=e1228]: 7 May 2026 —
+              - generic [ref=e1229]:
+                - text: Learn how to monitor and optimize your brand mentions in ChatGPT using
+                - emphasis [ref=e1230]: Keyword.com's AI Visibility Tracker
+                - text: . Track citations, sentiment, and ...
+            - img "Rated 4.7 out of 5, (108) user reviews" [ref=e1235]:
+              - text: "4.7"
+              - img [ref=e1236]
+              - text: (108)
+          - generic [ref=e1242]:
+            - generic [ref=e1245]:
+              - link "7 Best AI Rank and Brand Tracking Tools in 2026 nightwatch.io https://nightwatch.io › blog › ai-rank-and-brand-trackin..." [ref=e1247] [cursor=pointer]:
+                - /url: https://nightwatch.io/blog/ai-rank-and-brand-tracking-tools/
+                - heading "7 Best AI Rank and Brand Tracking Tools in 2026" [level=3] [ref=e1248]
+                - generic [ref=e1254]:
+                  - generic [ref=e1256]: nightwatch.io
+                  - generic [ref=e1258]: https://nightwatch.io › blog › ai-rank-and-brand-trackin...
+              - button "About this result" [ref=e1259] [cursor=pointer]:
+                - img [ref=e1262]
+            - generic [ref=e1265]:
+              - generic [ref=e1266]:
+                - emphasis [ref=e1267]: Otterly
+                - text: · Tracks brand mentions and link citations across ChatGPT, Google AI Overviews, Perplexity, and MS Copilot · Monitors keyword performance for specific ...
+              - link "Read more" [ref=e1268] [cursor=pointer]:
+                - /url: https://nightwatch.io/blog/ai-rank-and-brand-tracking-tools/#:~:text=Otterly&text=Tracks%20brand%20mentions%20and%20link,Overviews%2C%20Perplexity%2C%20and%20MS%20Copilot&text=Monitors%20keyword%20performance%20for%20specific,how%20AI%20uses%20your%20content
+          - generic [ref=e1273]:
+            - heading "People also ask" [level=2] [ref=e1275]
+            - generic [ref=e1276]:
+              - button "How to track AI brand mentions?" [ref=e1282] [cursor=pointer]:
+                - generic [ref=e1284]: How to track AI brand mentions?
+                - img [ref=e1287]
+              - button "Which tool is commonly used for monitoring brand mentions?" [ref=e1296] [cursor=pointer]:
+                - generic [ref=e1298]: Which tool is commonly used for monitoring brand mentions?
+                - img [ref=e1301]
+              - button "Can ChatGPT do a sentiment analysis?" [ref=e1310] [cursor=pointer]:
+                - generic [ref=e1312]: Can ChatGPT do a sentiment analysis?
+                - img [ref=e1315]
+              - button "What are brand tracking tools?" [ref=e1324] [cursor=pointer]:
+                - generic [ref=e1326]: What are brand tracking tools?
+                - img [ref=e1329]
+          - generic [ref=e1334]:
+            - heading "Web results" [level=2] [ref=e1335]
+            - generic [ref=e1336]:
+              - generic [ref=e1339]:
+                - link "Best Ways to Track Brand Mentions in AI Search Noseberry https://noseberry.com › Blogs › Seo" [ref=e1341] [cursor=pointer]:
+                  - /url: https://noseberry.com/blogs/seo/best-ways-to-track-brand-mentions-in-ai-search
+                  - heading "Best Ways to Track Brand Mentions in AI Search" [level=3] [ref=e1342]
+                  - generic [ref=e1348]:
+                    - generic [ref=e1350]: Noseberry
+                    - generic [ref=e1352]: https://noseberry.com › Blogs › Seo
+                - button "About this result" [ref=e1353] [cursor=pointer]:
+                  - img [ref=e1356]
+              - generic [ref=e1359]:
+                - generic [ref=e1360]: 12 Mar 2026 —
+                - generic [ref=e1361]:
+                  - text: The
+                  - emphasis [ref=e1362]: best
+                  - text: ways to
+                  - emphasis [ref=e1363]: track brand mentions
+                  - text: in AI search combine dedicated monitoring platforms, structured prompt testing across
+                  - emphasis [ref=e1364]: ChatGPT
+                  - text: ", Perplexity, ..."
+                - link "Read more" [ref=e1365] [cursor=pointer]:
+                  - /url: https://noseberry.com/blogs/seo/best-ways-to-track-brand-mentions-in-ai-search#:~:text=The%20best%20ways%20to%20track,prompt%20testing%20across%20ChatGPT%2C%20Perplexity%2C
+        - generic [ref=e1367]:
+          - generic [ref=e1372]:
+            - heading "People also search for" [level=2] [ref=e1374]
+            - generic [ref=e1376]:
+              - generic [ref=e1377]:
+                - link "Morningscore chatgpt tracker" [ref=e1381] [cursor=pointer]:
+                  - /url: /search?sca_esv=0769902f71503f71&q=Morningscore+chatgpt+tracker&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ1QJ6BAhIEAE
+                  - generic [ref=e1382]:
+                    - generic [ref=e1387]: Morningscore chatgpt tracker
+                    - img [ref=e1391]
+                - link "ChatGPT rank tracker" [ref=e1396] [cursor=pointer]:
+                  - /url: /search?sca_esv=0769902f71503f71&q=ChatGPT+rank+tracker&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ1QJ6BAhLEAE
+                  - generic [ref=e1397]:
+                    - generic [ref=e1402]: ChatGPT rank tracker
+                    - img [ref=e1406]
+                - link "Chatgpt visibility" [ref=e1411] [cursor=pointer]:
+                  - /url: /search?sca_esv=0769902f71503f71&q=Chatgpt+visibility&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ1QJ6BAhOEAE
+                  - generic [ref=e1412]:
+                    - generic [ref=e1417]: Chatgpt visibility
+                    - img [ref=e1421]
+                - link "Ai visibility audit tool" [ref=e1426] [cursor=pointer]:
+                  - /url: /search?sca_esv=0769902f71503f71&q=Ai+visibility+audit+tool&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ1QJ6BAhMEAE
+                  - generic [ref=e1427]:
+                    - generic [ref=e1432]: Ai visibility audit tool
+                    - img [ref=e1436]
+              - generic [ref=e1438]:
+                - link "Llm visibility tool" [ref=e1442] [cursor=pointer]:
+                  - /url: /search?sca_esv=0769902f71503f71&q=Llm+visibility+tool&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ1QJ6BAhHEAE
+                  - generic [ref=e1443]:
+                    - generic [ref=e1448]: Llm visibility tool
+                    - img [ref=e1452]
+                - link "AIO Tracker" [ref=e1457] [cursor=pointer]:
+                  - /url: /search?sca_esv=0769902f71503f71&q=AIO+Tracker&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ1QJ6BAhJEAE
+                  - generic [ref=e1458]:
+                    - generic [ref=e1463]: AIO Tracker
+                    - img [ref=e1467]
+                - link "How to track ai overviews" [ref=e1472] [cursor=pointer]:
+                  - /url: /search?sca_esv=0769902f71503f71&q=How+to+track+ai+overviews&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ1QJ6BAhNEAE
+                  - generic [ref=e1473]:
+                    - generic [ref=e1478]: How to track ai overviews
+                    - img [ref=e1482]
+                - link "Rank tracking tools" [ref=e1487] [cursor=pointer]:
+                  - /url: /search?sca_esv=0769902f71503f71&q=Rank+tracking+tools&sa=X&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ1QJ6BAhKEAE
+                  - generic [ref=e1488]:
+                    - generic [ref=e1493]: Rank tracking tools
+                    - img [ref=e1497]
+          - navigation [ref=e1499]:
+            - heading "Page navigation" [level=1] [ref=e1500]
+            - text: "1"
+            - link "Page 2" [ref=e1503] [cursor=pointer]:
+              - /url: /search?q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sca_esv=0769902f71503f71&ei=pNAtaoz5COevseMP5ZyvgAg&start=10&sa=N&sstk=AU9db-AcyxJIzgQ9d9zq49AWqXovgfiFOe53f9Uj0YM4-12GW5WVr-EDKlwgdB2_g20nZeV3dQmzw99IkIwwO-YVWUpDX1BFLDmCAQ&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ8tMDegQIOhAE
+              - text: "2"
+            - link "Page 3" [ref=e1505] [cursor=pointer]:
+              - /url: /search?q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sca_esv=0769902f71503f71&ei=pNAtaoz5COevseMP5ZyvgAg&start=20&sa=N&sstk=AU9db-AcyxJIzgQ9d9zq49AWqXovgfiFOe53f9Uj0YM4-12GW5WVr-EDKlwgdB2_g20nZeV3dQmzw99IkIwwO-YVWUpDX1BFLDmCAQ&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ8tMDegQIOhAG
+              - text: "3"
+            - link "Page 4" [ref=e1507] [cursor=pointer]:
+              - /url: /search?q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sca_esv=0769902f71503f71&ei=pNAtaoz5COevseMP5ZyvgAg&start=30&sa=N&sstk=AU9db-AcyxJIzgQ9d9zq49AWqXovgfiFOe53f9Uj0YM4-12GW5WVr-EDKlwgdB2_g20nZeV3dQmzw99IkIwwO-YVWUpDX1BFLDmCAQ&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ8tMDegQIOhAI
+              - text: "4"
+            - link "Page 5" [ref=e1509] [cursor=pointer]:
+              - /url: /search?q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sca_esv=0769902f71503f71&ei=pNAtaoz5COevseMP5ZyvgAg&start=40&sa=N&sstk=AU9db-AcyxJIzgQ9d9zq49AWqXovgfiFOe53f9Uj0YM4-12GW5WVr-EDKlwgdB2_g20nZeV3dQmzw99IkIwwO-YVWUpDX1BFLDmCAQ&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ8tMDegQIOhAK
+              - text: "5"
+            - link "Page 6" [ref=e1511] [cursor=pointer]:
+              - /url: /search?q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sca_esv=0769902f71503f71&ei=pNAtaoz5COevseMP5ZyvgAg&start=50&sa=N&sstk=AU9db-AcyxJIzgQ9d9zq49AWqXovgfiFOe53f9Uj0YM4-12GW5WVr-EDKlwgdB2_g20nZeV3dQmzw99IkIwwO-YVWUpDX1BFLDmCAQ&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ8tMDegQIOhAM
+              - text: "6"
+            - link "Page 7" [ref=e1513] [cursor=pointer]:
+              - /url: /search?q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sca_esv=0769902f71503f71&ei=pNAtaoz5COevseMP5ZyvgAg&start=60&sa=N&sstk=AU9db-AcyxJIzgQ9d9zq49AWqXovgfiFOe53f9Uj0YM4-12GW5WVr-EDKlwgdB2_g20nZeV3dQmzw99IkIwwO-YVWUpDX1BFLDmCAQ&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ8tMDegQIOhAO
+              - text: "7"
+            - link "Page 8" [ref=e1515] [cursor=pointer]:
+              - /url: /search?q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sca_esv=0769902f71503f71&ei=pNAtaoz5COevseMP5ZyvgAg&start=70&sa=N&sstk=AU9db-AcyxJIzgQ9d9zq49AWqXovgfiFOe53f9Uj0YM4-12GW5WVr-EDKlwgdB2_g20nZeV3dQmzw99IkIwwO-YVWUpDX1BFLDmCAQ&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ8tMDegQIOhAQ
+              - text: "8"
+            - link "Page 9" [ref=e1517] [cursor=pointer]:
+              - /url: /search?q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sca_esv=0769902f71503f71&ei=pNAtaoz5COevseMP5ZyvgAg&start=80&sa=N&sstk=AU9db-AcyxJIzgQ9d9zq49AWqXovgfiFOe53f9Uj0YM4-12GW5WVr-EDKlwgdB2_g20nZeV3dQmzw99IkIwwO-YVWUpDX1BFLDmCAQ&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ8tMDegQIOhAS
+              - text: "9"
+            - link "Page 10" [ref=e1519] [cursor=pointer]:
+              - /url: /search?q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sca_esv=0769902f71503f71&ei=pNAtaoz5COevseMP5ZyvgAg&start=90&sa=N&sstk=AU9db-AcyxJIzgQ9d9zq49AWqXovgfiFOe53f9Uj0YM4-12GW5WVr-EDKlwgdB2_g20nZeV3dQmzw99IkIwwO-YVWUpDX1BFLDmCAQ&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ8tMDegQIOhAU
+              - text: "10"
+            - heading "Next" [level=2] [ref=e1521]:
+              - link "Next" [ref=e1522] [cursor=pointer]:
+                - /url: /search?q=what+is+the+best+tool+for+tracking+brand+mentions+in+ChatGPT&sca_esv=0769902f71503f71&ei=pNAtaoz5COevseMP5ZyvgAg&start=10&sa=N&sstk=AU9db-AcyxJIzgQ9d9zq49AWqXovgfiFOe53f9Uj0YM4-12GW5WVr-EDKlwgdB2_g20nZeV3dQmzw99IkIwwO-YVWUpDX1BFLDmCAQ&ved=2ahUKEwiM2_KmmYWVAxXnV2wGHWXOC4AQ8NMDegQIOhAW
+                - generic [ref=e1524]: Next
+        - navigation
+    - contentinfo [ref=e1525]:
+      - heading "Footer links" [level=1] [ref=e1526]
+      - generic [ref=e1530]:
+        - generic [ref=e1532]:
+          - text: India
+          - generic [ref=e1534]:
+            - button "110010, New Delhi, Delhi - From your IP address" [ref=e1536] [cursor=pointer]:
+              - generic [ref=e1537]: 110010, New Delhi, Delhi
+              - generic [ref=e1539]:
+                - text: "-"
+                - generic [ref=e1540]: From your IP address
+            - text: "-"
+            - button "Update location" [ref=e1542] [cursor=pointer]: Update location
+        - generic [ref=e1545]:
+          - link "Help" [ref=e1546] [cursor=pointer]:
+            - /url: https://support.google.com/websearch/?p=ws_results_help&hl=en-IN&fg=1
+          - link "Send feedback" [ref=e1547] [cursor=pointer]:
+            - /url: "#"
+          - link "Privacy" [ref=e1548] [cursor=pointer]:
+            - /url: https://policies.google.com/privacy?hl=en-IN&fg=1
+          - link "Terms" [ref=e1549] [cursor=pointer]:
+            - /url: https://policies.google.com/terms?hl=en-IN&fg=1

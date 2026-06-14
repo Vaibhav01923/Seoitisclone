@@ -6,10 +6,10 @@ import { AIEngine, BrandData, ScanResult, VisibilityScore } from "@/lib/types";
 import { serverClient } from "@/lib/supabase";
 import { scanGoogleAIMode } from "@/lib/browser-scanner";
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const grok = new OpenAI({ apiKey: process.env.XAI_API_KEY ?? "", baseURL: "https://api.x.ai/v1" });
-const gemini = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY ?? "");
+const getAnthropic = () => new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const getGrok = () => new OpenAI({ apiKey: process.env.XAI_API_KEY ?? "", baseURL: "https://api.x.ai/v1" });
+const getGemini = () => new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY ?? "");
 
 function extractMentions(
   response: string,
@@ -52,7 +52,7 @@ async function queryEngine(engine: AIEngine, prompt: string): Promise<string> {
   const systemMsg = "You are a helpful assistant. Answer the user's question with specific product/service recommendations. Be concise and list your top recommendations.";
 
   if (engine === "claude") {
-    const msg = await anthropic.messages.create({
+    const msg = await getAnthropic().messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 600,
       system: systemMsg,
@@ -62,7 +62,7 @@ async function queryEngine(engine: AIEngine, prompt: string): Promise<string> {
   }
 
   if (engine === "chatgpt") {
-    const res = await openai.chat.completions.create({
+    const res = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       max_tokens: 600,
       messages: [
@@ -74,7 +74,7 @@ async function queryEngine(engine: AIEngine, prompt: string): Promise<string> {
   }
 
   if (engine === "gemini") {
-    const model = gemini.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+    const model = getGemini().getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     const result = await model.generateContent(`${systemMsg}\n\nUser: ${prompt}`);
     return result.response.text();
   }
@@ -94,7 +94,7 @@ async function queryEngine(engine: AIEngine, prompt: string): Promise<string> {
   }
 
   if (engine === "grok") {
-    const res = await grok.chat.completions.create({
+    const res = await getGrok().chat.completions.create({
       model: "grok-3-mini",
       max_tokens: 600,
       messages: [{ role: "system", content: systemMsg }, { role: "user", content: prompt }],

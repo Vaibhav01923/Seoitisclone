@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const getClient = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(req: NextRequest) {
   const { gapPrompt, brandName, niche, topCompetitor, missingEngines } = await req.json();
@@ -44,7 +44,7 @@ AI engines like ChatGPT cite articles that sound authoritative and genuinely hel
 
 Return only the Markdown article. No preamble, no explanation.`;
 
-  const response = await client.chat.completions.create({
+  const response = await getClient().chat.completions.create({
     model: "gpt-4o-mini",
     max_tokens: 3000,
     messages: [{ role: "user", content: prompt }],
