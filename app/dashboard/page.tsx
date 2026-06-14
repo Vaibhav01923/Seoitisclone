@@ -276,7 +276,7 @@ function DashboardPage() {
           <div className="bg-white border border-stone-200 rounded-xl p-8 text-center mb-6">
             <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-sm font-medium text-gray-700">Submitting prompts to AI engines...</p>
-            <p className="text-xs text-gray-400 mt-1">Running {Math.min(brand.trackedPrompts.length, 20)} prompts × {selectedEngines.length} engines</p>
+            <p className="text-xs text-gray-400 mt-1">Running {brand.trackedPrompts.length} prompts × {selectedEngines.length} engines</p>
           </div>
         )}
 
