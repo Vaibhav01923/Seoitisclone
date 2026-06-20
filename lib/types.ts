@@ -51,3 +51,33 @@ export type GapItem = {
   topCompetitor: string | null;
   recommendation: string;
 };
+
+export type SocialKeyword = {
+  id: string;
+  keyword: string;
+  createdAt: string;
+};
+
+export type RedditThread = {
+  id: string;
+  keyword: string;
+  redditId: string;
+  subreddit: string;
+  title: string;
+  url: string;
+  body: string;
+  score: number;
+  numComments: number;
+  redditCreatedAt: string;
+  discoveredAt: string;
+  status: "new" | "read" | "replied";
+  draftedReply: string | null;
+};
+
+export type UserPlan = {
+  plan: "starter" | "growth" | "enterprise";
+  creditsBalance: number;
+  creditsMonthly: number;
+  stripeCustomerId: string | null;
+  currentPeriodEnd: string | null;
+};

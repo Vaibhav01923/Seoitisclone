@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AIEngine, BrandData, GapItem, ScanResult, VisibilityScore } from "@/lib/types";
+import { AIEngine, BrandData, GapItem, RedditThread, ScanResult, SocialKeyword, UserPlan, VisibilityScore } from "@/lib/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 const ENGINE_LABELS: Record<AIEngine, string> = {
@@ -113,11 +113,19 @@ function DashboardPage() {
   const [scores, setScores] = useState<VisibilityScore[]>([]);
   const [gaps, setGaps] = useState<GapItem[]>([]);
   const [overallScore, setOverallScore] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "results" | "competitors" | "gaps" | "history">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "results" | "competitors" | "gaps" | "history" | "social">("overview");
   const [scanned, setScanned] = useState(false);
   const [selectedEngines, setSelectedEngines] = useState<AIEngine[]>(["chatgpt", "claude", "gemini", "perplexity", "grok", "google"]);
   const [error, setError] = useState("");
   const [scanHistory, setScanHistory] = useState<ScanRun[]>([]);
+  const [socialKeywords, setSocialKeywords] = useState<SocialKeyword[]>([]);
+  const [redditThreads, setRedditThreads] = useState<RedditThread[]>([]);
+  const [syncing, setSyncing] = useState(false);
+  const [newKeyword, setNewKeyword] = useState("");
+  const [activeThread, setActiveThread] = useState<RedditThread | null>(null);
+  const [draftReply, setDraftReply] = useState("");
+  const [draftingReply, setDraftingReply] = useState(false);
+  const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
 
   useEffect(() => {
     const savedTab = sessionStorage.getItem("dashTab");
@@ -134,8 +142,18 @@ function DashboardPage() {
         fetch(`/api/history?brandId=${brandId}`)
           .then((r) => r.json())
           .then((d) => setScanHistory(d.runs ?? []));
+        fetch(`/api/keywords?brandId=${brandId}`)
+          .then((r) => r.json())
+          .then((d) => setSocialKeywords(d.keywords ?? []));
+        fetch(`/api/reddit/threads?brandId=${brandId}`)
+          .then((r) => r.json())
+          .then((d) => setRedditThreads(d.threads ?? []));
       })
       .finally(() => setLoadingBrand(false));
+
+    fetch("/api/credits")
+      .then((r) => r.json())
+      .then((d) => { if (!d.error) setUserPlan(d); });
   }, []);
 
   // Recompute scores/gaps when results change
@@ -155,6 +173,61 @@ function DashboardPage() {
     setOverallScore(Math.round(sc.reduce((s, x) => s + x.score, 0) / sc.length));
     setGaps(computeGaps(results, brand));
   }, [results, brand]);
+
+  async function syncReddit() {
+    if (!brand?.id) return;
+    setSyncing(true);
+    try {
+      await fetch("/api/reddit/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ brandId: brand.id }),
+      });
+      const d = await fetch(`/api/reddit/threads?brandId=${brand.id}`).then((r) => r.json());
+      setRedditThreads(d.threads ?? []);
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  async function addKeyword() {
+    if (!brand?.id || !newKeyword.trim()) return;
+    const res = await fetch("/api/keywords", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ brandId: brand.id, keyword: newKeyword.trim() }),
+    });
+    const d = await res.json();
+    if (d.keyword) {
+      setSocialKeywords((prev) => [...prev, { id: d.keyword.id, keyword: d.keyword.keyword, createdAt: d.keyword.created_at }]);
+      setNewKeyword("");
+    }
+  }
+
+  async function removeKeyword(id: string) {
+    await fetch(`/api/keywords?id=${id}`, { method: "DELETE" });
+    setSocialKeywords((prev) => prev.filter((k) => k.id !== id));
+  }
+
+  async function draftReplyForThread(thread: RedditThread) {
+    if (!brand?.id) return;
+    setActiveThread(thread);
+    setDraftReply(thread.draftedReply ?? "");
+    if (thread.draftedReply) return;
+    setDraftingReply(true);
+    try {
+      const res = await fetch("/api/reddit/draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ threadId: thread.id, brandId: brand.id }),
+      });
+      const d = await res.json();
+      setDraftReply(d.reply ?? "");
+      setRedditThreads((prev) => prev.map((t) => t.id === thread.id ? { ...t, draftedReply: d.reply, status: "read" } : t));
+    } finally {
+      setDraftingReply(false);
+    }
+  }
 
   async function runScan() {
     if (!brand) return;
@@ -217,6 +290,11 @@ function DashboardPage() {
         </a>
         <div className="flex items-center gap-4">
           <span className="text-sm text-gray-500">{brand.domain}</span>
+          {userPlan && (
+            <span className="text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-full">
+              {userPlan.creditsBalance} credits · {userPlan.plan}
+            </span>
+          )}
           <button
             onClick={() => router.push("/setup")}
             className="text-sm text-gray-400 hover:text-gray-600"
@@ -317,7 +395,7 @@ function DashboardPage() {
 
             {/* Tabs */}
             <div className="flex gap-1 mb-4 bg-stone-100 rounded-lg p-1 w-fit">
-              {(["overview", "results", "competitors", "gaps", "history"] as const).map((tab) => (
+              {(["overview", "results", "competitors", "gaps", "history", "social"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => { setActiveTab(tab); sessionStorage.setItem("dashTab", tab); }}
@@ -331,6 +409,9 @@ function DashboardPage() {
                   )}
                   {tab === "history" && scanHistory.length > 0 && (
                     <span className="ml-1.5 bg-gray-200 text-gray-600 text-xs px-1.5 py-0.5 rounded-full">{scanHistory.length}</span>
+                  )}
+                  {tab === "social" && redditThreads.filter((t) => t.status === "new").length > 0 && (
+                    <span className="ml-1.5 bg-blue-100 text-blue-600 text-xs px-1.5 py-0.5 rounded-full">{redditThreads.filter((t) => t.status === "new").length}</span>
                   )}
                 </button>
               ))}
@@ -526,6 +607,179 @@ function DashboardPage() {
               </div>
             )}
           </>
+        )}
+
+        {/* Social tab — always visible, not gated on scanned */}
+        {activeTab === "social" && (
+          <div>
+            {/* Keywords */}
+            <div className="bg-white border border-stone-200 rounded-xl p-5 mb-4">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900">Reddit monitoring</h3>
+                  <p className="text-xs text-gray-400 mt-0.5">Keywords we watch on Reddit for relevant conversations</p>
+                </div>
+                <button
+                  onClick={syncReddit}
+                  disabled={syncing || socialKeywords.length === 0}
+                  className="flex items-center gap-1.5 text-xs font-medium bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  {syncing && <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+                  {syncing ? "Syncing…" : "Sync Reddit"}
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2 mb-3">
+                {socialKeywords.map((k) => (
+                  <span key={k.id} className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-1 rounded-full">
+                    {k.keyword}
+                    <button onClick={() => removeKeyword(k.id)} className="text-blue-400 hover:text-blue-700 ml-0.5">×</button>
+                  </span>
+                ))}
+                {socialKeywords.length === 0 && <span className="text-xs text-gray-400">No keywords yet — add one below</span>}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  value={newKeyword}
+                  onChange={(e) => setNewKeyword(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addKeyword(); } }}
+                  placeholder="Add keyword (e.g. AI visibility tool)"
+                  className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                />
+                <button onClick={addKeyword} className="px-3 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">Add</button>
+              </div>
+            </div>
+
+            {/* Thread feed */}
+            {redditThreads.length === 0 ? (
+              <div className="bg-white border border-dashed border-stone-200 rounded-xl p-10 text-center">
+                <p className="text-sm text-gray-500 mb-1">No threads found yet</p>
+                <p className="text-xs text-gray-400">Add keywords above and click &quot;Sync Reddit&quot; to find relevant conversations</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-xs text-gray-400 mb-2">{redditThreads.length} threads found · {redditThreads.filter((t) => t.status === "new").length} new</p>
+                {redditThreads.map((thread) => (
+                  <div key={thread.id} className="bg-white border border-stone-200 rounded-xl p-4 hover:border-blue-200 transition-colors">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs font-medium text-blue-600">r/{thread.subreddit}</span>
+                          <span className="text-gray-200">·</span>
+                          <span className="text-xs bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded">{thread.keyword}</span>
+                          {thread.status === "new" && <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
+                        </div>
+                        <p className="text-sm font-medium text-gray-800 truncate mb-1">{thread.title}</p>
+                        <div className="flex items-center gap-3 text-xs text-gray-400">
+                          <span>↑ {thread.score}</span>
+                          <span>{thread.numComments} comments</span>
+                          {thread.redditCreatedAt && (
+                            <span>{new Date(thread.redditCreatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <a href={thread.url} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 hover:text-gray-600">View ↗</a>
+                        <button
+                          onClick={() => draftReplyForThread(thread)}
+                          className="text-xs font-medium bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          {thread.draftedReply ? "View reply" : "Draft reply"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Thread reply modal */}
+            {activeThread && (
+              <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setActiveThread(null)}>
+                <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1 pr-4">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs font-medium text-blue-600">r/{activeThread.subreddit}</span>
+                          <span className="text-xs text-gray-400">↑ {activeThread.score} · {activeThread.numComments} comments</span>
+                        </div>
+                        <h3 className="text-sm font-semibold text-gray-900">{activeThread.title}</h3>
+                      </div>
+                      <button onClick={() => setActiveThread(null)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
+                    </div>
+
+                    {activeThread.body && (
+                      <div className="bg-gray-50 rounded-lg px-4 py-3 mb-4">
+                        <p className="text-xs text-gray-600 leading-relaxed line-clamp-4">{activeThread.body}</p>
+                      </div>
+                    )}
+
+                    <div className="border-t border-gray-100 pt-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">AI draft reply</p>
+                        <button
+                          onClick={async () => {
+                            setDraftingReply(true);
+                            setDraftReply("");
+                            const res = await fetch("/api/reddit/draft", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ threadId: activeThread.id, brandId: brand?.id }),
+                            });
+                            const d = await res.json();
+                            setDraftReply(d.reply ?? "");
+                            setDraftingReply(false);
+                          }}
+                          className="text-xs text-blue-600 hover:underline"
+                        >
+                          Regenerate
+                        </button>
+                      </div>
+
+                      {draftingReply ? (
+                        <div className="flex items-center gap-2 py-6 justify-center">
+                          <span className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                          <span className="text-xs text-gray-500">Drafting reply…</span>
+                        </div>
+                      ) : draftReply ? (
+                        <div>
+                          <textarea
+                            value={draftReply}
+                            onChange={(e) => setDraftReply(e.target.value)}
+                            rows={5}
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+                          />
+                          <div className="flex items-center gap-2 mt-2">
+                            <button
+                              onClick={() => { navigator.clipboard.writeText(draftReply); }}
+                              className="flex-1 text-sm font-medium border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition-colors"
+                            >
+                              Copy reply
+                            </button>
+                            <a
+                              href={activeThread.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 text-sm font-medium bg-blue-600 text-white text-center rounded-lg py-2 hover:bg-blue-700 transition-colors"
+                            >
+                              Post on Reddit ↗
+                            </a>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => draftReplyForThread(activeThread)}
+                          className="w-full text-sm font-medium bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          Generate draft
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>

@@ -68,7 +68,29 @@ function AuditContent() {
   const [result, setResult] = useState<Analysis | null>(null);
   const [showPricing, setShowPricing] = useState(false);
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
+  const [checkingOut, setCheckingOut] = useState(false);
   const pricingRef = useRef<HTMLDivElement>(null);
+
+  async function startCheckout(plan: string) {
+    setCheckingOut(true);
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else if (res.status === 401) {
+        router.push(`/auth?redirect=/audit?domain=${domain}`);
+      } else {
+        alert(data.error ?? "Checkout failed. Make sure Stripe is configured.");
+      }
+    } finally {
+      setCheckingOut(false);
+    }
+  }
 
   useEffect(() => {
     if (domainParam) {
@@ -404,7 +426,7 @@ function AuditContent() {
                   <span className="text-gray-400 text-sm mb-1">/ month</span>
                 </div>
                 <button
-                  onClick={() => router.push(`/setup?domain=${domain}`)}
+                  onClick={() => startCheckout("starter")}
                   className="w-full bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium py-2.5 rounded-lg transition-colors mb-6"
                 >
                   Get started →
@@ -426,7 +448,7 @@ function AuditContent() {
                   <span className="text-gray-400 text-sm mb-1">/ month</span>
                 </div>
                 <button
-                  onClick={() => router.push(`/setup?domain=${domain}`)}
+                  onClick={() => startCheckout("growth")}
                   className="w-full bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2.5 rounded-lg transition-colors mb-6"
                 >
                   Get started →
@@ -447,7 +469,7 @@ function AuditContent() {
                   <span className="text-gray-400 text-sm mb-1">/ month</span>
                 </div>
                 <button
-                  onClick={() => router.push(`/setup?domain=${domain}`)}
+                  onClick={() => startCheckout("enterprise")}
                   className="w-full border border-gray-200 hover:border-gray-400 text-gray-900 text-sm font-medium py-2.5 rounded-lg transition-colors mb-6"
                 >
                   Get started →
