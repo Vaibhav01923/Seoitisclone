@@ -407,6 +407,18 @@ function DashboardPage() {
     }
   }, [activeTab, agentInitialized, brand, overallScore, gaps]);
 
+  async function updateArticleStatus(id: string, status: string) {
+    await fetch(`/api/articles/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) });
+    setSavedArticles((prev) => prev.map((a) => a.id === id ? { ...a, status: status as SavedArticle["status"] } : a));
+    setSelectedArticle((prev) => prev?.id === id ? { ...prev, status: status as SavedArticle["status"] } : prev);
+  }
+
+  async function deleteArticle(id: string) {
+    await fetch(`/api/articles/${id}`, { method: "DELETE" });
+    setSavedArticles((prev) => prev.filter((a) => a.id !== id));
+    setSelectedArticle((prev) => prev?.id === id ? null : prev);
+  }
+
   async function addChannel() {
     if (!brand?.id || !newChannel.name || !newChannel.url) return;
     setAddingChannel(true);
@@ -1292,36 +1304,71 @@ function DashboardPage() {
               </div>
 
               {selectedArticle && (
-                <div className="w-72 shrink-0 bg-white border border-stone-200 rounded-xl p-5 flex flex-col gap-3 self-start sticky top-0">
+                <div className="w-72 shrink-0 bg-white border border-stone-200 rounded-xl p-5 flex flex-col gap-4 self-start sticky top-0">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Preview</p>
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded capitalize ${STATUS_COLORS[selectedArticle.status] ?? "bg-gray-100 text-gray-600"}`}>{selectedArticle.status}</span>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Article</p>
+                    <button onClick={() => setSelectedArticle(null)} className="text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>
                   </div>
-                  <h3 className="text-sm font-semibold text-gray-900 leading-snug">{selectedArticle.title}</h3>
-                  <div className="flex gap-2 flex-wrap">
-                    {selectedArticle.seoScore > 0 && <span className="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded font-medium">SEO {selectedArticle.seoScore}</span>}
-                    {selectedArticle.wordCount > 0 && <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{selectedArticle.wordCount} words</span>}
-                    <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-mono">{selectedArticle.keyword}</span>
+
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-900 leading-snug mb-2">{selectedArticle.title}</h3>
+                    <div className="flex gap-1.5 flex-wrap">
+                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded capitalize ${STATUS_COLORS[selectedArticle.status] ?? "bg-gray-100 text-gray-600"}`}>{selectedArticle.status}</span>
+                      {selectedArticle.wordCount > 0 && <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{selectedArticle.wordCount} words</span>}
+                      {selectedArticle.seoScore > 0 && <span className="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded font-medium">SEO {selectedArticle.seoScore}</span>}
+                    </div>
                   </div>
+
                   {selectedArticle.content && (
-                    <div className="bg-gray-50 rounded-lg p-3">
-                      <p className="text-xs text-gray-500 leading-relaxed line-clamp-4">{selectedArticle.content.replace(/^#+ .+\n+/m, "").replace(/[#*_`]/g, "").substring(0, 200)}…</p>
+                    <div className="bg-stone-50 rounded-lg p-3">
+                      <p className="text-xs text-gray-500 leading-relaxed line-clamp-5">{selectedArticle.content.replace(/^#+ .+\n+/m, "").replace(/[#*_`]/g, "").substring(0, 240)}…</p>
                     </div>
                   )}
-                  <button
-                    onClick={() => {
-                      const params = new URLSearchParams({ gapPrompt: selectedArticle.keyword || selectedArticle.title, brand: brand.name, niche: brand.niche, brandId: brand.id ?? "" });
-                      const url = `/article?${params}`;
-                      const cacheKey = `article:${selectedArticle.keyword || selectedArticle.title}:${brand.name}`;
-                      if (selectedArticle.content) {
-                        sessionStorage.setItem(cacheKey, JSON.stringify({ article: selectedArticle.content, title: selectedArticle.title, wordCount: selectedArticle.wordCount }));
-                      }
-                      window.open(url, "_blank");
-                    }}
-                    className="w-full text-xs font-medium border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition-colors"
-                  >
-                    Open ↗
-                  </button>
+
+                  <div className="flex flex-col gap-2">
+                    <button
+                      onClick={() => {
+                        const params = new URLSearchParams({ gapPrompt: selectedArticle.keyword || selectedArticle.title, brand: brand.name, niche: brand.niche, brandId: brand.id ?? "" });
+                        const cacheKey = `article:${selectedArticle.keyword || selectedArticle.title}:${brand.name}`;
+                        if (selectedArticle.content) sessionStorage.setItem(cacheKey, JSON.stringify({ article: selectedArticle.content, title: selectedArticle.title, wordCount: selectedArticle.wordCount }));
+                        window.open(`/article?${params}`, "_blank");
+                      }}
+                      className="w-full text-xs font-medium bg-gray-900 text-white rounded-lg py-2.5 hover:bg-gray-700 transition-colors"
+                    >
+                      Open full article ↗
+                    </button>
+
+                    {selectedArticle.status === "draft" && (
+                      <button
+                        onClick={() => updateArticleStatus(selectedArticle.id, "review")}
+                        className="w-full text-xs font-medium border border-gray-200 rounded-lg py-2.5 hover:bg-gray-50 transition-colors text-gray-700"
+                      >
+                        Mark as ready for review
+                      </button>
+                    )}
+                    {selectedArticle.status === "review" && (
+                      <button
+                        onClick={() => updateArticleStatus(selectedArticle.id, "published")}
+                        className="w-full text-xs font-medium border border-emerald-200 text-emerald-700 rounded-lg py-2.5 hover:bg-emerald-50 transition-colors"
+                      >
+                        Mark as published
+                      </button>
+                    )}
+                    {(selectedArticle.status === "draft" || selectedArticle.status === "review") && selectedArticle.status !== "published" && (
+                      <button
+                        onClick={() => updateArticleStatus(selectedArticle.id, "draft")}
+                        className={`w-full text-xs border border-gray-100 rounded-lg py-2 hover:bg-gray-50 transition-colors text-gray-400 ${selectedArticle.status === "draft" ? "hidden" : ""}`}
+                      >
+                        Back to draft
+                      </button>
+                    )}
+                    <button
+                      onClick={() => { if (confirm("Delete this article?")) deleteArticle(selectedArticle.id); }}
+                      className="w-full text-xs text-red-400 hover:text-red-600 py-1 transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
