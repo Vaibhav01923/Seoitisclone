@@ -34,6 +34,9 @@ function SetupContent() {
   const [editedName, setEditedName] = useState("");
   const [editedNiche, setEditedNiche] = useState("");
   const [editedCompetitors, setEditedCompetitors] = useState<string[]>([]);
+  const [editedAudience, setEditedAudience] = useState<string[]>([]);
+  const [newCompetitorInput, setNewCompetitorInput] = useState("");
+  const [newAudienceInput, setNewAudienceInput] = useState("");
   const [prompts, setPrompts] = useState<TrackedPrompt[]>([]);
   const [newPrompt, setNewPrompt] = useState("");
 
@@ -61,6 +64,7 @@ function SetupContent() {
       setEditedName(data.name);
       setEditedNiche(data.niche);
       setEditedCompetitors(data.competitors);
+      setEditedAudience(data.targetAudience ?? []);
       setPrompts(data.trackedPrompts);
       setStep("brand");
     } catch (err) {
@@ -75,9 +79,21 @@ function SetupContent() {
     await triggerAnalyze(domain, competitors);
   }
 
+  function addEditedCompetitor() {
+    const t = newCompetitorInput.trim();
+    if (t && !editedCompetitors.includes(t)) setEditedCompetitors([...editedCompetitors, t]);
+    setNewCompetitorInput("");
+  }
+
+  function addAudience() {
+    const t = newAudienceInput.trim();
+    if (t && !editedAudience.includes(t)) setEditedAudience([...editedAudience, t]);
+    setNewAudienceInput("");
+  }
+
   function handleBrandNext() {
     if (!brand) return;
-    setBrand({ ...brand, name: editedName, niche: editedNiche, competitors: editedCompetitors });
+    setBrand({ ...brand, name: editedName, niche: editedNiche, competitors: editedCompetitors, targetAudience: editedAudience });
     setStep("prompts");
   }
 
@@ -218,21 +234,44 @@ function SetupContent() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Target audience</label>
-                <div className="flex flex-wrap gap-1.5">
-                  {brand.targetAudience.map((a) => (
-                    <span key={a} className="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">{a}</span>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {editedAudience.map((a) => (
+                    <span key={a} className="flex items-center gap-1 text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">
+                      {a}
+                      <button onClick={() => setEditedAudience(editedAudience.filter((x) => x !== a))} className="text-emerald-400 hover:text-emerald-700">×</button>
+                    </span>
                   ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    value={newAudienceInput}
+                    onChange={(e) => setNewAudienceInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addAudience(); } }}
+                    placeholder="Add audience segment"
+                    className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
+                  />
+                  <button type="button" onClick={addAudience} className="px-3 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">Add</button>
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Competitors</label>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-1.5 mb-2">
                   {editedCompetitors.map((c) => (
                     <span key={c} className="flex items-center gap-1 text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">
                       {c}
                       <button onClick={() => setEditedCompetitors(editedCompetitors.filter((x) => x !== c))} className="text-gray-400 hover:text-gray-600">×</button>
                     </span>
                   ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    value={newCompetitorInput}
+                    onChange={(e) => setNewCompetitorInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addEditedCompetitor(); } }}
+                    placeholder="Add competitor"
+                    className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
+                  />
+                  <button type="button" onClick={addEditedCompetitor} className="px-3 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">Add</button>
                 </div>
               </div>
               <button
