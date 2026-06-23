@@ -305,6 +305,7 @@ function DashboardPage() {
 
   // Articles state
   const [savedArticles, setSavedArticles] = useState<SavedArticle[]>([]);
+  const [loadingArticles, setLoadingArticles] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState<SavedArticle | null>(null);
   const [articleFilter, setArticleFilter] = useState<"all" | "draft" | "review" | "published" | "scheduled">("all");
   const [showNewArticleModal, setShowNewArticleModal] = useState(false);
@@ -357,7 +358,7 @@ function DashboardPage() {
           }).finally(() => setLoadingResults(false));
           fetch(`/api/keywords?brandId=${id}`).then((r) => r.json()).then((d) => setSocialKeywords(d.keywords ?? []));
           fetch(`/api/reddit/threads?brandId=${id}`).then((r) => r.json()).then((d) => setRedditThreads(d.threads ?? []));
-          fetch(`/api/articles?brandId=${id}`).then((r) => r.json()).then((d) => setSavedArticles((d.articles ?? []).map(mapArticleFromDb)));
+          fetch(`/api/articles?brandId=${id}`).then((r) => r.json()).then((d) => setSavedArticles((d.articles ?? []).map(mapArticleFromDb))).finally(() => setLoadingArticles(false));
           fetch(`/api/publishing/channels?brandId=${id}`).then((r) => r.json()).then((d) => setPublishingChannels(d.channels ?? []));
           fetch(`/api/publishing/log?brandId=${id}`).then((r) => r.json()).then((d) => setPublishingLog(d.log ?? []));
           fetch(`/api/alerts?brandId=${id}`).then((r) => r.json()).then((d) => { setAlertDestinations(d.destinations ?? []); setAlertDeliveries(d.deliveries ?? []); });
@@ -1289,7 +1290,9 @@ function DashboardPage() {
                   </div>
                 )}
 
-                {filteredArticles.length === 0 ? (
+                {loadingArticles ? (
+                  <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" /></div>
+                ) : filteredArticles.length === 0 ? (
                   <div className="bg-white border border-dashed border-stone-200 rounded-xl p-12 text-center">
                     <p className="text-sm font-medium text-gray-500 mb-1">No articles yet</p>
                     <p className="text-xs text-gray-400 mb-4">Articles you generate from research gaps appear here</p>
@@ -1404,6 +1407,15 @@ function DashboardPage() {
                           📅 Schedule
                         </button>
                       )
+                    )}
+
+                    {selectedArticle.status !== "published" && !showSchedulePicker && (
+                      <button
+                        onClick={() => updateArticleStatus(selectedArticle.id, "published")}
+                        className="w-full text-xs font-medium border border-emerald-200 text-emerald-700 rounded-lg py-2.5 hover:bg-emerald-50 transition-colors"
+                      >
+                        ✓ Mark as published
+                      </button>
                     )}
 
                     {selectedArticle.status !== "draft" && selectedArticle.status !== "published" && !showSchedulePicker && (
