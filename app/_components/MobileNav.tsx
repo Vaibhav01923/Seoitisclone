@@ -18,7 +18,7 @@ export function MobileNav() {
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-label="Toggle navigation menu"
-        className="p-2 text-[#4b5563] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded"
+        className="p-2 text-white/55 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded"
       >
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
           {open ? (
@@ -30,13 +30,13 @@ export function MobileNav() {
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-md z-50 px-8 py-4 flex flex-col gap-1">
+        <div className="absolute top-full left-0 right-0 bg-[#0d0d0d] border-b border-white/10 shadow-xl z-50 px-8 py-4 flex flex-col gap-1">
           {LINKS.map(({ label, href }) => (
             <a
               key={label}
               href={href}
               onClick={() => setOpen(false)}
-              className="py-2.5 text-sm text-[#4b5563] hover:text-[#111] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded"
+              className="py-3 text-sm text-white/55 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded"
             >
               {label}
             </a>

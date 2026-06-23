@@ -222,6 +222,191 @@ function DashboardMockup() {
   );
 }
 
+function BentoGrid() {
+  const ranks = [
+    { rank: 1, domain: "acmecorp.com", you: true, pct: 74, delta: "+4.2" },
+    { rank: 2, domain: "evernote.com", pct: 52, delta: "-1.1" },
+    { rank: 3, domain: "obsidian.md", pct: 48, delta: "+0.3" },
+    { rank: 4, domain: "roamresearch.com", pct: 31, delta: "-2.4" },
+  ] as { rank: number; domain: string; you?: boolean; pct: number; delta: string }[];
+
+  const engines = [
+    { label: "GPT", color: "#10a37f" },
+    { label: "Claude", color: "#d4673a" },
+    { label: "Gemini", color: "#4285f4" },
+    { label: "Perp.", color: "#20b2aa" },
+    { label: "Grok", color: "#444" },
+    { label: "AIO", color: "#4285f4" },
+    { label: "AIM", color: "#8b5cf6" },
+  ];
+
+  const gaps = [
+    { q: "best note app for ADHD", score: 84 },
+    { q: "notion vs obsidian for engineers", score: 91 },
+    { q: "how to write second brain", score: 76 },
+    { q: "is notion losing to obsidian", score: 88 },
+  ];
+
+  const outline = ["TL;DR", "The five engines", "Why GEO ≠ SEO", "Citation hierarchy"];
+
+  const destinations = [
+    { dest: "WordPress", detail: "/blog/why-geo-is-not-seo", status: "published" },
+    { dest: "Shopify", detail: "/blogs/news/why-geo", status: "published" },
+    { dest: "Framer", detail: "Scheduled · 15:00 UTC", status: "scheduled" },
+    { dest: "Webhook", detail: "REST · custom endpoint", status: "published" },
+  ];
+
+  return (
+    <section id="platform" className="bg-[#0a0a0a] px-6 pb-24">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center pt-20 pb-12">
+          <h2
+            className="text-4xl font-black tracking-tight mb-4 text-white"
+            style={{ textWrap: "balance", letterSpacing: "-0.02em" } as React.CSSProperties}
+          >
+            One pipeline. Four instruments.
+          </h2>
+          <p className="text-white/45 max-w-lg mx-auto text-sm leading-relaxed">
+            Measure → Research → Write → Publish → Re-measure. Fully automatic.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          {/* Row 1: Visibility (2/3) + Engines (1/3) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-2 bg-[#111] border border-white/[0.06] rounded-2xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-[10px] font-mono text-brand font-bold">01</span>
+                <span className="text-[10px] text-white/30 uppercase tracking-widest">Visibility</span>
+              </div>
+              <h3 className="text-xl font-black text-white mb-5 leading-tight">
+                See exactly where AI ranks your brand.
+              </h3>
+              <div className="space-y-2">
+                {ranks.map((r) => (
+                  <div key={r.domain} className={`flex items-center gap-3 rounded-xl px-3 py-2 ${r.you ? "bg-brand/10 border border-brand/25" : "bg-white/[0.03]"}`}>
+                    <span className="text-[10px] text-white/25 w-3 shrink-0">{r.rank}</span>
+                    <span className={`text-xs flex-1 min-w-0 truncate ${r.you ? "font-semibold text-white" : "text-white/40"}`}>
+                      {r.domain}
+                      {r.you && <span className="ml-2 bg-brand text-white text-[8px] px-1.5 py-0.5 rounded font-bold">YOU</span>}
+                    </span>
+                    <div className="w-16 h-1 bg-white/8 rounded-full overflow-hidden shrink-0">
+                      <div className={`h-full rounded-full ${r.you ? "bg-brand" : "bg-white/20"}`} style={{ width: `${r.pct}%` }} />
+                    </div>
+                    <span className="text-[11px] font-medium text-white/60 w-8 text-right shrink-0">{r.pct}%</span>
+                    <span className={`text-[10px] w-8 text-right shrink-0 font-mono ${r.delta.startsWith("+") ? "text-emerald-400" : "text-red-400"}`}>{r.delta}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-1.5 mt-4 flex-wrap">
+                {["ChatGPT", "Claude", "Gemini", "Perplexity", "Grok", "AI Overviews"].map((e) => (
+                  <span key={e} className="text-[9px] bg-white/5 text-white/30 px-2 py-0.5 rounded-full">{e}</span>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 flex flex-col">
+              <span className="text-[10px] text-white/30 uppercase tracking-widest mb-2">Coverage</span>
+              <div className="text-6xl font-black text-white leading-none">7</div>
+              <div className="text-sm text-white/40 mt-1 mb-6">AI engines tracked</div>
+              <div className="grid grid-cols-4 gap-3 mt-auto">
+                {engines.map((e) => (
+                  <div key={e.label} className="flex flex-col items-center gap-1.5">
+                    <div
+                      className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-[10px] font-bold"
+                      style={{ background: e.color }}
+                      aria-hidden="true"
+                    >
+                      {e.label[0]}
+                    </div>
+                    <span className="text-[9px] text-white/25 text-center">{e.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Row 2: Stat + Research + Generate */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-brand rounded-2xl p-6 flex flex-col justify-between min-h-[220px]">
+              <span className="text-white/70 text-[10px] uppercase tracking-widest font-medium">Time to first data</span>
+              <div>
+                <div className="text-5xl font-black text-white leading-none mt-3">~60s</div>
+                <div className="text-sm text-white/65 mt-2 leading-snug">domain entry to first visibility score</div>
+              </div>
+              <div className="text-[10px] text-white/45 mt-2">Free · no card required</div>
+            </div>
+
+            <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-[10px] font-mono text-brand font-bold">02</span>
+                <span className="text-[10px] text-white/30 uppercase tracking-widest">Research</span>
+              </div>
+              <h3 className="text-lg font-black text-white mb-4 leading-tight">Mine the gaps AI is about to fill.</h3>
+              <div className="space-y-2">
+                {gaps.map((r) => (
+                  <div key={r.q} className="flex items-center gap-2 py-1 border-b border-white/[0.04]">
+                    <span className="flex-1 text-[11px] text-white/50 truncate">{r.q}</span>
+                    <span className="text-brand text-[11px] font-semibold shrink-0">{r.score}%</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 text-[9px] text-white/20">AI overlap score · 247 gaps found</div>
+            </div>
+
+            <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-[10px] font-mono text-brand font-bold">03</span>
+                <span className="text-[10px] text-white/30 uppercase tracking-widest">Generate</span>
+              </div>
+              <h3 className="text-lg font-black text-white mb-4 leading-tight">Write what citation engines quote.</h3>
+              <div className="bg-black/50 rounded-xl p-3.5 border border-white/[0.04] font-mono text-[10px]">
+                <div className="text-white/30 mb-2 font-sans text-[9px] uppercase tracking-widest">Outline · 1,840 / 2,400 words</div>
+                {outline.map((s, i) => (
+                  <div key={s} className="flex gap-2 py-0.5">
+                    <span className="text-white/20">{i + 1}.</span>
+                    <span className="text-white/45">{s}</span>
+                  </div>
+                ))}
+                <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-white/[0.05]">
+                  <span className="text-brand animate-pulse motion-reduce:animate-none" aria-hidden="true">▋</span>
+                  <span className="text-white/25 font-sans">Writing claim-dense passage…</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Row 3: Publish — full width */}
+          <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-8">
+              <div className="shrink-0 sm:w-52">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-[10px] font-mono text-brand font-bold">04</span>
+                  <span className="text-[10px] text-white/30 uppercase tracking-widest">Publish</span>
+                </div>
+                <h3 className="text-xl font-black text-white leading-snug">
+                  Publish once.<br />Structured for citation.
+                </h3>
+              </div>
+              <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {destinations.map((r) => (
+                  <div key={r.dest} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
+                    <div className="text-xs font-semibold text-white/70 mb-0.5">{r.dest}</div>
+                    <div className="text-[9px] text-white/30 truncate mb-2">{r.detail}</div>
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
+                      r.status === "published" ? "bg-emerald-400/15 text-emerald-400" : "bg-yellow-400/15 text-yellow-400"
+                    }`}>{r.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white text-[#111]" style={{ fontFamily: "var(--font-geist-sans, system-ui, sans-serif)" }}>
@@ -234,24 +419,24 @@ export default function LandingPage() {
       </a>
 
       {/* NAV */}
-      <nav className="relative border-b border-gray-100" aria-label="Main navigation">
+      <nav className="relative sticky top-0 z-50 bg-[#0d0d0d] border-b border-white/10" aria-label="Main navigation">
         <div className="flex items-center justify-between px-8 py-4 max-w-7xl mx-auto">
           <div className="flex items-center gap-2.5">
             <LogoIcon />
-            <span className="text-xl font-bold tracking-tight">RankOn<span className="text-brand">Geo</span></span>
+            <span className="text-xl font-bold tracking-tight text-white">RankOn<span className="text-brand">Geo</span></span>
           </div>
-          <div className="hidden md:flex items-center gap-8 text-sm text-[#4b5563]">
-            <a href="#platform" className="py-2 hover:text-[#111] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">Platform</a>
-            <a href="#" className="py-2 hover:text-[#111] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">Tools</a>
-            <a href="#" className="py-2 hover:text-[#111] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">Guides</a>
-            <a href="#" className="py-2 hover:text-[#111] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">Blog</a>
-            <a href="#pricing" className="py-2 hover:text-[#111] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">Pricing</a>
+          <div className="hidden md:flex items-center gap-8 text-sm text-white/55">
+            <a href="#platform" className="py-2 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">Platform</a>
+            <a href="#" className="py-2 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">Tools</a>
+            <a href="#" className="py-2 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">Guides</a>
+            <a href="#" className="py-2 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">Blog</a>
+            <a href="#pricing" className="py-2 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">Pricing</a>
           </div>
           <div className="flex items-center gap-2">
             <MobileNav />
             <a
               href="/dashboard"
-              className="bg-brand hover:bg-brand-dark text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              className="bg-brand hover:bg-brand-dark text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0d0d]"
             >
               Dashboard <span aria-hidden="true">→</span>
             </a>
@@ -336,256 +521,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* PLATFORM */}
-        <section id="platform" className="max-w-6xl mx-auto px-8 py-24">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-black tracking-tight mb-4" style={{ textWrap: "balance" } as React.CSSProperties}>
-              One pipeline. Four instruments.
-            </h2>
-            <p className="text-[#4b5563] max-w-xl mx-auto">
-              Most tools tell you that you&apos;re not visible. RankOnGeo closes the loop: measure, research, write, publish, re-measure. Automatically.
-            </p>
-          </div>
-
-          <div className="flex gap-2 justify-center mb-16 flex-wrap">
-            {[["01", "Visibility"], ["02", "Research"], ["03", "Generation"], ["04", "Publishing"]].map(([num, label]) => (
-              <div key={num} className="flex items-center gap-2 border border-gray-200 bg-white rounded-full px-4 py-1.5 text-sm">
-                <span className="text-[#6b7280] text-xs font-mono">{num}</span>
-                <span className="font-medium text-[#111]">{label}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="space-y-24">
-            {/* 01 Visibility */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xs font-mono text-[#6b7280]">01</span>
-                  <span className="text-xs font-semibold text-[#374151]">Visibility</span>
-                </div>
-                <h3 className="text-3xl font-black tracking-tight mb-4" style={{ textWrap: "balance" } as React.CSSProperties}>
-                  See your brand the way the model sees it.
-                </h3>
-                <p className="text-[#4b5563] mb-6 leading-relaxed">
-                  Daily visibility updates across ChatGPT, Perplexity, AI Overviews, Claude, Gemini, AI Mode, and Grok depending on plan.
-                  Rotating coverage keeps your composite score, triggering prompts, and competitor movement fresh.
-                </p>
-                <ul className="space-y-2">
-                  {[
-                    "Up to 7 engines with daily visibility updates — incl. browse + search modes",
-                    "Composite visibility, sentiment, mention density, position",
-                    "Side-by-side competitor differential",
-                    "Source-of-citation breakdown (UGC, Editorial, Forum, Corporate)",
-                  ].map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-[#374151]">
-                      <span className="text-brand mt-0.5 shrink-0" aria-hidden="true">✓</span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-                <div className="text-[10px] uppercase tracking-widest text-[#6b7280] font-medium mb-3">Industry ranking · note-taking</div>
-                <div className="text-[10px] text-[#6b7280] mb-3">5 brands · ChatGPT · last 30 days</div>
-                <div className="space-y-2">
-                  {[
-                    { rank: 1, domain: "acmecorp.com", you: true, pct: 74, delta: "+4.2" },
-                    { rank: 2, domain: "evernote.com", pct: 52, delta: "-1.1" },
-                    { rank: 3, domain: "obsidian.md", pct: 48, delta: "+0.3" },
-                    { rank: 4, domain: "roamresearch.com", pct: 31, delta: "-2.4" },
-                    { rank: 5, domain: "logseq.com", pct: 24, delta: "+0.8" },
-                  ].map((r) => (
-                    <div key={r.domain} className={`flex items-center gap-3 rounded-lg px-2 py-1.5 ${r.you ? "bg-red-50" : ""}`}>
-                      <span className="text-[10px] text-[#6b7280] w-4">{r.rank}</span>
-                      <span className={`text-xs flex-1 ${r.you ? "font-semibold" : "text-[#555]"}`}>
-                        {r.domain}
-                        {r.you && <span className="ml-1.5 bg-brand text-white text-[9px] px-1 rounded font-bold">YOU</span>}
-                      </span>
-                      <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className={`h-full rounded-full ${r.you ? "bg-brand" : "bg-gray-300"}`} style={{ width: `${r.pct}%` }} />
-                      </div>
-                      <span className="text-xs font-medium text-[#111] w-6 text-right">{r.pct}%</span>
-                      <span className={`text-[10px] w-8 text-right ${r.delta.startsWith("+") ? "text-green-600" : "text-red-500"}`}>{r.delta}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex gap-1.5 mt-3 flex-wrap">
-                  {["ChatGPT", "Claude", "Gemini", "Perplexity", "Grok", "+ browse mode"].map((e) => (
-                    <span key={e} className="text-[10px] bg-gray-100 text-[#555] px-2 py-0.5 rounded-full">{e}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* 02 Research */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
-              <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm order-2 md:order-1">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-[10px] text-[#6b7280]">note-taking · AI workflow</span>
-                  <span className="ml-auto text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Generative ✓</span>
-                </div>
-                <div className="flex gap-4 mb-3 text-xs">
-                  <span className="font-bold">247 <span className="text-[#555] font-normal">queries</span></span>
-                  <span className="font-bold">4.8M <span className="text-[#555] font-normal">volume</span></span>
-                  <span className="font-bold">82% <span className="text-[#555] font-normal">AI overlap</span></span>
-                </div>
-                <div className="space-y-1.5">
-                  {[
-                    { q: "best note app for ADHD", vol: "12.4k", overlap: 84, intent: "info" },
-                    { q: "notion vs obsidian for engineers", vol: "8.9k", overlap: 91, intent: "comp" },
-                    { q: "how to write second brain notes", vol: "6.1k", overlap: 76, intent: "info" },
-                    { q: "is notion losing to obsidian", vol: "2.3k", overlap: 88, intent: "comp" },
-                    { q: "notion AI pricing 2026", vol: "11.2k", overlap: 94, intent: "trans" },
-                  ].map((r) => (
-                    <div key={r.q} className="flex items-center gap-2 text-[11px] py-1 border-b border-gray-50">
-                      <span className="flex-1 text-[#333]">{r.q}</span>
-                      <span className="text-[#6b7280] w-10">{r.vol}</span>
-                      <span className="text-brand font-semibold w-6">{r.overlap}</span>
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
-                        r.intent === "info" ? "bg-blue-100 text-blue-600" :
-                        r.intent === "comp" ? "bg-purple-100 text-purple-600" :
-                        "bg-green-100 text-green-600"
-                      }`}>{r.intent}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="order-1 md:order-2">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xs font-mono text-[#6b7280]">02</span>
-                  <span className="text-xs font-semibold text-[#374151]">Research</span>
-                </div>
-                <h3 className="text-3xl font-black tracking-tight mb-4" style={{ textWrap: "balance" } as React.CSSProperties}>
-                  Mine the prompts your customers are about to type.
-                </h3>
-                <p className="text-[#4b5563] mb-6 leading-relaxed">
-                  Volume, intent, and difficulty — for the way people actually ask AI. Surface the prompts that fork into your category,
-                  the long-tail no one else is tracking, and the questions where you&apos;re one good answer away from being cited.
-                </p>
-                <ul className="space-y-2">
-                  {[
-                    "Generative query expansion — not keyword stems",
-                    "AI overlap score: how often LLMs cite for this prompt",
-                    "Intent classification: informational, comparative, transactional",
-                    "Topic clusters mapped to your content gaps",
-                  ].map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-[#374151]">
-                      <span className="text-brand mt-0.5 shrink-0" aria-hidden="true">✓</span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* 03 Generation */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xs font-mono text-[#6b7280]">03</span>
-                  <span className="text-xs font-semibold text-[#374151]">Generation</span>
-                </div>
-                <h3 className="text-3xl font-black tracking-tight mb-4" style={{ textWrap: "balance" } as React.CSSProperties}>
-                  Write what citation engines actually quote.
-                </h3>
-                <p className="text-[#4b5563] mb-6 leading-relaxed">
-                  A research-grounded writer that produces articles structured the way LLMs cite — claim-dense paragraphs, source tables, semantic schema.
-                  Backed by your brand voice and your factual sources, never fabricated.
-                </p>
-                <ul className="space-y-2">
-                  {[
-                    "Brand voice trained on your existing content",
-                    "Source-grounded — no hallucinated stats",
-                    "Schema, FAQ, and TL;DR auto-emitted",
-                    "In-editor revision loops with the visibility model",
-                  ].map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-[#374151]">
-                      <span className="text-brand mt-0.5 shrink-0" aria-hidden="true">✓</span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm font-mono text-xs">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-sans text-[10px] uppercase tracking-widest text-[#6b7280]">Outline</span>
-                  <span className="font-sans text-[10px] text-[#6b7280]">1,840 / 2,400</span>
-                </div>
-                <div className="space-y-1 text-[#555] mb-4">
-                  {["TL;DR", "The five engines", "Why GEO ≠ SEO", "Citation hierarchy", "Measurement", "FAQ"].map((s, i) => (
-                    <div key={s} className="flex items-center gap-2">
-                      <span className="text-[#ddd]">{i + 1}</span>
-                      <span>{s}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="border-t border-gray-100 pt-3">
-                  <div className="font-sans font-bold text-sm text-[#111] mb-2">Why GEO is not just SEO with extra steps</div>
-                  <p className="text-[10px] text-[#555] leading-relaxed font-sans">
-                    Search has fragmented. Five different engines now decide what your prospects see, before they ever reach your site.
-                    A traditional surface evaluates pages on keyword density and backlink graphs. A generative surface evaluates passages…
-                  </p>
-                  <div className="mt-2 flex items-center gap-1 text-[10px] text-brand font-sans">
-                    <span className="animate-pulse motion-reduce:animate-none" aria-hidden="true">▋</span>
-                    <span className="text-[#6b7280]">Writing claim-dense passage…</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 04 Publishing */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
-              <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-                <div className="text-[10px] uppercase tracking-widest text-[#6b7280] font-medium mb-3">Publishing · 3 destinations</div>
-                <div className="text-[10px] text-[#6b7280] mb-3">Crawl pickup ~6h · <span className="text-brand font-mono">14:32:20</span></div>
-                <div className="space-y-2">
-                  {[
-                    { dest: "WordPress", detail: "Published — /blog/why-geo-is-not-seo", status: "published" },
-                    { dest: "Shopify", detail: "Published — /blogs/news/why-geo", status: "published" },
-                    { dest: "Schema", detail: "Article + FAQ + HowTo emitted", status: "published" },
-                    { dest: "Canonical", detail: "Cross-posts → primary URL", status: "published" },
-                    { dest: "Internal links", detail: "7 contextual links woven in", status: "published" },
-                    { dest: "Framer", detail: "Scheduled — 15:00 UTC", status: "scheduled" },
-                  ].map((r) => (
-                    <div key={r.dest} className="flex items-center gap-3 text-xs py-1 border-b border-gray-50">
-                      <span className="font-medium text-[#333] w-24 shrink-0">{r.dest}</span>
-                      <span className="flex-1 text-[#555] truncate">{r.detail}</span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0 ${
-                        r.status === "published" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
-                      }`}>{r.status}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xs font-mono text-[#6b7280]">04</span>
-                  <span className="text-xs font-semibold text-[#374151]">Publishing</span>
-                </div>
-                <h3 className="text-3xl font-black tracking-tight mb-4" style={{ textWrap: "balance" } as React.CSSProperties}>
-                  Publish once. Structured for citation.
-                </h3>
-                <p className="text-[#4b5563] mb-6 leading-relaxed">
-                  One click to your CMS, with the structure citation engines actually parse — schema, FAQ, canonical, and internal links applied automatically.
-                </p>
-                <ul className="space-y-2">
-                  {[
-                    "Native: WordPress · Shopify · Framer",
-                    "Anything else: REST API or webhook",
-                    "Schema (Article, FAQ, HowTo) auto-emitted",
-                    "Internal links woven in · canonical handled",
-                  ].map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-[#374151]">
-                      <span className="text-brand mt-0.5 shrink-0" aria-hidden="true">✓</span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
+        <BentoGrid />
 
         {/* HOW IT WORKS */}
         <section className="bg-[#f4f6ff] border-y border-gray-100 py-24 px-8">
