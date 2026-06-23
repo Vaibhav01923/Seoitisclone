@@ -276,6 +276,7 @@ function DashboardPage() {
   const searchParams = useSearchParams();
   const [brand, setBrand] = useState<BrandData | null>(null);
   const [loadingBrand, setLoadingBrand] = useState(true);
+  const [loadingResults, setLoadingResults] = useState(true);
   const [scanning, setScanning] = useState(false);
   const [showBrandDropdown, setShowBrandDropdown] = useState(false);
   const [results, setResults] = useState<ScanResult[]>([]);
@@ -350,7 +351,7 @@ function DashboardPage() {
           fetch(`/api/history?brandId=${id}`).then((r) => r.json()).then((d) => setScanHistory(d.runs ?? []));
           fetch(`/api/scan/results?brandId=${id}`).then((r) => r.json()).then((d) => {
             if (d.results?.length) { setResults(d.results); setScanned(true); }
-          });
+          }).finally(() => setLoadingResults(false));
           fetch(`/api/keywords?brandId=${id}`).then((r) => r.json()).then((d) => setSocialKeywords(d.keywords ?? []));
           fetch(`/api/reddit/threads?brandId=${id}`).then((r) => r.json()).then((d) => setRedditThreads(d.threads ?? []));
           fetch(`/api/articles?brandId=${id}`).then((r) => r.json()).then((d) => setSavedArticles((d.articles ?? []).map(mapArticleFromDb)));
@@ -821,7 +822,9 @@ function DashboardPage() {
           {/* OVERVIEW */}
           {activeTab === "overview" && (
             <>
-              {!scanned && !scanning ? (
+              {!scanned && !scanning && loadingResults ? (
+                <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" /></div>
+              ) : !scanned && !scanning ? (
                 <EmptyState label="No scan data yet" sub={`${brand.trackedPrompts.length} prompts ready — click "+ Run scan" to start`} />
               ) : scanned && (
                 <>
@@ -914,7 +917,9 @@ function DashboardPage() {
           {/* PROMPTS */}
           {activeTab === "results" && (
             <>
-              {!scanned ? (
+              {!scanned && loadingResults ? (
+                <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" /></div>
+              ) : !scanned ? (
                 <EmptyState label="No prompt data" sub="Run a scan to see AI responses per prompt" />
               ) : (
                 <>
@@ -952,7 +957,9 @@ function DashboardPage() {
           {/* CITATIONS */}
           {activeTab === "citations" && (
             <>
-              {!scanned ? (
+              {!scanned && loadingResults ? (
+                <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" /></div>
+              ) : !scanned ? (
                 <EmptyState label="No citation data" sub="Run a scan to see where AI engines are citing your brand" />
               ) : totalCitations === 0 ? (
                 <EmptyState label="No citations detected" sub="Citations appear when AI engines reference sources in their responses" />
@@ -1032,7 +1039,9 @@ function DashboardPage() {
           {/* COMPETITORS */}
           {activeTab === "competitors" && (
             <>
-              {!scanned ? (
+              {!scanned && loadingResults ? (
+                <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" /></div>
+              ) : !scanned ? (
                 <EmptyState label="No competitor data" sub="Run a scan to see share of voice vs competitors" />
               ) : (
                 <div className="bg-white border border-stone-200 rounded-xl p-6">
@@ -1062,7 +1071,9 @@ function DashboardPage() {
           {/* RESEARCH */}
           {activeTab === "gaps" && (
             <>
-              {!scanned ? (
+              {!scanned && loadingResults ? (
+                <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" /></div>
+              ) : !scanned ? (
                 <EmptyState label="No research data" sub="Run a scan to discover gaps where competitors appear but you don't" />
               ) : gaps.length === 0 ? (
                 <div className="bg-white border border-stone-200 rounded-xl p-8 text-center">
