@@ -310,6 +310,8 @@ function DashboardPage() {
   const [articleFilter, setArticleFilter] = useState<"all" | "draft" | "review" | "published" | "scheduled" | "queued">("all");
   const [showNewArticleModal, setShowNewArticleModal] = useState(false);
   const [newArticleTopic, setNewArticleTopic] = useState("");
+  const [showSchedulePicker, setShowSchedulePicker] = useState(false);
+  const [scheduleDate, setScheduleDate] = useState("");
 
   // Keywords state
   const [keywordSearch, setKeywordSearch] = useState("");
@@ -407,10 +409,17 @@ function DashboardPage() {
     }
   }, [activeTab, agentInitialized, brand, overallScore, gaps]);
 
-  async function updateArticleStatus(id: string, status: string) {
-    await fetch(`/api/articles/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) });
+  async function updateArticleStatus(id: string, status: string, extra?: Record<string, unknown>) {
+    await fetch(`/api/articles/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status, ...extra }) });
     setSavedArticles((prev) => prev.map((a) => a.id === id ? { ...a, status: status as SavedArticle["status"] } : a));
     setSelectedArticle((prev) => prev?.id === id ? { ...prev, status: status as SavedArticle["status"] } : prev);
+  }
+
+  async function scheduleArticle(id: string, dateStr: string) {
+    await fetch(`/api/articles/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "scheduled", scheduledAt: new Date(dateStr).toISOString() }) });
+    setSavedArticles((prev) => prev.map((a) => a.id === id ? { ...a, status: "scheduled" as SavedArticle["status"] } : a));
+    setSelectedArticle((prev) => prev?.id === id ? { ...prev, status: "scheduled" as SavedArticle["status"] } : prev);
+    setShowSchedulePicker(false);
   }
 
   async function deleteArticle(id: string) {
@@ -1285,7 +1294,7 @@ function DashboardPage() {
                       </thead>
                       <tbody className="divide-y divide-stone-50">
                         {filteredArticles.map((a) => (
-                          <tr key={a.id} className={`hover:bg-stone-50/50 cursor-pointer ${selectedArticle?.id === a.id ? "bg-stone-50" : ""}`} onClick={() => setSelectedArticle(a)}>
+                          <tr key={a.id} className={`hover:bg-stone-50/50 cursor-pointer ${selectedArticle?.id === a.id ? "bg-stone-50" : ""}`} onClick={() => { setSelectedArticle(a); setShowSchedulePicker(false); }}>
                             <td className="px-5 py-3">
                               <p className="text-sm font-medium text-gray-800 line-clamp-1">{a.title}</p>
                               <p className="text-[10px] text-gray-400 mt-0.5 font-mono">{a.keyword}</p>
@@ -1338,36 +1347,72 @@ function DashboardPage() {
                       Open full article ↗
                     </button>
 
-                    {selectedArticle.status === "draft" && (
+                    {publishingChannels.length > 0 && selectedArticle.status !== "published" && (
                       <button
-                        onClick={() => updateArticleStatus(selectedArticle.id, "review")}
-                        className="w-full text-xs font-medium border border-gray-200 rounded-lg py-2.5 hover:bg-gray-50 transition-colors text-gray-700"
+                        onClick={() => { setPublishArticleId(selectedArticle.id); setPublishResult(null); setShowPublishModal(true); }}
+                        className="w-full text-xs font-medium border border-gray-200 text-gray-700 rounded-lg py-2.5 hover:bg-gray-50 transition-colors"
                       >
-                        Mark as ready for review
+                        ⚡ Publish now
                       </button>
                     )}
-                    {selectedArticle.status === "review" && (
+
+                    {selectedArticle.status !== "scheduled" && selectedArticle.status !== "published" && (
+                      showSchedulePicker ? (
+                        <div className="flex flex-col gap-2">
+                          <input
+                            type="datetime-local"
+                            value={scheduleDate}
+                            onChange={(e) => setScheduleDate(e.target.value)}
+                            min={new Date().toISOString().slice(0, 16)}
+                            className="w-full border border-stone-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-red-400"
+                          />
+                          <div className="flex gap-2">
+                            <button onClick={() => setShowSchedulePicker(false)} className="flex-1 text-xs border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition-colors text-gray-500">Cancel</button>
+                            <button
+                              disabled={!scheduleDate}
+                              onClick={() => scheduleArticle(selectedArticle.id, scheduleDate)}
+                              className="flex-1 text-xs font-medium bg-gray-900 text-white rounded-lg py-2 hover:bg-gray-700 disabled:opacity-40 transition-colors"
+                            >
+                              Confirm
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => { setScheduleDate(""); setShowSchedulePicker(true); }}
+                          className="w-full text-xs font-medium border border-gray-200 text-gray-700 rounded-lg py-2.5 hover:bg-gray-50 transition-colors"
+                        >
+                          📅 Schedule
+                        </button>
+                      )
+                    )}
+
+                    {selectedArticle.status !== "queued" && selectedArticle.status !== "published" && !showSchedulePicker && (
                       <button
-                        onClick={() => updateArticleStatus(selectedArticle.id, "published")}
-                        className="w-full text-xs font-medium border border-emerald-200 text-emerald-700 rounded-lg py-2.5 hover:bg-emerald-50 transition-colors"
+                        onClick={() => updateArticleStatus(selectedArticle.id, "queued")}
+                        className="w-full text-xs font-medium border border-gray-200 text-gray-700 rounded-lg py-2.5 hover:bg-gray-50 transition-colors"
                       >
-                        Mark as published
+                        Add to queue
                       </button>
                     )}
-                    {(selectedArticle.status === "draft" || selectedArticle.status === "review") && selectedArticle.status !== "published" && (
+
+                    {selectedArticle.status !== "draft" && selectedArticle.status !== "published" && !showSchedulePicker && (
                       <button
                         onClick={() => updateArticleStatus(selectedArticle.id, "draft")}
-                        className={`w-full text-xs border border-gray-100 rounded-lg py-2 hover:bg-gray-50 transition-colors text-gray-400 ${selectedArticle.status === "draft" ? "hidden" : ""}`}
+                        className="w-full text-xs border border-gray-100 rounded-lg py-2 hover:bg-gray-50 transition-colors text-gray-400"
                       >
                         Back to draft
                       </button>
                     )}
-                    <button
-                      onClick={() => { if (confirm("Delete this article?")) deleteArticle(selectedArticle.id); }}
-                      className="w-full text-xs text-red-400 hover:text-red-600 py-1 transition-colors"
-                    >
-                      Delete
-                    </button>
+
+                    {!showSchedulePicker && (
+                      <button
+                        onClick={() => { if (confirm("Delete this article?")) deleteArticle(selectedArticle.id); }}
+                        className="w-full text-xs text-red-400 hover:text-red-600 py-1 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
