@@ -489,7 +489,10 @@ function DashboardPage() {
     if (!brand?.id) return;
     setSyncing(true);
     try {
-      await fetch("/api/reddit/sync", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ brandId: brand.id }) });
+      const syncRes = await fetch("/api/reddit/sync", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ brandId: brand.id }) }).then((r) => r.json());
+      if (syncRes.errors?.length) {
+        setError(`Reddit sync issue: ${syncRes.errors[0]}`);
+      }
       const d = await fetch(`/api/reddit/threads?brandId=${brand.id}`).then((r) => r.json());
       setRedditThreads(d.threads ?? []);
     } finally { setSyncing(false); }

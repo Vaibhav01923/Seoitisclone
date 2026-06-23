@@ -1,6 +1,49 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clientFromRequest } from "@/lib/supabase";
 
+async function searchReddit(keyword: string): Promise<Array<Record<string, unknown>>> {
+  // Reddit requires OAuth since mid-2023 for reliable API access.
+  // Try OAuth if credentials are available, fall back to public JSON.
+  const clientId = process.env.REDDIT_CLIENT_ID;
+  const clientSecret = process.env.REDDIT_CLIENT_SECRET;
+
+  const headers: Record<string, string> = {
+    "User-Agent": "web:rankongeo:v1.0 (by /u/rankongeo_app)",
+  };
+
+  if (clientId && clientSecret) {
+    // Get OAuth token via client_credentials grant
+    const tokenRes = await fetch("https://www.reddit.com/api/v1/access_token", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": headers["User-Agent"],
+      },
+      body: "grant_type=client_credentials",
+      signal: AbortSignal.timeout(8000),
+    });
+    if (tokenRes.ok) {
+      const { access_token } = await tokenRes.json();
+      headers["Authorization"] = `bearer ${access_token}`;
+    }
+  }
+
+  const baseUrl = headers["Authorization"]
+    ? "https://oauth.reddit.com"
+    : "https://www.reddit.com";
+
+  const url = `${baseUrl}/search.json?q=${encodeURIComponent(keyword)}&sort=new&limit=25&t=month&type=link`;
+  const res = await fetch(url, { headers, signal: AbortSignal.timeout(10000) });
+
+  if (!res.ok) {
+    throw new Error(`Reddit returned ${res.status} for keyword "${keyword}"`);
+  }
+
+  const data = await res.json();
+  return (data.data?.children ?? []).map((c: { data: Record<string, unknown> }) => c.data);
+}
+
 export async function POST(req: NextRequest) {
   const { brandId } = await req.json();
   if (!brandId) return NextResponse.json({ error: "brandId required" }, { status: 400 });
@@ -23,21 +66,15 @@ export async function POST(req: NextRequest) {
     .eq("brand_id", brandId)
     .eq("user_id", user?.id);
 
-  if (!keywords?.length) return NextResponse.json({ synced: 0, message: "No keywords to monitor" });
+  if (!keywords?.length) return NextResponse.json({ synced: 0, message: "No keywords added yet" });
 
   const allRows: object[] = [];
+  const errors: string[] = [];
 
   for (const { keyword } of keywords) {
     try {
-      const res = await fetch(
-        `https://www.reddit.com/search.json?q=${encodeURIComponent(keyword)}&sort=new&limit=25&t=month`,
-        { headers: { "User-Agent": "RankOnGeo/1.0" }, signal: AbortSignal.timeout(8000) }
-      );
-      if (!res.ok) continue;
-      const data = await res.json();
-      const posts = (data.data?.children ?? []) as Array<{ data: Record<string, unknown> }>;
-
-      for (const { data: post } of posts) {
+      const posts = await searchReddit(keyword);
+      for (const post of posts) {
         allRows.push({
           brand_id: brandId,
           keyword,
@@ -53,9 +90,11 @@ export async function POST(req: NextRequest) {
             : null,
         });
       }
-    } catch {
-      // Skip failed keyword — continue with others
+    } catch (e) {
+      errors.push((e as Error).message);
     }
+    // Small delay between keywords to avoid rate limiting
+    await new Promise((r) => setTimeout(r, 500));
   }
 
   if (allRows.length) {
@@ -64,5 +103,8 @@ export async function POST(req: NextRequest) {
       .upsert(allRows, { onConflict: "brand_id,reddit_id", ignoreDuplicates: true });
   }
 
-  return NextResponse.json({ synced: allRows.length });
+  return NextResponse.json({
+    synced: allRows.length,
+    ...(errors.length ? { errors } : {}),
+  });
 }
