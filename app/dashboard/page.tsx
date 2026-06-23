@@ -308,6 +308,8 @@ function DashboardPage() {
   const [savedArticles, setSavedArticles] = useState<SavedArticle[]>([]);
   const [selectedArticle, setSelectedArticle] = useState<SavedArticle | null>(null);
   const [articleFilter, setArticleFilter] = useState<"all" | "draft" | "review" | "published" | "scheduled" | "queued">("all");
+  const [showNewArticleModal, setShowNewArticleModal] = useState(false);
+  const [newArticleTopic, setNewArticleTopic] = useState("");
 
   // Keywords state
   const [keywordSearch, setKeywordSearch] = useState("");
@@ -771,7 +773,7 @@ function DashboardPage() {
             )}
             {activeTab === "articles" && (
               <button
-                onClick={() => { const params = new URLSearchParams({ brandId: brand.id ?? "" }); window.open(`/article?${params}`, "_blank"); }}
+                onClick={() => { setNewArticleTopic(""); setShowNewArticleModal(true); }}
                 className="flex items-center gap-1.5 bg-gray-900 hover:bg-gray-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
               >
                 + New article
@@ -1307,7 +1309,15 @@ function DashboardPage() {
                     </div>
                   )}
                   <button
-                    onClick={() => { const params = new URLSearchParams({ articleId: selectedArticle.id, brandId: brand.id ?? "" }); window.open(`/article?${params}`, "_blank"); }}
+                    onClick={() => {
+                      const params = new URLSearchParams({ gapPrompt: selectedArticle.keyword || selectedArticle.title, brand: brand.name, niche: brand.niche, brandId: brand.id ?? "" });
+                      const url = `/article?${params}`;
+                      const cacheKey = `article:${selectedArticle.keyword || selectedArticle.title}:${brand.name}`;
+                      if (selectedArticle.content) {
+                        sessionStorage.setItem(cacheKey, JSON.stringify({ article: selectedArticle.content, title: selectedArticle.title, wordCount: selectedArticle.wordCount }));
+                      }
+                      window.open(url, "_blank");
+                    }}
                     className="w-full text-xs font-medium border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition-colors"
                   >
                     Open ↗
@@ -1826,6 +1836,51 @@ function DashboardPage() {
           )}
         </div>
       </main>
+
+      {/* New Article Modal */}
+      {showNewArticleModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowNewArticleModal(false)}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-stone-100">
+              <h3 className="text-base font-bold text-gray-900">New article</h3>
+              <button onClick={() => setShowNewArticleModal(false)} className="text-gray-400 hover:text-gray-600 text-xl">×</button>
+            </div>
+            <div className="px-6 py-5">
+              <label className="block text-xs font-medium text-gray-500 mb-1.5">What do you want to write about?</label>
+              <textarea
+                autoFocus
+                rows={3}
+                value={newArticleTopic}
+                onChange={(e) => setNewArticleTopic(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && newArticleTopic.trim()) {
+                    setShowNewArticleModal(false);
+                    const params = new URLSearchParams({ gapPrompt: newArticleTopic.trim(), brand: brand.name, niche: brand.niche, brandId: brand.id ?? "" });
+                    window.open(`/article?${params}`, "_blank");
+                  }
+                }}
+                placeholder={`e.g. "best ${brand.niche} tools for startups"`}
+                className="w-full border border-stone-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent resize-none"
+              />
+              <p className="text-[10px] text-gray-400 mt-1.5">Tip: phrase it like a question someone would ask an AI</p>
+            </div>
+            <div className="px-6 pb-5 flex gap-2">
+              <button onClick={() => setShowNewArticleModal(false)} className="flex-1 text-sm border border-gray-200 rounded-lg py-2.5 hover:bg-gray-50 transition-colors">Cancel</button>
+              <button
+                disabled={!newArticleTopic.trim()}
+                onClick={() => {
+                  setShowNewArticleModal(false);
+                  const params = new URLSearchParams({ gapPrompt: newArticleTopic.trim(), brand: brand.name, niche: brand.niche, brandId: brand.id ?? "" });
+                  window.open(`/article?${params}`, "_blank");
+                }}
+                className="flex-1 text-sm bg-gray-900 text-white rounded-lg py-2.5 hover:bg-gray-700 disabled:opacity-40 transition-colors font-medium"
+              >
+                Generate →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add Channel Modal */}
       {showAddChannel && (
