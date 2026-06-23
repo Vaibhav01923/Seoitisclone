@@ -87,10 +87,9 @@ const FAQS = [
 function LogoIcon({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 28 28" fill="none">
-      <rect width="28" height="28" rx="6" fill="#c8372d" />
-      <rect x="6" y="6" width="4" height="16" rx="1" fill="white" />
-      <rect x="12" y="10" width="4" height="12" rx="1" fill="white" />
-      <rect x="18" y="8" width="4" height="14" rx="1" fill="white" />
+      <rect width="28" height="28" rx="7" fill="#c8372d" />
+      <path d="M14 5C10.96 5 8.5 7.46 8.5 10.5c0 4.63 5.5 12.5 5.5 12.5s5.5-7.87 5.5-12.5C19.5 7.46 17.04 5 14 5z" fill="white" />
+      <circle cx="14" cy="10.5" r="2.2" fill="#c8372d" />
     </svg>
   );
 }
@@ -99,16 +98,16 @@ function DashboardMockup() {
   return (
     <div className="relative mx-auto max-w-5xl">
       {/* Browser chrome */}
-      <div className="bg-[#e8e0d8] rounded-t-xl px-4 py-3 flex items-center gap-2">
+      <div className="bg-[#1a1a1a] rounded-t-xl px-4 py-3 flex items-center gap-2">
         <div className="flex gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-[#c8c0b8]" />
-          <div className="w-3 h-3 rounded-full bg-[#c8c0b8]" />
-          <div className="w-3 h-3 rounded-full bg-[#c8c0b8]" />
+          <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+          <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
+          <div className="w-3 h-3 rounded-full bg-[#28c840]" />
         </div>
-        <div className="flex-1 bg-[#d8d0c8] rounded-md px-3 py-1 text-xs text-center text-[#888] font-mono">
+        <div className="flex-1 bg-[#2a2a2a] rounded-md px-3 py-1 text-xs text-center text-[#888] font-mono">
           app.rankongeo.com/overview
         </div>
-        <div className="bg-[#111] text-white text-xs px-3 py-1 rounded-md font-medium">
+        <div className="bg-[#c8372d] text-white text-xs px-3 py-1 rounded-md font-medium">
           Live demo · click around
         </div>
       </div>
@@ -116,18 +115,18 @@ function DashboardMockup() {
       {/* App shell */}
       <div className="bg-white border border-[#e5e0da] rounded-b-xl overflow-hidden flex shadow-2xl" style={{ height: 560 }}>
         {/* Sidebar */}
-        <div className="w-56 bg-[#faf8f5] border-r border-[#e8e3dc] flex flex-col shrink-0">
-          <div className="px-4 py-3 border-b border-[#e8e3dc] flex items-center gap-2">
+        <div className="w-56 bg-[#f8f9fb] border-r border-[#eaecf0] flex flex-col shrink-0">
+          <div className="px-4 py-3 border-b border-[#eaecf0] flex items-center gap-2">
             <LogoIcon size={22} />
             <span className="font-bold text-sm tracking-tight">RankOn<span className="text-[#c8372d]">Geo</span></span>
-            <span className="ml-auto text-[10px] bg-[#e8e3dc] text-[#888] px-1.5 py-0.5 rounded">v2.0</span>
+            <span className="ml-auto text-[10px] bg-[#eaecf0] text-[#888] px-1.5 py-0.5 rounded">v2.0</span>
           </div>
           {/* Brand selector */}
-          <div className="px-3 py-2 border-b border-[#e8e3dc]">
-            <div className="flex items-center gap-2 bg-white border border-[#e5e0da] rounded-lg px-2.5 py-2">
-              <div className="w-6 h-6 bg-[#111] rounded flex items-center justify-center text-white text-[10px] font-bold">N</div>
+          <div className="px-3 py-2 border-b border-[#eaecf0]">
+            <div className="flex items-center gap-2 bg-white border border-[#e5e7eb] rounded-lg px-2.5 py-2">
+              <div className="w-6 h-6 bg-[#c8372d] rounded flex items-center justify-center text-white text-[10px] font-bold">A</div>
               <div>
-                <div className="text-xs font-semibold text-[#111]">Notion</div>
+                <div className="text-xs font-semibold text-[#111]">Acme Corp</div>
                 <div className="text-[10px] text-[#888] uppercase tracking-wide">Owner</div>
               </div>
               <svg className="ml-auto w-3 h-3 text-[#aaa]" fill="none" viewBox="0 0 12 12"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
@@ -138,7 +137,7 @@ function DashboardMockup() {
             <div>
               <div className="px-2 py-1 text-[10px] uppercase tracking-widest text-[#bbb] font-medium">Measure</div>
               {[["Overview", true], ["Engines", false], ["Prompts", false], ["Citations", false], ["Competitors", false]].map(([label, active]) => (
-                <div key={label as string} className={`flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer ${active ? "bg-white border border-[#e5e0da] text-[#111] font-medium shadow-sm" : "text-[#666] hover:text-[#111]"}`}>
+                <div key={label as string} className={`flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer ${active ? "bg-white border border-[#e5e7eb] text-[#111] font-medium shadow-sm" : "text-[#666] hover:text-[#111]"}`}>
                   <div className={`w-1.5 h-1.5 rounded-full ${active ? "bg-[#c8372d]" : "bg-transparent"}`} />
                   {label}
                 </div>
@@ -153,21 +152,12 @@ function DashboardMockup() {
                 </div>
               ))}
             </div>
-            <div>
-              <div className="px-2 py-1 text-[10px] uppercase tracking-widest text-[#bbb] font-medium">Distribute</div>
-              {["Publishing", "Schedule"].map((label) => (
-                <div key={label} className="flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-[#666] hover:text-[#111]">
-                  <div className="w-1.5 h-1.5 rounded-full bg-transparent" />
-                  {label}
-                </div>
-              ))}
-            </div>
           </div>
-          <div className="border-t border-[#e8e3dc] px-3 py-2">
+          <div className="border-t border-[#eaecf0] px-3 py-2">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-[#c8372d] rounded-full flex items-center justify-center text-white text-[10px] font-bold">JE</div>
+              <div className="w-6 h-6 bg-[#c8372d] rounded-full flex items-center justify-center text-white text-[10px] font-bold">AC</div>
               <div>
-                <div className="text-[10px] font-medium text-[#111]">jess@notion.com</div>
+                <div className="text-[10px] font-medium text-[#111]">john@acmecorp.com</div>
                 <div className="text-[10px] text-[#888]">Workspace</div>
               </div>
             </div>
@@ -177,10 +167,10 @@ function DashboardMockup() {
         {/* Main content */}
         <div className="flex-1 overflow-y-auto">
           {/* Topbar */}
-          <div className="border-b border-[#e8e3dc] px-5 py-3 flex items-center justify-between">
+          <div className="border-b border-[#eaecf0] px-5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm">
-              <div className="w-5 h-5 bg-[#111] rounded flex items-center justify-center text-white text-[9px] font-bold">N</div>
-              <span className="text-[#888]">notion.com</span>
+              <div className="w-5 h-5 bg-[#c8372d] rounded flex items-center justify-center text-white text-[9px] font-bold">A</div>
+              <span className="text-[#888]">acmecorp.com</span>
               <span className="text-[#ccc]">/</span>
               <span className="font-semibold text-[#111]">Overview</span>
             </div>
@@ -203,7 +193,7 @@ function DashboardMockup() {
                 { label: "AVG POSITION", value: "2.1", sub: "lower is better" },
                 { label: "SENTIMENT SCORE", value: "84", sub: "positive" },
               ].map((s) => (
-                <div key={s.label} className="border border-[#e8e3dc] rounded-xl p-3 bg-white">
+                <div key={s.label} className="border border-[#eaecf0] rounded-xl p-3 bg-white">
                   <div className="text-[9px] uppercase tracking-widest text-[#aaa] font-medium mb-1">{s.label}</div>
                   <div className="text-2xl font-bold text-[#111] mb-0.5">{s.value}</div>
                   <div className="text-[10px] text-[#c8372d] font-medium">{s.sub}</div>
@@ -218,7 +208,7 @@ function DashboardMockup() {
 
             {/* Chart + rankings */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="border border-[#e8e3dc] rounded-xl p-3 bg-white">
+              <div className="border border-[#eaecf0] rounded-xl p-3 bg-white">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-xs font-semibold text-[#111]">Composite visibility</span>
                   <span className="text-[10px] text-[#aaa]">· last 30 days</span>
@@ -233,7 +223,7 @@ function DashboardMockup() {
                 </svg>
               </div>
 
-              <div className="border border-[#e8e3dc] rounded-xl p-3 bg-white">
+              <div className="border border-[#eaecf0] rounded-xl p-3 bg-white">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xs font-semibold text-[#111]">Rankings</span>
                   <span className="text-[10px] text-[#aaa]">· brands by visibility</span>
@@ -292,10 +282,10 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5ede3] text-[#111]" style={{ fontFamily: "var(--font-geist-sans, system-ui, sans-serif)" }}>
+    <div className="min-h-screen bg-white text-[#111]" style={{ fontFamily: "var(--font-geist-sans, system-ui, sans-serif)" }}>
 
       {/* NAV */}
-      <nav className="flex items-center justify-between px-8 py-4 max-w-7xl mx-auto">
+      <nav className="flex items-center justify-between px-8 py-4 max-w-7xl mx-auto border-b border-gray-100">
         <div className="flex items-center gap-2.5">
           <LogoIcon />
           <span className="text-xl font-bold tracking-tight">RankOn<span className="text-[#c8372d]">Geo</span></span>
@@ -313,32 +303,23 @@ export default function LandingPage() {
       </nav>
 
       {/* HERO */}
-      <section className="relative overflow-hidden">
-        {/* Dot grid */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: "radial-gradient(circle, #c8b4a0 1px, transparent 1px)",
-          backgroundSize: "28px 28px",
-          opacity: 0.35,
-        }} />
-        {/* Warm glow */}
-        <div className="absolute inset-x-0 top-0 h-96 pointer-events-none" style={{
-          background: "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(200,55,45,0.08) 0%, transparent 70%)",
-        }} />
-
+      <section className="relative overflow-hidden bg-[#0d0d0d]" style={{
+        background: "radial-gradient(ellipse at 50% -10%, rgba(200,55,45,0.18) 0%, transparent 55%), #0d0d0d",
+      }}>
         <div className="relative max-w-4xl mx-auto px-8 pt-16 pb-20 text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-3 border border-[#d8cfc5] bg-white/60 backdrop-blur-sm rounded-full px-4 py-1.5 text-xs font-medium tracking-wide mb-10">
+          <div className="inline-flex items-center gap-3 border border-white/15 bg-white/8 backdrop-blur-sm rounded-full px-4 py-1.5 text-xs font-medium tracking-wide mb-10">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-[#c8372d] animate-pulse" />
               <span className="uppercase tracking-widest text-[#c8372d] font-semibold">Up to 7 engines</span>
             </span>
-            <span className="text-[#aaa]">·</span>
-            <span className="uppercase tracking-widest text-[#888]">Daily updates</span>
-            <span className="text-[#aaa] ml-1">→</span>
+            <span className="text-white/30">·</span>
+            <span className="uppercase tracking-widest text-white/50">Daily updates</span>
+            <span className="text-white/30 ml-1">→</span>
           </div>
 
           {/* Headline */}
-          <h1 className="text-[80px] leading-[1.0] font-black tracking-tight mb-8" style={{ letterSpacing: "-0.03em" }}>
+          <h1 className="text-[80px] leading-[1.0] font-black tracking-tight mb-8 text-white" style={{ letterSpacing: "-0.03em" }}>
             Be the answer<br />
             in{" "}
             <span className="inline-grid text-[#c8372d]">
@@ -359,23 +340,23 @@ export default function LandingPage() {
           </h1>
 
           {/* Subtext */}
-          <p className="text-lg text-[#666] mb-10 max-w-2xl mx-auto leading-relaxed">
-            Track how <strong className="text-[#111]">ChatGPT, Perplexity, AI Overviews, Claude, Gemini, AI Mode, and Grok</strong>{" "}
-            <span className="text-[#aaa]">depending on plan</span> answer about your brand — then close the gap with research, articles, and publishing.{" "}
-            <strong className="text-[#111]">One pipeline.</strong>
+          <p className="text-lg text-white/50 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Track how <strong className="text-white/90">ChatGPT, Claude, Gemini, Perplexity, Grok, AI Overviews</strong>{" "}
+            answer about your brand — then close the gap with research, articles, and publishing.{" "}
+            <strong className="text-white/90">One pipeline.</strong>
           </p>
 
           {/* Input */}
-          <form onSubmit={handleStart} className="max-w-xl mx-auto mb-5 space-y-2">
+          <form onSubmit={handleStart} className="max-w-xl mx-auto mb-5">
             <div className="flex gap-2">
-              <div className="flex-1 flex items-center gap-2 bg-white border border-[#d8cfc5] rounded-xl px-4 shadow-sm">
-                <svg className="w-4 h-4 text-[#bbb] shrink-0" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" /><path d="M8 5v3l2 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+              <div className="flex-1 flex items-center gap-2 bg-white/10 border border-white/20 rounded-xl px-4">
+                <svg className="w-4 h-4 text-white/30 shrink-0" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" /><path d="M8 5v3l2 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
                 <input
                   type="text"
                   value={domain}
                   onChange={(e) => setDomain(e.target.value)}
                   placeholder="yoursite.com"
-                  className="flex-1 py-3.5 text-sm text-gray-900 bg-transparent outline-none placeholder-[#bbb]"
+                  className="flex-1 py-3.5 text-sm text-white bg-transparent outline-none placeholder-white/30"
                 />
               </div>
               <button
@@ -387,20 +368,20 @@ export default function LandingPage() {
             </div>
           </form>
 
-          <p className="text-xs text-[#aaa] tracking-wide">
-            <span className="uppercase font-semibold text-[#888]">Free analysis</span>
+          <p className="text-xs text-white/30 tracking-wide">
+            <span className="uppercase font-semibold text-white/40">Free analysis</span>
             {" · "}Paid plans track up to 7 engines{" · "}Results in ~60s
           </p>
         </div>
       </section>
 
       {/* DASHBOARD MOCKUP */}
-      <section className="px-8 pb-20">
+      <section className="px-8 pb-20 bg-[#0d0d0d] pt-4">
         <DashboardMockup />
       </section>
 
       {/* ENGINE STRIP */}
-      <section className="border-y border-[#e0d8cf] bg-[#f0e8de] py-6 px-8">
+      <section className="border-y border-gray-100 bg-[#f4f6ff] py-6 px-8">
         <p className="text-center text-xs uppercase tracking-widest text-[#aaa] font-medium mb-5">
           Tracking visibility across every major AI engine
         </p>
@@ -425,7 +406,7 @@ export default function LandingPage() {
       </section>
 
       {/* PLATFORM */}
-      <section id="platform" className="max-w-6xl mx-auto px-8 py-24">
+      <section id="platform" className="max-w-6xl mx-auto px-8 py-24 bg-white">
         <div className="text-center mb-16">
           <p className="text-xs uppercase tracking-widest text-[#888] font-semibold mb-4">Platform</p>
           <h2 className="text-4xl font-black tracking-tight mb-4">One pipeline. Four instruments.</h2>
@@ -436,7 +417,7 @@ export default function LandingPage() {
 
         <div className="flex gap-2 justify-center mb-16">
           {[["01", "Visibility"], ["02", "Research"], ["03", "Generation"], ["04", "Publishing"]].map(([num, label]) => (
-            <div key={num} className="flex items-center gap-2 border border-[#d8cfc5] bg-white rounded-full px-4 py-1.5 text-sm">
+            <div key={num} className="flex items-center gap-2 border border-gray-200 bg-white rounded-full px-4 py-1.5 text-sm">
               <span className="text-[#aaa] text-xs font-mono">{num}</span>
               <span className="font-medium text-[#111]">{label}</span>
             </div>
@@ -470,7 +451,7 @@ export default function LandingPage() {
                 ))}
               </ul>
             </div>
-            <div className="bg-white border border-[#e0d8cf] rounded-2xl p-5 shadow-sm">
+            <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
               <div className="text-[10px] uppercase tracking-widest text-[#aaa] font-medium mb-3">Industry ranking · note-taking</div>
               <div className="text-[10px] text-[#aaa] mb-3">5 brands · ChatGPT · last 30 days</div>
               <div className="space-y-2">
@@ -505,7 +486,7 @@ export default function LandingPage() {
 
           {/* 02 Research */}
           <div className="grid grid-cols-2 gap-16 items-center">
-            <div className="bg-white border border-[#e0d8cf] rounded-2xl p-5 shadow-sm order-2 md:order-1">
+            <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm order-2 md:order-1">
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-[10px] text-[#888]">note-taking · AI workflow</span>
                 <span className="ml-auto text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Generative ✓</span>
@@ -588,7 +569,7 @@ export default function LandingPage() {
                 ))}
               </ul>
             </div>
-            <div className="bg-white border border-[#e0d8cf] rounded-2xl p-5 shadow-sm font-mono text-xs">
+            <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm font-mono text-xs">
               <div className="flex items-center justify-between mb-3">
                 <span className="font-sans text-[10px] uppercase tracking-widest text-[#aaa]">Outline</span>
                 <span className="font-sans text-[10px] text-[#888]">1,840 / 2,400</span>
@@ -617,7 +598,7 @@ export default function LandingPage() {
 
           {/* 04 Publishing */}
           <div className="grid grid-cols-2 gap-16 items-center">
-            <div className="bg-white border border-[#e0d8cf] rounded-2xl p-5 shadow-sm">
+            <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
               <div className="text-[10px] uppercase tracking-widest text-[#aaa] font-medium mb-3">Publishing · 3 destinations</div>
               <div className="text-[10px] text-[#888] mb-3">Crawl pickup ~6h · <span className="text-[#c8372d] font-mono">14:32:20</span></div>
               <div className="space-y-2">
@@ -667,7 +648,7 @@ export default function LandingPage() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="bg-[#f0e8de] border-y border-[#e0d8cf] py-24 px-8">
+      <section className="bg-[#f4f6ff] border-y border-gray-100 py-24 px-8">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-xs uppercase tracking-widest text-[#888] font-semibold mb-3">How it works</p>
@@ -703,7 +684,7 @@ export default function LandingPage() {
           <p className="text-xs uppercase tracking-widest text-[#888] font-semibold mb-3">Pricing</p>
           <h2 className="text-4xl font-black tracking-tight mb-3">Simple pricing. Every plan.</h2>
           <p className="text-[#666] mb-8">The full pipeline. The bigger the plan, the more brands, prompts, and articles.</p>
-          <div className="inline-flex items-center gap-1 bg-[#ede5db] rounded-lg p-1">
+          <div className="inline-flex items-center gap-1 bg-[#f4f6ff] rounded-lg p-1">
             <button onClick={() => setBilling("monthly")} className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${billing === "monthly" ? "bg-white shadow-sm text-[#111]" : "text-[#888]"}`}>Monthly</button>
             <button onClick={() => setBilling("annual")} className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${billing === "annual" ? "bg-white shadow-sm text-[#111]" : "text-[#888]"}`}>
               Annual <span className="text-[#c8372d] text-xs ml-1 font-semibold">−17%</span>
@@ -714,7 +695,7 @@ export default function LandingPage() {
           {PRICING.map((plan) => {
             const price = billing === "annual" ? Math.round(plan.price * 0.83) : plan.price;
             return (
-              <div key={plan.name} className={`rounded-2xl p-7 ${plan.highlight ? "bg-[#111] text-white" : "bg-white border border-[#e0d8cf]"}`}>
+              <div key={plan.name} className={`rounded-2xl p-7 ${plan.highlight ? "bg-[#111] text-white" : "bg-white border border-gray-100"}`}>
                 {plan.highlight && <div className="text-xs bg-[#c8372d] text-white px-3 py-1 rounded-full w-fit mb-4 font-semibold uppercase tracking-wide">Most picked</div>}
                 <h3 className={`text-xl font-black mb-2 ${plan.highlight ? "text-white" : "text-[#111]"}`}>{plan.name}</h3>
                 <p className={`text-sm mb-5 ${plan.highlight ? "text-[#aaa]" : "text-[#666]"}`}>{plan.desc}</p>
@@ -751,7 +732,7 @@ export default function LandingPage() {
         </div>
         <div className="space-y-2">
           {FAQS.map((faq, i) => (
-            <div key={i} className="border border-[#e0d8cf] bg-white rounded-xl overflow-hidden">
+            <div key={i} className="border border-gray-100 bg-white rounded-xl overflow-hidden">
               <button
                 className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors"
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}

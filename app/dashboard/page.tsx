@@ -364,10 +364,9 @@ function DashboardPage() {
         {/* Logo */}
         <div className="px-4 py-4 flex items-center gap-2 shrink-0">
           <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-            <rect width="28" height="28" rx="6" fill="#c8372d" />
-            <rect x="6" y="6" width="4" height="16" rx="1" fill="white" />
-            <rect x="12" y="10" width="4" height="12" rx="1" fill="white" />
-            <rect x="18" y="8" width="4" height="14" rx="1" fill="white" />
+            <rect width="28" height="28" rx="7" fill="#c8372d" />
+            <path d="M14 5C10.96 5 8.5 7.46 8.5 10.5c0 4.63 5.5 12.5 5.5 12.5s5.5-7.87 5.5-12.5C19.5 7.46 17.04 5 14 5z" fill="white" />
+            <circle cx="14" cy="10.5" r="2.2" fill="#c8372d" />
           </svg>
           <span className="font-bold text-xl tracking-tight text-gray-900">
             RankOn<span className="text-red-600">Geo</span>
