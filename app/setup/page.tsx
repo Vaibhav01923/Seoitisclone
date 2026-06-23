@@ -3,6 +3,14 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BrandData, TrackedPrompt } from "@/lib/types";
+import { createSupabaseBrowserClient } from "@/lib/supabase";
+
+const PLAN_PROMPT_LIMITS: Record<string, number> = {
+  starter: 20,
+  pro: 50,
+  business: 150,
+  scale: 400,
+};
 
 type Step = "url" | "brand" | "prompts";
 
@@ -15,6 +23,14 @@ function SetupContent() {
 
   // Step 1 fields
   const [domain, setDomain] = useState(searchParams.get("domain") ?? "");
+
+  useEffect(() => {
+    createSupabaseBrowserClient()
+      .from("user_plans")
+      .select("plan")
+      .single()
+      .then(({ data }) => { if (data?.plan) setUserPlan(data.plan); });
+  }, []);
 
   useEffect(() => {
     const d = searchParams.get("domain");
@@ -39,6 +55,8 @@ function SetupContent() {
   const [newAudienceInput, setNewAudienceInput] = useState("");
   const [prompts, setPrompts] = useState<TrackedPrompt[]>([]);
   const [newPrompt, setNewPrompt] = useState("");
+  const [userPlan, setUserPlan] = useState("starter");
+  const [saving, setSaving] = useState(false);
 
   function addCompetitor() {
     const trimmed = competitorInput.trim();
@@ -103,13 +121,28 @@ function SetupContent() {
 
   function addPrompt() {
     const trimmed = newPrompt.trim();
-    if (!trimmed) return;
+    const limit = PLAN_PROMPT_LIMITS[userPlan] ?? 20;
+    if (!trimmed || prompts.length >= limit) return;
     setPrompts([...prompts, { id: `custom-${Date.now()}`, text: trimmed, category: "custom" }]);
     setNewPrompt("");
   }
 
-  function handleStart() {
+  async function handleStart() {
     if (!brand?.id) return;
+    setSaving(true);
+    await fetch("/api/brand", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: brand.id,
+        name: editedName || brand.name,
+        niche: editedNiche || brand.niche,
+        competitors: editedCompetitors,
+        targetAudience: editedAudience,
+        prompts: prompts.map((p) => ({ text: p.text, category: p.category })),
+      }),
+    });
+    setSaving(false);
     router.push(`/dashboard?brandId=${brand.id}`);
   }
 
@@ -324,12 +357,18 @@ function SetupContent() {
               </button>
             </div>
 
-            <p className="text-xs text-gray-400 mb-4">{prompts.length} prompts selected</p>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs text-gray-400">{prompts.length} / {PLAN_PROMPT_LIMITS[userPlan] ?? 20} prompts selected</p>
+              {prompts.length >= (PLAN_PROMPT_LIMITS[userPlan] ?? 20) && (
+                <p className="text-xs text-amber-600 font-medium">Limit reached · <a href="/pricing" className="underline">upgrade for more</a></p>
+              )}
+            </div>
             <button
               onClick={handleStart}
-              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-lg text-sm font-medium transition-colors"
+              disabled={saving || prompts.length === 0}
+              className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white py-3 rounded-lg text-sm font-medium transition-colors"
             >
-              Start tracking
+              {saving ? "Saving…" : "Start tracking"}
             </button>
           </div>
         )}
