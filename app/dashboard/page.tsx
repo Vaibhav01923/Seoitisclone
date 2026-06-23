@@ -2008,30 +2008,42 @@ function DashboardPage() {
               <div className="space-y-3">
                 <div>
                   <label className="text-xs font-medium text-gray-500 block mb-1">Channel type</label>
-                  <select value={newChannel.type} onChange={(e) => setNewChannel((p) => ({ ...p, type: e.target.value }))} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400">
-                    <option value="webhook">Webhook (generic JSON POST)</option>
-                    <option value="discord">Discord webhook</option>
-                    <option value="wordpress">WordPress (REST API)</option>
-                    <option value="webflow">Webflow (manual)</option>
-                    <option value="framer">Framer (manual)</option>
+                  <select value={newChannel.type} onChange={(e) => setNewChannel((p) => ({ ...p, type: e.target.value, url: "", apiKey: "" }))} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400">
+                    <option value="webhook">Webhook — send JSON to any URL</option>
+                    <option value="discord">Discord — post to a channel</option>
+                    <option value="wordpress">WordPress — publish directly to your blog</option>
                   </select>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-gray-500 block mb-1">Name</label>
                   <input value={newChannel.name} onChange={(e) => setNewChannel((p) => ({ ...p, name: e.target.value }))} placeholder="e.g. Company blog" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400" />
                 </div>
-                <div>
-                  <label className="text-xs font-medium text-gray-500 block mb-1">{newChannel.type === "wordpress" ? "WordPress site URL" : "Webhook URL"}</label>
-                  <input value={newChannel.url} onChange={(e) => setNewChannel((p) => ({ ...p, url: e.target.value }))} placeholder={newChannel.type === "wordpress" ? "https://yourblog.com" : "https://hooks.example.com/..."} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400" />
-                </div>
-                {newChannel.type === "wordpress" && (
+                {newChannel.type === "webhook" && (
                   <div>
-                    <label className="text-xs font-medium text-gray-500 block mb-1">Application password <span className="text-gray-400">(Users → Edit → App Passwords)</span></label>
-                    <input type="password" value={newChannel.apiKey} onChange={(e) => setNewChannel((p) => ({ ...p, apiKey: e.target.value }))} placeholder="xxxx xxxx xxxx xxxx xxxx xxxx" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400" />
+                    <label className="text-xs font-medium text-gray-500 block mb-1">Webhook URL</label>
+                    <input value={newChannel.url} onChange={(e) => setNewChannel((p) => ({ ...p, url: e.target.value }))} placeholder="https://hooks.example.com/..." className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400" />
+                    <p className="text-[10px] text-gray-400 mt-1">RankOnGeo will POST the article as JSON to this URL. Use <span className="font-mono">webhook.site</span> to test.</p>
                   </div>
                 )}
-                {(newChannel.type === "webflow" || newChannel.type === "framer") && (
-                  <p className="text-xs text-gray-500 bg-stone-50 rounded-lg px-3 py-2">Manual channel — you&apos;ll copy article content and paste it into your CMS. We track the log here.</p>
+                {newChannel.type === "discord" && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 block mb-1">Discord webhook URL</label>
+                    <input value={newChannel.url} onChange={(e) => setNewChannel((p) => ({ ...p, url: e.target.value }))} placeholder="https://discord.com/api/webhooks/..." className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400" />
+                    <p className="text-[10px] text-gray-400 mt-1">In Discord: channel Settings → Integrations → Webhooks → New Webhook → Copy URL</p>
+                  </div>
+                )}
+                {newChannel.type === "wordpress" && (
+                  <>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 block mb-1">WordPress site URL</label>
+                      <input value={newChannel.url} onChange={(e) => setNewChannel((p) => ({ ...p, url: e.target.value }))} placeholder="https://yourblog.com" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 block mb-1">Application password</label>
+                      <input type="password" value={newChannel.apiKey} onChange={(e) => setNewChannel((p) => ({ ...p, apiKey: e.target.value }))} placeholder="xxxx xxxx xxxx xxxx xxxx xxxx" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400" />
+                      <p className="text-[10px] text-gray-400 mt-1">WP Admin → Users → Edit your user → Application Passwords → Generate</p>
+                    </div>
+                  </>
                 )}
               </div>
               <div className="flex gap-2 mt-5">
