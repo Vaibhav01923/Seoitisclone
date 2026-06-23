@@ -32,9 +32,12 @@ function AuthContent() {
     setMessage("");
 
     if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) {
         setError(error.message);
+      } else if (data.user && data.user.identities && data.user.identities.length === 0) {
+        setError("An account with this email already exists.");
+        setMode("signin");
       } else {
         setMessage("Check your email to confirm your account, then sign in.");
         setMode("signin");
