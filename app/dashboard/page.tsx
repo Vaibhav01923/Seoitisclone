@@ -338,22 +338,37 @@ function DashboardPage() {
       .then(({ data: { user } }) => setUserEmail(user?.email ?? ""));
 
     const brandId = searchParams.get("brandId");
-    if (!brandId) { router.push("/setup"); return; }
 
-    fetch(`/api/brand?id=${brandId}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.error) { router.push("/setup"); return; }
-        setBrand(data);
-        fetch(`/api/history?brandId=${brandId}`).then((r) => r.json()).then((d) => setScanHistory(d.runs ?? []));
-        fetch(`/api/keywords?brandId=${brandId}`).then((r) => r.json()).then((d) => setSocialKeywords(d.keywords ?? []));
-        fetch(`/api/reddit/threads?brandId=${brandId}`).then((r) => r.json()).then((d) => setRedditThreads(d.threads ?? []));
-        fetch(`/api/articles?brandId=${brandId}`).then((r) => r.json()).then((d) => setSavedArticles((d.articles ?? []).map(mapArticleFromDb)));
-        fetch(`/api/publishing/channels?brandId=${brandId}`).then((r) => r.json()).then((d) => setPublishingChannels(d.channels ?? []));
-        fetch(`/api/publishing/log?brandId=${brandId}`).then((r) => r.json()).then((d) => setPublishingLog(d.log ?? []));
-        fetch(`/api/alerts?brandId=${brandId}`).then((r) => r.json()).then((d) => { setAlertDestinations(d.destinations ?? []); setAlertDeliveries(d.deliveries ?? []); });
-      })
-      .finally(() => setLoadingBrand(false));
+    const loadBrand = (id: string) => {
+      fetch(`/api/brand?id=${id}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.error) { router.push("/setup"); return; }
+          if (!searchParams.get("brandId")) router.replace(`/dashboard?brandId=${id}`);
+          setBrand(data);
+          fetch(`/api/history?brandId=${id}`).then((r) => r.json()).then((d) => setScanHistory(d.runs ?? []));
+          fetch(`/api/keywords?brandId=${id}`).then((r) => r.json()).then((d) => setSocialKeywords(d.keywords ?? []));
+          fetch(`/api/reddit/threads?brandId=${id}`).then((r) => r.json()).then((d) => setRedditThreads(d.threads ?? []));
+          fetch(`/api/articles?brandId=${id}`).then((r) => r.json()).then((d) => setSavedArticles((d.articles ?? []).map(mapArticleFromDb)));
+          fetch(`/api/publishing/channels?brandId=${id}`).then((r) => r.json()).then((d) => setPublishingChannels(d.channels ?? []));
+          fetch(`/api/publishing/log?brandId=${id}`).then((r) => r.json()).then((d) => setPublishingLog(d.log ?? []));
+          fetch(`/api/alerts?brandId=${id}`).then((r) => r.json()).then((d) => { setAlertDestinations(d.destinations ?? []); setAlertDeliveries(d.deliveries ?? []); });
+        })
+        .finally(() => setLoadingBrand(false));
+    };
+
+    if (!brandId) {
+      fetch("/api/brands")
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.brands?.length) { loadBrand(data.brands[0].id); }
+          else { router.push("/setup"); }
+        })
+        .catch(() => router.push("/setup"));
+      return;
+    }
+
+    loadBrand(brandId);
   }, []);
 
   useEffect(() => {

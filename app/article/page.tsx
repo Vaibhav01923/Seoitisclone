@@ -90,7 +90,7 @@ function ArticleContent() {
               {copied ? "Copied!" : "Copy Markdown"}
             </button>
           )}
-          <button onClick={() => router.push("/dashboard")} className="text-sm px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
+          <button onClick={() => router.push(brandId ? `/dashboard?brandId=${brandId}` : "/dashboard")} className="text-sm px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
             Back to dashboard →
           </button>
         </div>
@@ -188,7 +188,7 @@ function ArticleContent() {
               <button onClick={copyToClipboard} className="px-5 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors">
                 {copied ? "Copied!" : "Copy Markdown"}
               </button>
-              <button onClick={() => router.push("/dashboard")} className="px-5 py-2.5 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors">
+              <button onClick={() => router.push(brandId ? `/dashboard?brandId=${brandId}` : "/dashboard")} className="px-5 py-2.5 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors">
                 Back to dashboard →
               </button>
             </div>
