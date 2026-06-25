@@ -510,23 +510,33 @@ export default function LandingPage() {
 
         {/* ENGINE STRIP */}
         <section className="border-y border-white/[0.06] bg-[#080808] py-5 px-8">
-          <p className="text-center text-[11px] tracking-widest text-[#3a3a3a] font-medium mb-4 uppercase">
+          <p className="text-center text-[11px] tracking-widest text-[#3a3a3a] font-medium mb-5 uppercase">
             Tracking visibility across every major AI engine
           </p>
-          <div className="flex items-center justify-center gap-8 flex-wrap">
+          <div className="flex items-center justify-center gap-10 flex-wrap">
             {[
-              { name: "ChatGPT", color: "#10a37f" },
-              { name: "Claude", color: "#d4673a" },
-              { name: "Perplexity", color: "#888" },
-              { name: "Gemini", color: "#4285f4" },
-              { name: "Grok", color: "#666" },
+              { name: "ChatGPT", logo: "/openai.svg" },
+              { name: "Claude", logo: "/claude.svg" },
+              { name: "Perplexity", logo: "/perplexity.svg" },
+              { name: "Gemini", logo: "/gemini.svg" },
+              { name: "Grok", logo: "/grok.svg" },
               { name: "AI Overviews", color: "#4285f4" },
               { name: "AI Mode", color: "#8b5cf6" },
             ].map((e) => (
-              <div key={e.name} className="flex items-center gap-2 text-sm text-[#555] font-medium">
-                <span style={{ color: e.color, fontSize: 8 }} aria-hidden="true">●</span>
-                {e.name}
-              </div>
+              "logo" in e ? (
+                <img
+                  key={e.name}
+                  src={e.logo}
+                  alt={e.name}
+                  className="h-4 w-auto"
+                  style={{ filter: "brightness(0) invert(1)", opacity: 0.35 }}
+                />
+              ) : (
+                <div key={e.name} className="flex items-center gap-2 text-sm text-[#444] font-medium">
+                  <span style={{ color: e.color, fontSize: 8 }} aria-hidden="true">●</span>
+                  {e.name}
+                </div>
+              )
             ))}
           </div>
         </section>

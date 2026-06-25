@@ -157,13 +157,13 @@ function OverviewContent() {
 
 function EnginesContent() {
   const engines = [
-    { name: "ChatGPT", color: "#10a37f", pct: 81 },
+    { name: "ChatGPT", color: "#10a37f", pct: 81, logo: "/openai.svg" },
     { name: "AI Overviews", color: "#4285f4", pct: 79 },
-    { name: "Perplexity", color: "#20b2aa", pct: 77 },
-    { name: "Claude", color: "#d4673a", pct: 74 },
-    { name: "Gemini", color: "#4285f4", pct: 68 },
+    { name: "Perplexity", color: "#20b2aa", pct: 77, logo: "/perplexity.svg" },
+    { name: "Claude", color: "#d4673a", pct: 74, logo: "/claude.svg" },
+    { name: "Gemini", color: "#4285f4", pct: 68, logo: "/gemini.svg" },
     { name: "AI Mode", color: "#8b5cf6", pct: 65 },
-    { name: "Grok", color: "#555", pct: 61 },
+    { name: "Grok", color: "#555", pct: 61, logo: "/grok.svg" },
   ];
   return (
     <div className="px-5 py-4" style={{ animation: "fadeUp 0.2s ease forwards" }}>
@@ -172,12 +172,15 @@ function EnginesContent() {
       <div className="space-y-3">
         {engines.map((e) => (
           <div key={e.name} className="flex items-center gap-3">
-            <div className="w-24 text-xs text-[#444] shrink-0 text-right">{e.name}</div>
+            <div className="w-28 flex items-center justify-end shrink-0">
+              {"logo" in e && e.logo ? (
+                <img src={e.logo} alt={e.name} className="h-3.5 w-auto max-w-[88px]" style={{ filter: "brightness(0) opacity(0.55)" }} />
+              ) : (
+                <span className="text-xs text-[#444]">{e.name}</span>
+              )}
+            </div>
             <div className="flex-1 h-2 bg-[#f3f4f6] rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all"
-                style={{ width: `${e.pct}%`, background: e.color }}
-              />
+              <div className="h-full rounded-full" style={{ width: `${e.pct}%`, background: e.color }} />
             </div>
             <div className="w-9 text-xs font-semibold text-[#111] text-right shrink-0">{e.pct}%</div>
           </div>
