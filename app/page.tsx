@@ -232,13 +232,13 @@ function BentoGrid() {
   ] as { rank: number; domain: string; you?: boolean; pct: number; delta: string }[];
 
   const engines = [
-    { label: "GPT", color: "#10a37f" },
-    { label: "Claude", color: "#d4673a" },
-    { label: "Gemini", color: "#4285f4" },
-    { label: "Perp.", color: "#20b2aa" },
-    { label: "Grok", color: "#444" },
-    { label: "AIO", color: "#4285f4" },
-    { label: "AIM", color: "#8b5cf6" },
+    { label: "ChatGPT", logo: "/openai.svg" },
+    { label: "Claude", logo: "/claude.svg" },
+    { label: "Gemini", logo: "/gemini.svg" },
+    { label: "Perplexity", logo: "/perplexity.svg" },
+    { label: "Grok", logo: "/grok.svg" },
+    { label: "AI Overviews" },
+    { label: "AI Mode" },
   ];
 
   const gaps = [
@@ -312,19 +312,22 @@ function BentoGrid() {
               <span className="text-[10px] text-white/30 uppercase tracking-widest mb-2">Coverage</span>
               <div className="text-6xl font-black text-white leading-none">7</div>
               <div className="text-sm text-white/40 mt-1 mb-6">AI engines tracked</div>
-              <div className="grid grid-cols-4 gap-3 mt-auto">
-                {engines.map((e) => (
-                  <div key={e.label} className="flex flex-col items-center gap-1.5">
-                    <div
-                      className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-[10px] font-bold"
-                      style={{ background: e.color }}
-                      aria-hidden="true"
-                    >
-                      {e.label[0]}
-                    </div>
-                    <span className="text-[9px] text-white/25 text-center">{e.label}</span>
-                  </div>
-                ))}
+              <div className="flex flex-wrap gap-x-4 gap-y-3 mt-auto">
+                {engines.map((e) =>
+                  "logo" in e ? (
+                    <img
+                      key={e.label}
+                      src={e.logo}
+                      alt={e.label}
+                      className="h-3.5 w-auto"
+                      style={{ filter: "brightness(0) invert(1)", opacity: 0.35 }}
+                    />
+                  ) : (
+                    <span key={e.label} className="text-[11px] font-medium text-white/30 leading-[14px]">
+                      {e.label}
+                    </span>
+                  )
+                )}
               </div>
             </div>
           </div>
