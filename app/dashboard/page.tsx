@@ -304,6 +304,7 @@ function DashboardPage() {
   const [agentInput, setAgentInput] = useState("");
   const [agentLoading, setAgentLoading] = useState(false);
   const [agentInitialized, setAgentInitialized] = useState(false);
+  const [expandedPrompts, setExpandedPrompts] = useState<Set<string>>(new Set());
   const agentEndRef = useRef<HTMLDivElement>(null);
 
   // Articles state
@@ -979,31 +980,104 @@ function DashboardPage() {
                 <EmptyState label="No prompt data" sub="Run a scan to see AI responses per prompt" />
               ) : (
                 <>
-                  <h2 className="text-xl font-bold text-gray-900 mb-5">Prompts</h2>
-                  <div className="space-y-3">
-                    {results.map((r, i) => (
-                      <div key={i} className="bg-white border border-stone-200 rounded-xl p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className={`w-2 h-2 rounded-full ${ENGINE_COLORS[r.engine]}`} />
-                          <span className="text-xs font-medium text-gray-600">{ENGINE_LABELS[r.engine]}</span>
-                          <span className="text-gray-200">·</span>
-                          <span className="text-xs text-gray-500 truncate max-w-xs">{r.promptText}</span>
-                          {r.brandMentioned ? (
-                            <span className="ml-auto text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full shrink-0">Mentioned{r.brandRank ? ` #${r.brandRank}` : ""}</span>
-                          ) : (
-                            <span className="ml-auto text-xs font-medium text-red-500 bg-red-50 px-2 py-0.5 rounded-full shrink-0">Absent</span>
+                  <h2 className="text-xl font-bold text-gray-900 mb-1">Prompts</h2>
+                  <p className="text-sm text-gray-400 mb-5">Click any row to see the full AI response</p>
+                  <div className="space-y-2">
+                    {brand.trackedPrompts.map((p) => {
+                      const promptResults = results.filter((r) => r.promptId === p.id);
+                      if (!promptResults.length) return null;
+                      const isExpanded = expandedPrompts.has(p.id);
+                      const mentionedCount = promptResults.filter((r) => r.brandMentioned).length;
+                      return (
+                        <div key={p.id} className="bg-white border border-stone-200 rounded-xl overflow-hidden">
+                          {/* Header row — click to expand */}
+                          <button
+                            className="w-full flex items-start gap-3 px-5 py-4 text-left hover:bg-stone-50 transition-colors"
+                            onClick={() => setExpandedPrompts((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(p.id)) next.delete(p.id); else next.add(p.id);
+                              return next;
+                            })}
+                          >
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-gray-900 mb-2.5 leading-snug">{p.text}</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {promptResults.map((r) => (
+                                  <span
+                                    key={r.engine}
+                                    className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium border ${
+                                      r.brandMentioned
+                                        ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                                        : "bg-red-50 text-[#c8372d] border-red-100"
+                                    }`}
+                                  >
+                                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${ENGINE_COLORS[r.engine]}`} />
+                                    {ENGINE_LABELS[r.engine]}
+                                    {r.brandMentioned
+                                      ? <span className="opacity-70">{r.brandRank ? ` #${r.brandRank}` : " ✓"}</span>
+                                      : <span className="opacity-60"> absent</span>
+                                    }
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0 mt-0.5">
+                              <span className={`text-xs font-semibold ${mentionedCount === promptResults.length ? "text-emerald-600" : mentionedCount === 0 ? "text-red-500" : "text-amber-600"}`}>
+                                {mentionedCount}/{promptResults.length}
+                              </span>
+                              <svg
+                                width="14" height="14" viewBox="0 0 16 16" fill="none"
+                                className={`text-gray-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                              >
+                                <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            </div>
+                          </button>
+
+                          {/* Expanded responses */}
+                          {isExpanded && (
+                            <div className="border-t border-stone-100 divide-y divide-stone-100">
+                              {promptResults.map((r) => (
+                                <div key={r.engine} className="px-5 py-4">
+                                  <div className="flex items-center gap-2 mb-2.5">
+                                    <div className={`w-2 h-2 rounded-full shrink-0 ${ENGINE_COLORS[r.engine]}`} />
+                                    <span className={`text-xs font-semibold ${ENGINE_TEXT_COLORS[r.engine]}`}>{ENGINE_LABELS[r.engine]}</span>
+                                    <span className="text-gray-200">·</span>
+                                    {r.brandMentioned ? (
+                                      <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                                        Mentioned{r.brandRank ? ` #${r.brandRank}` : ""}
+                                      </span>
+                                    ) : (
+                                      <span className="text-xs font-medium text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100">Absent</span>
+                                    )}
+                                  </div>
+                                  {r.response ? (
+                                    <p className="text-xs text-gray-600 leading-relaxed">{r.response}</p>
+                                  ) : (
+                                    <p className="text-xs text-gray-400 italic">No response recorded</p>
+                                  )}
+                                  {r.citations.length > 0 && (
+                                    <div className="mt-3 flex flex-wrap gap-1.5">
+                                      {r.citations.map((c, j) => (
+                                        <a
+                                          key={j}
+                                          href={c}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-[10px] bg-stone-50 text-gray-500 hover:text-gray-700 px-2 py-0.5 rounded border border-stone-200 truncate max-w-[220px] transition-colors"
+                                        >
+                                          {c.replace(/^https?:\/\/(www\.)?/, "")}
+                                        </a>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
                           )}
                         </div>
-                        <p className="text-xs text-gray-400 leading-relaxed line-clamp-3">{r.response}</p>
-                        {r.citations.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {r.citations.slice(0, 3).map((c, j) => (
-                              <span key={j} className="text-xs bg-gray-50 text-gray-500 px-2 py-0.5 rounded border border-gray-100 truncate max-w-[200px]">{c}</span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </>
               )}
