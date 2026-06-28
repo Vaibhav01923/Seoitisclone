@@ -41,8 +41,16 @@ function extractMentions(
     return { name: c, rank: ranked ? ranked.rank : null };
   }).filter((c) => lower.includes(c.name.toLowerCase()));
 
-  // Extract URLs
-  const urlMatches = response.match(/https?:\/\/[^\s\)\"]+/g) ?? [];
+  // Extract URLs — filter out placeholder/example domains and trailing punctuation
+  const BLOCKED_DOMAINS = ["example.com", "example.org", "example.net", "localhost", "your-domain.com", "yourdomain.com", "domain.com"];
+  const urlMatches = (response.match(/https?:\/\/[^\s\)\"<>]+/g) ?? [])
+    .map((u) => u.replace(/['".,;:!?)\]}>]+$/, "")) // strip trailing punctuation
+    .filter((u) => {
+      try {
+        const host = new URL(u).hostname.replace(/^www\./, "");
+        return !BLOCKED_DOMAINS.some((b) => host === b || host.endsWith("." + b));
+      } catch { return false; }
+    });
   const citations = [...new Set(urlMatches)].slice(0, 10);
 
   return { brandMentioned, brandRank, competitorMentions, citations };
