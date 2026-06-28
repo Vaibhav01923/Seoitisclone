@@ -875,7 +875,8 @@ function DashboardPage() {
             <div className="bg-white border border-stone-200 rounded-xl p-8 text-center mb-5">
               <div className="w-7 h-7 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
               <p className="text-sm font-medium text-gray-700">Submitting prompts to AI engines…</p>
-              <p className="text-xs text-gray-400 mt-1">Running {brand.trackedPrompts.length} prompts × {selectedEngines.length} engines</p>
+              <p className="text-xs text-gray-400 mt-1">Running {brand.trackedPrompts.length} prompts × {selectedEngines.length} engines · this may take 2–5 minutes</p>
+              <p className="text-xs text-amber-600 mt-1.5 font-medium">Please keep this tab open until the scan completes</p>
             </div>
           )}
 
