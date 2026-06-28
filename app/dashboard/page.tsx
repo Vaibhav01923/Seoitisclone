@@ -2357,39 +2357,117 @@ function DashboardPage() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowAddAlert(false)}>
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="text-base font-semibold text-gray-900">Add alert destination</h3>
-                <button onClick={() => setShowAddAlert(false)} className="text-gray-400 hover:text-gray-600 text-xl">×</button>
+              {/* Header */}
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900">Add alert destination</h3>
+                  <p className="text-xs text-gray-400 mt-0.5">Get notified when your visibility changes, drops, or you gain new mentions</p>
+                </div>
+                <button onClick={() => setShowAddAlert(false)} className="text-gray-300 hover:text-gray-500 text-xl leading-none ml-4 shrink-0">×</button>
               </div>
-              <div className="space-y-3">
+
+              <div className="space-y-4">
+                {/* Kind selector — clickable cards */}
                 <div>
-                  <label className="text-xs font-medium text-gray-500 block mb-1">Kind</label>
-                  <select value={newAlert.kind} onChange={(e) => setNewAlert((p) => ({ ...p, kind: e.target.value }))} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400">
-                    <option value="slack">Slack (incoming webhook)</option>
-                    <option value="discord">Discord webhook</option>
-                    <option value="webhook">Generic webhook</option>
-                    <option value="email">Email</option>
-                  </select>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Where to send alerts</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {([
+                      { value: "discord", label: "Discord", icon: (
+                        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z"/></svg>
+                      )},
+                      { value: "slack", label: "Slack", icon: (
+                        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor"><path d="M5.042 15.165a2.528 2.528 0 01-2.52 2.523A2.528 2.528 0 010 15.165a2.527 2.527 0 012.522-2.52h2.52v2.52zm1.271 0a2.527 2.527 0 012.521-2.52 2.527 2.527 0 012.521 2.52v6.313A2.528 2.528 0 018.834 24a2.528 2.528 0 01-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 01-2.521-2.52A2.528 2.528 0 018.834 0a2.528 2.528 0 012.521 2.522v2.52H8.834zm0 1.271a2.528 2.528 0 012.521 2.521 2.528 2.528 0 01-2.521 2.521H2.522A2.528 2.528 0 010 8.834a2.528 2.528 0 012.522-2.521h6.312zm10.122 2.521a2.528 2.528 0 012.522-2.521A2.528 2.528 0 0124 8.834a2.528 2.528 0 01-2.522 2.521h-2.522V8.834zm-1.268 0a2.528 2.528 0 01-2.523 2.521 2.527 2.527 0 01-2.52-2.521V2.522A2.527 2.527 0 0115.165 0a2.528 2.528 0 012.523 2.522v6.312zm-2.523 10.122a2.528 2.528 0 012.523 2.522A2.528 2.528 0 0115.165 24a2.527 2.527 0 01-2.52-2.522v-2.522h2.52zm0-1.268a2.527 2.527 0 01-2.52-2.523 2.526 2.526 0 012.52-2.52h6.313A2.527 2.527 0 0124 15.165a2.528 2.528 0 01-2.522 2.523h-6.313z"/></svg>
+                      )},
+                      { value: "webhook", label: "Webhook", icon: (
+                        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      )},
+                      { value: "email", label: "Email", icon: (
+                        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" strokeLinecap="round" strokeLinejoin="round"/><polyline points="22,6 12,13 2,6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      )},
+                    ] as { value: string; label: string; icon: React.ReactNode }[]).map(({ value, label, icon }) => {
+                      const active = newAlert.kind === value;
+                      return (
+                        <button
+                          key={value}
+                          onClick={() => setNewAlert((p) => ({ ...p, kind: value }))}
+                          className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 text-xs font-medium transition-all ${
+                            active
+                              ? "border-gray-900 bg-gray-900 text-white"
+                              : "border-stone-200 text-gray-500 hover:border-gray-400 hover:text-gray-700"
+                          }`}
+                        >
+                          {icon}
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
+
+                {/* Discord guide */}
+                {newAlert.kind === "discord" && (
+                  <div className="bg-[#5865f2]/5 border border-[#5865f2]/20 rounded-xl p-4">
+                    <p className="text-xs font-semibold text-[#5865f2] mb-2">How to get a Discord webhook URL</p>
+                    <ol className="space-y-1.5 text-xs text-gray-600">
+                      <li className="flex gap-2"><span className="text-[#5865f2] font-semibold shrink-0">1.</span>Open your Discord server → right-click the channel you want alerts in</li>
+                      <li className="flex gap-2"><span className="text-[#5865f2] font-semibold shrink-0">2.</span>Click <span className="font-medium">Edit Channel</span> → <span className="font-medium">Integrations</span> → <span className="font-medium">Webhooks</span></li>
+                      <li className="flex gap-2"><span className="text-[#5865f2] font-semibold shrink-0">3.</span>Click <span className="font-medium">New Webhook</span>, give it a name, then click <span className="font-medium">Copy Webhook URL</span></li>
+                      <li className="flex gap-2"><span className="text-[#5865f2] font-semibold shrink-0">4.</span>Paste the URL below — it starts with <span className="font-mono bg-[#5865f2]/10 px-1 rounded">discord.com/api/webhooks/…</span></li>
+                    </ol>
+                  </div>
+                )}
+
+                {/* Slack guide */}
+                {newAlert.kind === "slack" && (
+                  <div className="bg-[#4a154b]/5 border border-[#4a154b]/15 rounded-xl p-4">
+                    <p className="text-xs font-semibold text-[#4a154b] mb-2">How to get a Slack webhook URL</p>
+                    <ol className="space-y-1.5 text-xs text-gray-600">
+                      <li className="flex gap-2"><span className="text-[#4a154b] font-semibold shrink-0">1.</span>Go to <span className="font-mono bg-[#4a154b]/10 px-1 rounded">api.slack.com/apps</span> → Create New App → From Scratch</li>
+                      <li className="flex gap-2"><span className="text-[#4a154b] font-semibold shrink-0">2.</span>Enable <span className="font-medium">Incoming Webhooks</span> → Add New Webhook to Workspace</li>
+                      <li className="flex gap-2"><span className="text-[#4a154b] font-semibold shrink-0">3.</span>Pick a channel, then copy the webhook URL that starts with <span className="font-mono bg-[#4a154b]/10 px-1 rounded">hooks.slack.com/…</span></li>
+                    </ol>
+                  </div>
+                )}
+
+                {/* Name field */}
                 <div>
-                  <label className="text-xs font-medium text-gray-500 block mb-1">Name</label>
-                  <input value={newAlert.name} onChange={(e) => setNewAlert((p) => ({ ...p, name: e.target.value }))} placeholder="e.g. Eng team Slack" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400" />
+                  <label className="text-xs font-semibold text-gray-500 block mb-1.5">Nickname</label>
+                  <input
+                    value={newAlert.name}
+                    onChange={(e) => setNewAlert((p) => ({ ...p, name: e.target.value }))}
+                    placeholder={newAlert.kind === "discord" ? "e.g. #alerts channel" : newAlert.kind === "slack" ? "e.g. #eng-team" : newAlert.kind === "email" ? "e.g. Me" : "e.g. My webhook"}
+                    className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-red-300 focus:border-red-300 transition-colors"
+                  />
                 </div>
+
+                {/* URL / email field */}
                 {newAlert.kind !== "email" ? (
                   <div>
-                    <label className="text-xs font-medium text-gray-500 block mb-1">Webhook URL</label>
-                    <input value={newAlert.url} onChange={(e) => setNewAlert((p) => ({ ...p, url: e.target.value }))} placeholder="https://hooks.slack.com/..." className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400" />
+                    <label className="text-xs font-semibold text-gray-500 block mb-1.5">Webhook URL</label>
+                    <input
+                      value={newAlert.url}
+                      onChange={(e) => setNewAlert((p) => ({ ...p, url: e.target.value }))}
+                      placeholder={newAlert.kind === "discord" ? "https://discord.com/api/webhooks/…" : newAlert.kind === "slack" ? "https://hooks.slack.com/services/…" : "https://…"}
+                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-red-300 focus:border-red-300 transition-colors font-mono text-xs"
+                    />
                   </div>
                 ) : (
                   <div>
-                    <label className="text-xs font-medium text-gray-500 block mb-1">Email address</label>
-                    <input type="email" value={newAlert.email} onChange={(e) => setNewAlert((p) => ({ ...p, email: e.target.value }))} placeholder="team@company.com" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400" />
+                    <label className="text-xs font-semibold text-gray-500 block mb-1.5">Email address</label>
+                    <input
+                      type="email"
+                      value={newAlert.email}
+                      onChange={(e) => setNewAlert((p) => ({ ...p, email: e.target.value }))}
+                      placeholder="you@company.com"
+                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-red-300 focus:border-red-300 transition-colors"
+                    />
                   </div>
                 )}
               </div>
+
               <div className="flex gap-2 mt-5">
-                <button onClick={() => setShowAddAlert(false)} className="flex-1 text-sm border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition-colors">Cancel</button>
-                <button onClick={addAlertDestination} disabled={addingAlert || !newAlert.name} className="flex-1 text-sm font-medium bg-gray-900 text-white rounded-lg py-2 hover:bg-gray-700 disabled:opacity-50 transition-colors">
+                <button onClick={() => setShowAddAlert(false)} className="flex-1 text-sm border border-stone-200 rounded-xl py-2.5 hover:bg-stone-50 transition-colors text-gray-600">Cancel</button>
+                <button onClick={addAlertDestination} disabled={addingAlert || !newAlert.name} className="flex-1 text-sm font-semibold bg-gray-900 text-white rounded-xl py-2.5 hover:bg-gray-700 disabled:opacity-40 transition-colors">
                   {addingAlert ? "Adding…" : "Add destination"}
                 </button>
               </div>
