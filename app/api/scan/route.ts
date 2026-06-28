@@ -161,6 +161,18 @@ export async function POST(req: NextRequest) {
         try { controller.enqueue(enc.encode(JSON.stringify(obj) + "\n")); } catch {}
       };
 
+      async function queryWithRetry(engine: AIEngine, promptText: string, retries = 2): Promise<string> {
+        for (let attempt = 0; attempt <= retries; attempt++) {
+          try {
+            return await queryEngine(engine, promptText);
+          } catch (err) {
+            if (attempt === retries) throw err;
+            await new Promise((r) => setTimeout(r, 1000 * (attempt + 1))); // 1s, 2s backoff
+          }
+        }
+        return "";
+      }
+
       // Engines run in parallel; prompts within each engine run sequentially
       // with a small polite delay. Paid API keys handle this comfortably.
       await Promise.allSettled(engines.map(async (engine) => {
@@ -168,7 +180,7 @@ export async function POST(req: NextRequest) {
           const prompt = promptsToRun[i];
           if (i > 0) await new Promise((r) => setTimeout(r, 200));
           try {
-            const response = await queryEngine(engine, prompt.text);
+            const response = await queryWithRetry(engine, prompt.text);
             const mentions = extractMentions(response, brand.name, brand.competitors);
             const result: ScanResult = {
               promptId: prompt.id,
