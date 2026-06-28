@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
   const { brandName, domain, niche, overallScore, scores, gaps, totalPrompts, competitors } = scanContext ?? {};
 
-  const systemPrompt = `You are Pulse, an AI visibility analyst for RankOnGeo. You help brands understand and improve their visibility in AI engines like ChatGPT, Claude, Gemini, and Perplexity.
+  const systemPrompt = `You are GROG, an AI visibility analyst for RankOnGeo. You help brands understand and improve their visibility in AI engines like ChatGPT, Claude, Gemini, and Perplexity.
 
 ${brandName ? `You are analyzing: ${brandName} (${domain}) — ${niche}` : "No brand data loaded yet."}
 ${overallScore !== null && overallScore !== undefined ? `Current composite visibility: ${overallScore}%` : ""}

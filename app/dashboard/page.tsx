@@ -415,7 +415,7 @@ function DashboardPage() {
       setAgentInitialized(true);
       const greeting = overallScore !== null
         ? `Based on your latest scan across ${brand.trackedPrompts.length} prompts, **${brand.name}** holds **${overallScore}% visibility** with the biggest opportunities on ${gaps.length > 0 ? `"${gaps[0].promptText}"` : "comparison queries"}. Ask about gaps, competitors, or what to write next — I have your live tracking data.`
-        : `Hi! I'm Pulse, your AI visibility analyst for **${brand.name}** (${brand.domain}). Run a scan first to unlock live data insights, or ask me anything about AI visibility strategy.`;
+        : `Hi! I'm GROG, your AI visibility analyst for **${brand.name}** (${brand.domain}). Run a scan first to unlock live data insights, or ask me anything about AI visibility strategy.`;
       setAgentMessages([{ role: "assistant", content: greeting }]);
     }
   }, [activeTab, agentInitialized, brand, overallScore, gaps]);
@@ -1572,7 +1572,7 @@ function DashboardPage() {
               <div className="px-6 pt-5 pb-2 shrink-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-red-600 text-lg">✳</span>
-                  <span className="font-semibold text-gray-900">Pulse</span>
+                  <span className="font-semibold text-gray-900">GROG</span>
                   <span className="text-xs text-gray-400">· live tracking data</span>
                 </div>
               </div>
@@ -1615,14 +1615,14 @@ function DashboardPage() {
                     value={agentInput}
                     onChange={(e) => setAgentInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendAgentMessage(); } }}
-                    placeholder="Ask Pulse about your AI visibility…"
+                    placeholder="Ask GROG about your AI visibility…"
                     rows={1}
                     className="w-full px-4 pt-3 pb-1 text-sm text-gray-800 placeholder-gray-400 resize-none outline-none rounded-t-2xl"
                   />
                   <div className="flex items-center justify-between px-4 pb-3">
                     <span className="text-xs text-gray-400">
                       <span className="w-1.5 h-1.5 bg-gray-400 rounded-full inline-block mr-1" />
-                      Pulse · reads your live data
+                      GROG · reads your live data
                     </span>
                     <button
                       onClick={sendAgentMessage}
