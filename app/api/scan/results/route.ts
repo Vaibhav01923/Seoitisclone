@@ -9,22 +9,25 @@ export async function GET(req: NextRequest) {
   const { data: { user } } = await db.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  // Get the most recent scan run for this brand
   const { data: latestRun } = await db
     .from("scan_runs")
-    .select("id")
+    .select("id, engines, overall_score")
     .eq("brand_id", brandId)
     .order("created_at", { ascending: false })
     .limit(1)
     .single();
 
-  if (!latestRun) return NextResponse.json({ results: [] });
+  if (!latestRun) return NextResponse.json({ results: [], scores: [], overallScore: 0 });
 
-  const { data: rows, error } = await db
-    .from("scan_results")
-    .select("prompt_id, prompt_text, engine, response, brand_mentioned, brand_rank, competitor_mentions, citations, scanned_at")
-    .eq("scan_run_id", latestRun.id)
-    .eq("brand_id", brandId);
+  const [{ data: rows, error }, { data: scoreRows }] = await Promise.all([
+    db.from("scan_results")
+      .select("prompt_id, prompt_text, engine, response, brand_mentioned, brand_rank, competitor_mentions, citations, scanned_at")
+      .eq("scan_run_id", latestRun.id)
+      .eq("brand_id", brandId),
+    db.from("visibility_scores")
+      .select("engine, score, mention_count, total_prompts, avg_rank")
+      .eq("scan_run_id", latestRun.id),
+  ]);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
@@ -40,5 +43,38 @@ export async function GET(req: NextRequest) {
     scannedAt: r.scanned_at,
   }));
 
-  return NextResponse.json({ results });
+  // If visibility_scores weren't written (scan interrupted mid-way),
+  // compute them on-the-fly from scan_results so scores are never 0.
+  let scores = (scoreRows ?? []).map((s) => ({
+    engine: s.engine,
+    score: s.score,
+    mentionCount: s.mention_count,
+    totalPrompts: s.total_prompts,
+    avgRank: s.avg_rank,
+  }));
+
+  if (scores.length === 0 && results.length > 0) {
+    const engines = [...new Set(results.map((r) => r.engine))];
+    scores = engines.map((engine) => {
+      const er = results.filter((r) => r.engine === engine);
+      const mentions = er.filter((r) => r.brandMentioned);
+      const ranked = mentions.filter((r) => r.brandRank !== null);
+      const avgRank = ranked.length
+        ? ranked.reduce((s, r) => s + (r.brandRank ?? 0), 0) / ranked.length
+        : null;
+      return {
+        engine,
+        score: Math.round((mentions.length / er.length) * 100),
+        mentionCount: mentions.length,
+        totalPrompts: er.length,
+        avgRank,
+      };
+    });
+  }
+
+  const overallScore = scores.length
+    ? Math.round(scores.reduce((s, sc) => s + sc.score, 0) / scores.length)
+    : latestRun.overall_score ?? 0;
+
+  return NextResponse.json({ results, scores, overallScore });
 }

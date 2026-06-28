@@ -370,7 +370,12 @@ function DashboardPage() {
           setBrand(data);
           fetch(`/api/history?brandId=${id}`).then((r) => r.json()).then((d) => setScanHistory(d.runs ?? []));
           fetch(`/api/scan/results?brandId=${id}`).then((r) => r.json()).then((d) => {
-            if (d.results?.length) { setResults(d.results); setScanned(true); }
+            if (d.results?.length) {
+              setResults(d.results);
+              setScanned(true);
+              if (d.scores?.length) setScores(d.scores);
+              if (d.overallScore !== undefined) setOverallScore(d.overallScore);
+            }
           }).finally(() => setLoadingResults(false));
           fetch(`/api/keywords?brandId=${id}`).then((r) => r.json()).then((d) => setSocialKeywords(d.keywords ?? []));
           fetch(`/api/reddit/threads?brandId=${id}`).then((r) => r.json()).then((d) => setRedditThreads(d.threads ?? []));
