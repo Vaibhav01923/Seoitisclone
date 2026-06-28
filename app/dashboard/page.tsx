@@ -2436,7 +2436,7 @@ function DashboardPage() {
                     value={newAlert.name}
                     onChange={(e) => setNewAlert((p) => ({ ...p, name: e.target.value }))}
                     placeholder={newAlert.kind === "discord" ? "e.g. #alerts channel" : newAlert.kind === "slack" ? "e.g. #eng-team" : newAlert.kind === "email" ? "e.g. Me" : "e.g. My webhook"}
-                    className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-red-300 focus:border-red-300 transition-colors"
+                    className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-red-300 focus:border-red-300 transition-colors"
                   />
                 </div>
 
@@ -2448,7 +2448,7 @@ function DashboardPage() {
                       value={newAlert.url}
                       onChange={(e) => setNewAlert((p) => ({ ...p, url: e.target.value }))}
                       placeholder={newAlert.kind === "discord" ? "https://discord.com/api/webhooks/…" : newAlert.kind === "slack" ? "https://hooks.slack.com/services/…" : "https://…"}
-                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-red-300 focus:border-red-300 transition-colors font-mono text-xs"
+                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-gray-900 placeholder:text-gray-400 font-mono outline-none focus:ring-2 focus:ring-red-300 focus:border-red-300 transition-colors"
                     />
                   </div>
                 ) : (
@@ -2459,7 +2459,7 @@ function DashboardPage() {
                       value={newAlert.email}
                       onChange={(e) => setNewAlert((p) => ({ ...p, email: e.target.value }))}
                       placeholder="you@company.com"
-                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-red-300 focus:border-red-300 transition-colors"
+                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-red-300 focus:border-red-300 transition-colors"
                     />
                   </div>
                 )}
