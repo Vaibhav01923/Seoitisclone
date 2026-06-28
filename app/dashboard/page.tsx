@@ -286,7 +286,7 @@ function DashboardPage() {
   const [overallScore, setOverallScore] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [scanned, setScanned] = useState(false);
-  const [selectedEngines, setSelectedEngines] = useState<AIEngine[]>(["chatgpt", "claude", "gemini", "perplexity", "grok", "google"]);
+  const [selectedEngines, setSelectedEngines] = useState<AIEngine[]>(["chatgpt", "claude", "gemini", "perplexity", "grok"]);
   const [error, setError] = useState("");
   const [scanHistory, setScanHistory] = useState<ScanRun[]>([]);
   const [socialKeywords, setSocialKeywords] = useState<SocialKeyword[]>([]);

@@ -163,14 +163,17 @@ export async function POST(req: NextRequest) {
 
   const promptsToRun = prompts;
 
-  // Run engines in parallel, but prompts within each engine sequentially with a
-  // small delay — prevents rate-limit failures when multiple prompts hit the same
-  // API tier simultaneously.
+  // Gemini free tier = 15 RPM → need ≥4s between requests.
+  // Other engines are more generous; 500ms is safe.
+  const ENGINE_DELAY_MS: Partial<Record<AIEngine, number>> = { gemini: 4200 };
+  const DEFAULT_DELAY_MS = 500;
+
   async function runEngine(engine: AIEngine): Promise<ScanResult[]> {
+    const delayMs = ENGINE_DELAY_MS[engine] ?? DEFAULT_DELAY_MS;
     const engineResults: ScanResult[] = [];
     for (let i = 0; i < promptsToRun.length; i++) {
       const prompt = promptsToRun[i];
-      if (i > 0) await new Promise((r) => setTimeout(r, 300));
+      if (i > 0) await new Promise((r) => setTimeout(r, delayMs));
       try {
         const response = await queryEngine(engine, prompt.text);
         const mentions = extractMentions(response, brand.name, brand.competitors);
