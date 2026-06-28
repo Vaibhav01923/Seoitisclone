@@ -286,7 +286,8 @@ function DashboardPage() {
   const [overallScore, setOverallScore] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [scanned, setScanned] = useState(false);
-  const [selectedEngines, setSelectedEngines] = useState<AIEngine[]>(["chatgpt", "claude", "gemini", "perplexity", "grok"]);
+  const [selectedEngines] = useState<AIEngine[]>(["chatgpt", "claude", "gemini", "perplexity", "grok"]);
+  const [nextCheckIn, setNextCheckIn] = useState<string>("");
   const [error, setError] = useState("");
   const [scanHistory, setScanHistory] = useState<ScanRun[]>([]);
   const [socialKeywords, setSocialKeywords] = useState<SocialKeyword[]>([]);
@@ -307,6 +308,11 @@ function DashboardPage() {
   const [agentLoading, setAgentLoading] = useState(false);
   const [agentInitialized, setAgentInitialized] = useState(false);
   const [expandedPrompts, setExpandedPrompts] = useState<Set<string>>(new Set());
+  const [expandedCitationDomains, setExpandedCitationDomains] = useState<Set<string>>(new Set());
+  const [engageItem, setEngageItem] = useState<{ url: string; promptText: string; engine: string } | null>(null);
+  const [engageDraft, setEngageDraft] = useState("");
+  const [engageGenerating, setEngageGenerating] = useState(false);
+  const [engageCopied, setEngageCopied] = useState(false);
   const [hoveredScanIdx, setHoveredScanIdx] = useState<number | null>(null);
   const [scanProgress, setScanProgress] = useState<{ done: number; total: number } | null>(null);
   const agentEndRef = useRef<HTMLDivElement>(null);
@@ -419,6 +425,24 @@ function DashboardPage() {
   useEffect(() => {
     agentEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [agentMessages]);
+
+  // Countdown to next daily cron scan (8am UTC daily)
+  useEffect(() => {
+    function computeCountdown() {
+      const now = new Date();
+      // Find next 8am UTC
+      const next = new Date();
+      next.setUTCHours(8, 0, 0, 0);
+      if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
+      const diffMs = next.getTime() - now.getTime();
+      const h = Math.floor(diffMs / 3600000);
+      const m = Math.floor((diffMs % 3600000) / 60000);
+      setNextCheckIn(`${h}h ${m}m`);
+    }
+    computeCountdown();
+    const timer = setInterval(computeCountdown, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (activeTab === "agent" && !agentInitialized && brand) {
@@ -663,10 +687,6 @@ function DashboardPage() {
     }
   }
 
-  function toggleEngine(engine: AIEngine) {
-    setSelectedEngines((prev) => prev.includes(engine) ? prev.filter((e) => e !== engine) : [...prev, engine]);
-  }
-
   function navTo(tab: Tab) {
     setActiveTab(tab);
     sessionStorage.setItem("dashTab", tab);
@@ -707,6 +727,22 @@ function DashboardPage() {
   })();
 
   const totalCitations = results.reduce((s, r) => s + r.citations.length, 0);
+
+  const citationInstances = (() => {
+    const map: Record<string, { url: string; engine: string; promptText: string }[]> = {};
+    results.forEach((r) => {
+      r.citations.forEach((url) => {
+        try {
+          const domain = new URL(url).hostname.replace(/^www\./, "");
+          if (!domain) return;
+          if (!map[domain]) map[domain] = [];
+          const exists = map[domain].some((x) => x.url === url && x.engine === r.engine);
+          if (!exists) map[domain].push({ url, engine: r.engine, promptText: r.promptText });
+        } catch {}
+      });
+    });
+    return map;
+  })();
 
   const sourceTypeCounts = citationDomains.reduce<Record<string, number>>((acc, [, v]) => {
     acc[v.type] = (acc[v.type] ?? 0) + v.count;
@@ -858,20 +894,28 @@ function DashboardPage() {
             <span className="text-gray-500">{TAB_LABELS[activeTab]}</span>
           </div>
 
-          <div className="flex items-center gap-2">
-            {(activeTab === "overview" || activeTab === "history" || activeTab === "results" || activeTab === "citations" || activeTab === "competitors" || activeTab === "gaps") && (
-              <div className="flex items-center gap-1">
-                {AVAILABLE_ENGINES.map((engine) => (
-                  <button
-                    key={engine}
-                    onClick={() => toggleEngine(engine)}
-                    className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
-                      selectedEngines.includes(engine) ? "border-red-300 bg-red-50 text-red-700" : "border-gray-200 text-gray-400 hover:border-gray-300"
-                    }`}
-                  >
-                    {ENGINE_LABELS[engine]}
-                  </button>
-                ))}
+          <div className="flex items-center gap-3">
+            {/* "Next check in" countdown — shown once scanned, hidden during initial scan */}
+            {scanned && !scanning && (
+              <div className="flex items-center gap-1.5 text-xs text-gray-400 border border-stone-200 rounded-lg px-3 py-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                Next check in: <span className="font-medium text-gray-600">{nextCheckIn}</span>
+              </div>
+            )}
+            {/* First-time scan — only shown when no data exists yet */}
+            {!scanned && !scanning && !loadingResults && (
+              <button
+                onClick={runScan}
+                disabled={selectedEngines.length === 0}
+                className="flex items-center gap-1.5 bg-gray-900 hover:bg-gray-700 disabled:opacity-50 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
+              >
+                Start monitoring
+              </button>
+            )}
+            {scanning && (
+              <div className="flex items-center gap-1.5 text-xs text-gray-500 border border-stone-200 rounded-lg px-3 py-1.5">
+                <span className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                Running initial scan…
               </div>
             )}
             {activeTab === "articles" && (
@@ -885,16 +929,6 @@ function DashboardPage() {
             {activeTab === "publishing" && (
               <button onClick={() => { setPublishResult(null); setShowPublishModal(true); }} className="flex items-center gap-1.5 bg-gray-900 hover:bg-gray-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">
                 ⚡ Publish now
-              </button>
-            )}
-            {(activeTab === "overview" || activeTab === "history" || activeTab === "results" || activeTab === "citations" || activeTab === "competitors" || activeTab === "gaps") && (
-              <button
-                onClick={runScan}
-                disabled={scanning || selectedEngines.length === 0}
-                className="flex items-center gap-1.5 bg-gray-900 hover:bg-gray-700 disabled:opacity-50 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
-              >
-                {scanning && <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />}
-                {scanning ? "Scanning…" : scanned ? "+ Re-scan" : "+ Run scan"}
               </button>
             )}
             {activeTab === "agent" && (
@@ -1271,68 +1305,161 @@ function DashboardPage() {
                   <h2 className="text-xl font-bold text-gray-900 mb-1">Citations</h2>
                   <p className="text-sm text-gray-400 mb-5">Sources AI engines cited when mentioning {brand.name}</p>
 
-                  <div className="grid grid-cols-3 gap-3 mb-5">
+                  {/* Stat cards */}
+                  <div className="grid grid-cols-2 gap-3 mb-5">
                     <StatCard label="Total Citations" value={totalCitations} sub={`avg ${Math.round(totalCitations / Math.max(results.length, 1))} per response`} />
-                    <div className="bg-white border border-stone-200 rounded-xl p-5">
-                      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">By source type</p>
-                      <div className="space-y-2">
-                        {Object.entries(sourceTypeCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([type, count]) => (
-                          <div key={type} className="flex items-center gap-2">
-                            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded w-16 text-center ${SOURCE_TYPE_COLORS[type] ?? "bg-gray-100 text-gray-600"}`}>{type}</span>
-                            <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                              <div className="h-full bg-red-400 rounded-full" style={{ width: `${Math.round((count / totalCitations) * 100)}%` }} />
-                            </div>
-                            <span className="text-xs text-gray-500 w-6 text-right">{count}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="bg-white border border-stone-200 rounded-xl p-5">
-                      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">Top citing sources</p>
-                      <div className="space-y-2">
-                        {citationDomains.slice(0, 4).map(([domain, info]) => (
-                          <div key={domain} className="flex items-center justify-between gap-2">
-                            <span className="text-xs text-gray-700 truncate flex-1">{domain}</span>
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded shrink-0 ${SOURCE_TYPE_COLORS[info.type] ?? "bg-gray-100 text-gray-600"}`}>{info.type}</span>
-                            <span className="text-xs font-medium text-gray-900 w-4 text-right shrink-0">{info.count}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    <StatCard label="Unique Domains" value={citationDomains.length} sub="domains citing your brand" />
                   </div>
 
+                  {/* Reddit engage card — shown when any Reddit citation exists */}
+                  {citationDomains.some(([d]) => d.includes("reddit.com")) && (
+                    <div className="mb-5 bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center gap-4">
+                      <div className="w-9 h-9 rounded-lg bg-[#FF4500] flex items-center justify-center shrink-0">
+                        <svg viewBox="0 0 20 20" className="w-5 h-5 fill-white"><circle cx="10" cy="10" r="10" fill="#FF4500"/><path fill="white" d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.07 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.19.19 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.51-1.53zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.65a3.55 3.55 0 01-2.85.86 3.55 3.55 0 01-2.85-.86.19.19 0 01.27-.27 3.16 3.16 0 002.58.65 3.16 3.16 0 002.58-.65.19.19 0 01.27.27zm-.17-1.65a1 1 0 111-1 1 1 0 01-1 1z"/></svg>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="text-sm font-semibold text-gray-900">Reddit</span>
+                          <span className="text-[10px] font-bold bg-orange-200 text-orange-800 px-1.5 py-0.5 rounded uppercase tracking-wide">High impact</span>
+                        </div>
+                        <p className="text-xs text-gray-500">AI engines are citing Reddit threads about {brand.name} — engage to influence these conversations</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const redditEntry = citationDomains.find(([d]) => d.includes("reddit.com"));
+                          if (redditEntry) {
+                            const instances = citationInstances[redditEntry[0]];
+                            if (instances?.[0]) {
+                              setEngageItem({ url: instances[0].url, promptText: instances[0].promptText, engine: instances[0].engine });
+                              setEngageDraft("");
+                            }
+                          }
+                        }}
+                        className="shrink-0 px-4 py-2 rounded-lg bg-[#FF4500] text-white text-sm font-medium hover:bg-[#e03d00] transition-colors"
+                      >
+                        Engage
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Top Cited Domains */}
                   <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
                     <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
-                      <p className="text-sm font-semibold text-gray-900">All citing sources · {citationDomains.length}</p>
+                      <p className="text-sm font-semibold text-gray-900">Top Cited Domains <span className="ml-1.5 text-[11px] font-normal text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">{citationDomains.length}</span></p>
+                      <p className="text-xs text-gray-400">Click a row to expand URLs</p>
                     </div>
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-stone-100">
-                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Source</th>
-                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Type</th>
-                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Engines</th>
-                          <th className="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Citations</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-stone-50">
-                        {citationDomains.map(([domain, info]) => (
-                          <tr key={domain} className="hover:bg-stone-50/50">
-                            <td className="px-5 py-3 text-sm text-gray-800">{domain}</td>
-                            <td className="px-5 py-3">
-                              <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${SOURCE_TYPE_COLORS[info.type] ?? "bg-gray-100 text-gray-600"}`}>{info.type}</span>
-                            </td>
-                            <td className="px-5 py-3">
-                              <div className="flex gap-1">
-                                {[...info.engines].map((e) => (
-                                  <span key={e} className={`text-[10px] px-1.5 py-0.5 rounded ${ENGINE_BADGE_COLORS[e] ?? "bg-gray-100 text-gray-600"}`}>{ENGINE_LABELS[e as AIEngine] ?? e}</span>
-                                ))}
-                              </div>
-                            </td>
-                            <td className="px-5 py-3 text-sm font-medium text-gray-900 text-right">{info.count}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+
+                    {/* Table header */}
+                    <div className="grid grid-cols-[28px_1fr_auto_auto_auto_28px] gap-x-3 px-5 py-2.5 border-b border-stone-100 bg-stone-50/50">
+                      <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">#</span>
+                      <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Domain</span>
+                      <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Type</span>
+                      <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Engines</span>
+                      <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest text-right">Citations</span>
+                      <span />
+                    </div>
+
+                    {citationDomains.map(([domain, info], idx) => {
+                      const isExpanded = expandedCitationDomains.has(domain);
+                      const instances = citationInstances[domain] ?? [];
+                      return (
+                        <div key={domain} className="border-b border-stone-50 last:border-0">
+                          {/* Domain row */}
+                          <button
+                            onClick={() => setExpandedCitationDomains((prev) => {
+                              const next = new Set(prev);
+                              next.has(domain) ? next.delete(domain) : next.add(domain);
+                              return next;
+                            })}
+                            className="w-full grid grid-cols-[28px_1fr_auto_auto_auto_28px] gap-x-3 px-5 py-3 hover:bg-stone-50/80 transition-colors text-left items-center"
+                          >
+                            <span className="text-xs text-gray-400 font-medium">{idx + 1}</span>
+                            <div className="flex items-center gap-2 min-w-0">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={`https://www.google.com/s2/favicons?domain=${domain}&sz=16`}
+                                alt=""
+                                width={16}
+                                height={16}
+                                className="rounded shrink-0"
+                                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                              />
+                              <span className="text-sm text-gray-800 font-medium truncate">{domain}</span>
+                            </div>
+                            <span className={`text-[10px] font-medium px-2 py-0.5 rounded shrink-0 ${SOURCE_TYPE_COLORS[info.type] ?? "bg-gray-100 text-gray-600"}`}>{info.type}</span>
+                            <div className="flex gap-1 shrink-0">
+                              {[...info.engines].map((e) => (
+                                <span key={e} className={`w-2 h-2 rounded-full ${ENGINE_COLORS[e as AIEngine] ?? "bg-gray-300"}`} title={ENGINE_LABELS[e as AIEngine] ?? e} />
+                              ))}
+                            </div>
+                            <span className="text-sm font-semibold text-gray-900 text-right">{info.count}</span>
+                            <svg
+                              className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
+                              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+
+                          {/* Expanded URL rows */}
+                          {isExpanded && (
+                            <div className="bg-stone-50/60 border-t border-stone-100">
+                              {instances.length === 0 ? (
+                                <p className="px-5 py-3 text-xs text-gray-400">No individual URLs available</p>
+                              ) : (
+                                instances.map((item, i) => {
+                                  const isReddit = item.url.includes("reddit.com");
+                                  const urlDisplay = item.url.replace(/^https?:\/\/(www\.)?/, "").replace(/\?.*$/, "");
+                                  const promptSnippet = item.promptText.length > 45
+                                    ? item.promptText.slice(0, 45) + "…"
+                                    : item.promptText;
+                                  return (
+                                    <div key={i} className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-x-3 px-5 py-2.5 border-b border-stone-100/60 last:border-0 items-center">
+                                      <a
+                                        href={item.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="text-xs text-blue-600 hover:underline truncate"
+                                        title={item.url}
+                                      >
+                                        {urlDisplay}
+                                      </a>
+                                      <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${SOURCE_TYPE_COLORS[getSourceType(domain)] ?? "bg-gray-100 text-gray-600"}`}>
+                                        {getSourceType(domain)}
+                                      </span>
+                                      <div className="flex items-center gap-1 shrink-0">
+                                        <span className={`w-1.5 h-1.5 rounded-full ${ENGINE_COLORS[item.engine as AIEngine] ?? "bg-gray-300"}`} />
+                                        <span className="text-xs text-gray-500">{ENGINE_LABELS[item.engine as AIEngine] ?? item.engine}</span>
+                                      </div>
+                                      <span className="text-xs text-gray-400 shrink-0 max-w-[160px] truncate hidden lg:block" title={item.promptText}>{promptSnippet}</span>
+                                      {isReddit ? (
+                                        <button
+                                          onClick={() => { setEngageItem({ url: item.url, promptText: item.promptText, engine: item.engine }); setEngageDraft(""); }}
+                                          className="shrink-0 text-xs font-medium px-3 py-1 rounded-lg bg-[#FF4500] text-white hover:bg-[#e03d00] transition-colors"
+                                        >
+                                          Engage
+                                        </button>
+                                      ) : (
+                                        <a
+                                          href={item.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          onClick={(e) => e.stopPropagation()}
+                                          className="shrink-0 text-xs font-medium px-3 py-1 rounded-lg border border-stone-200 text-gray-500 hover:bg-stone-100 transition-colors"
+                                        >
+                                          View →
+                                        </a>
+                                      )}
+                                    </div>
+                                  );
+                                })
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </>
               )}
@@ -2597,6 +2724,128 @@ function DashboardPage() {
                   <button onClick={() => draftReplyForThread(activeThread)} className="w-full text-sm font-medium bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 transition-colors">Generate draft</button>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ENGAGE PANEL */}
+      {engageItem && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="flex-1 bg-black/30 backdrop-blur-sm" onClick={() => setEngageItem(null)} />
+          <div className="w-[420px] h-full bg-white shadow-2xl flex flex-col overflow-hidden border-l border-stone-200">
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-stone-100 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-[#FF4500] flex items-center justify-center shrink-0">
+                <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none">
+                  <circle cx="10" cy="10" r="10" fill="white" fillOpacity="0.2"/>
+                  <path fill="white" d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.07 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.19.19 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.51-1.53zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.65a3.55 3.55 0 01-2.85.86 3.55 3.55 0 01-2.85-.86.19.19 0 01.27-.27 3.16 3.16 0 002.58.65 3.16 3.16 0 002.58-.65.19.19 0 01.27.27zm-.17-1.65a1 1 0 111-1 1 1 0 01-1 1z"/>
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-900">Engage on Reddit</p>
+                <p className="text-xs text-gray-400">Draft a reply to influence this citation</p>
+              </div>
+              <button onClick={() => setEngageItem(null)} className="ml-auto text-gray-400 hover:text-gray-600">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            {/* Thread context */}
+            <div className="px-5 py-4 border-b border-stone-100 bg-stone-50/50">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Thread</p>
+              <a
+                href={engageItem.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-2 group"
+              >
+                <span className="text-xs text-blue-600 group-hover:underline break-all leading-relaxed">
+                  {engageItem.url.replace(/^https?:\/\/(www\.)?/, "")}
+                </span>
+                <svg className="w-3 h-3 text-gray-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+              </a>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-[10px] text-gray-400">Cited by</span>
+                <div className="flex items-center gap-1">
+                  <span className={`w-1.5 h-1.5 rounded-full ${ENGINE_COLORS[engageItem.engine as AIEngine] ?? "bg-gray-300"}`} />
+                  <span className="text-[10px] font-medium text-gray-600">{ENGINE_LABELS[engageItem.engine as AIEngine] ?? engageItem.engine}</span>
+                </div>
+                <span className="text-[10px] text-gray-400">for prompt:</span>
+                <span className="text-[10px] text-gray-600 italic truncate max-w-[140px]">{engageItem.promptText.slice(0, 50)}{engageItem.promptText.length > 50 ? "…" : ""}</span>
+              </div>
+            </div>
+
+            {/* Draft area */}
+            <div className="flex-1 flex flex-col px-5 py-4 gap-3 overflow-y-auto">
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Reply draft</p>
+                <button
+                  onClick={async () => {
+                    setEngageGenerating(true);
+                    try {
+                      const res = await fetch("/api/agent", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          messages: [{
+                            role: "user",
+                            content: `Write a short, helpful Reddit comment (2-3 sentences) that naturally and authentically mentions ${brand.name} in the context of this thread. The thread appeared when someone searched: "${engageItem.promptText}". Keep it genuine and conversational — not promotional. Just reply with the comment text, no preamble.`,
+                          }],
+                          scanContext: { brandName: brand.name, domain: brand.domain, niche: brand.niche },
+                        }),
+                      });
+                      if (res.ok) {
+                        const d = await res.json();
+                        setEngageDraft(d.reply ?? "");
+                      }
+                    } catch {}
+                    setEngageGenerating(false);
+                  }}
+                  disabled={engageGenerating}
+                  className="flex items-center gap-1.5 text-xs font-medium text-brand hover:text-brand-dark disabled:opacity-50 transition-colors"
+                >
+                  {engageGenerating ? (
+                    <><span className="w-3 h-3 border border-brand border-t-transparent rounded-full animate-spin" /> Generating…</>
+                  ) : (
+                    <><svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> AI suggest</>
+                  )}
+                </button>
+              </div>
+              <textarea
+                value={engageDraft}
+                onChange={(e) => setEngageDraft(e.target.value)}
+                placeholder="Write your reply here, or click AI suggest to generate one…"
+                rows={8}
+                className="w-full text-sm text-gray-800 placeholder:text-gray-400 border border-stone-200 rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand/40 bg-white"
+              />
+              {engageDraft && (
+                <p className="text-xs text-gray-400">{engageDraft.trim().split(/\s+/).length} words · edit freely before posting</p>
+              )}
+            </div>
+
+            {/* Footer actions */}
+            <div className="px-5 py-4 border-t border-stone-100 flex gap-2">
+              <button
+                onClick={() => {
+                  if (engageDraft) {
+                    navigator.clipboard.writeText(engageDraft);
+                    setEngageCopied(true);
+                    setTimeout(() => setEngageCopied(false), 2000);
+                  }
+                }}
+                disabled={!engageDraft}
+                className="flex-1 text-sm font-medium border border-stone-200 text-gray-700 py-2.5 rounded-lg hover:bg-stone-50 disabled:opacity-40 transition-colors"
+              >
+                {engageCopied ? "Copied!" : "Copy text"}
+              </button>
+              <a
+                href={engageItem.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 text-sm font-medium bg-[#FF4500] text-white text-center py-2.5 rounded-lg hover:bg-[#e03d00] transition-colors"
+              >
+                Open Reddit →
+              </a>
             </div>
           </div>
         </div>
