@@ -21,7 +21,13 @@ export async function GET(req: NextRequest) {
     .select("id, name, domain, niche, description, target_audience, competitors");
 
   if (error || !brands?.length) {
-    return NextResponse.json({ scanned: 0, error: error?.message ?? "No brands" });
+    const serviceKeySet = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const serviceKeyValid = process.env.SUPABASE_SERVICE_ROLE_KEY?.startsWith("eyJ") ?? false;
+    return NextResponse.json({
+      scanned: 0,
+      error: error?.message ?? "No brands found",
+      debug: { serviceKeySet, serviceKeyValid, supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0, 30) }
+    });
   }
 
   let scanned = 0;
