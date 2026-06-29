@@ -5,7 +5,11 @@ import { AIEngine, BrandData } from "@/lib/types";
 
 export const maxDuration = 300;
 
-const DEFAULT_ENGINES: AIEngine[] = ["chatgpt", "claude", "gemini", "grok"];
+// Only 2 engines per cron run to stay within timeout
+const CRON_ENGINES: AIEngine[] = ["chatgpt", "claude"];
+
+// Max brands per cron invocation — prevents timeout
+const BRANDS_PER_RUN = 2;
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
@@ -15,31 +19,37 @@ export async function GET(req: NextRequest) {
 
   const db = serverClient();
 
-  // Fetch all brands with their prompts
+  // Pick the brands least recently scanned (rotating fairness)
+  // Left join scan_runs to get max scanned_at per brand, order ascending so
+  // brands never scanned come first, then oldest scan next.
   const { data: brands, error } = await db
     .from("brands")
-    .select("id, name, domain, niche, description, target_audience, competitors");
+    .select(`
+      id, name, domain, niche, description, target_audience, competitors,
+      scan_runs(created_at)
+    `)
+    .order("created_at", { referencedTable: "scan_runs", ascending: true })
+    .limit(BRANDS_PER_RUN * 5); // fetch extra, filter below to BRANDS_PER_RUN with prompts
 
   if (error || !brands?.length) {
-    const serviceKeySet = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
-    const serviceKeyValid = process.env.SUPABASE_SERVICE_ROLE_KEY?.startsWith("eyJ") ?? false;
-    return NextResponse.json({
-      scanned: 0,
-      error: error?.message ?? "No brands found",
-      debug: { serviceKeySet, serviceKeyValid, supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0, 30), keyFirst10: process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 10), keyCharCodes: Array.from(process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 5) ?? "").map(c => c.charCodeAt(0)) }
-    });
+    return NextResponse.json({ scanned: 0, error: error?.message ?? "No brands found" });
   }
 
   let scanned = 0;
+  let attempted = 0;
   const errors: string[] = [];
 
   for (const brandRow of brands) {
+    if (attempted >= BRANDS_PER_RUN) break;
+
     const { data: promptRows } = await db
       .from("tracked_prompts")
       .select("id, text, category")
-      .eq("brand_id", brandRow.id);
+      .eq("brand_id", brandRow.id)
+      .limit(20); // cap prompts per brand
 
     if (!promptRows?.length) continue;
+    attempted++;
 
     const brand: BrandData = {
       id: brandRow.id,
@@ -54,15 +64,15 @@ export async function GET(req: NextRequest) {
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await runScanForBrand(brand, DEFAULT_ENGINES, db as any);
+      await runScanForBrand(brand, CRON_ENGINES, db as any);
       scanned++;
-      console.log(`[cron] Scanned brand: ${brand.name}`);
+      console.log(`[cron] Scanned brand: ${brand.name} (${brand.id})`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       errors.push(`${brand.name}: ${msg}`);
-      console.error(`[cron] Failed to scan brand ${brand.name}:`, err);
+      console.error(`[cron] Failed brand ${brand.name}:`, err);
     }
   }
 
-  return NextResponse.json({ scanned, errors });
+  return NextResponse.json({ scanned, errors: errors.length ? errors : undefined });
 }
