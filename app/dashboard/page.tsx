@@ -314,6 +314,14 @@ function DashboardPage() {
   const [engageGenerating, setEngageGenerating] = useState(false);
   const [engageCopied, setEngageCopied] = useState(false);
   const [hoveredScanIdx, setHoveredScanIdx] = useState<number | null>(null);
+  // Citations page state
+  const [showCitationOnboarding, setShowCitationOnboarding] = useState(false);
+  const [citationOnboardingStep, setCitationOnboardingStep] = useState(0);
+  const [dontShowCitationsOnboarding, setDontShowCitationsOnboarding] = useState(false);
+  const [citationSearch, setCitationSearch] = useState("");
+  const [citationTypeFilter, setCitationTypeFilter] = useState("All");
+  const [citationPromptFilter, setCitationPromptFilter] = useState("All");
+  const [citationHistory, setCitationHistory] = useState<{ domain: string; data: { date: string; count: number }[] }[]>([]);
   const [scanProgress, setScanProgress] = useState<{ done: number; total: number } | null>(null);
   const agentEndRef = useRef<HTMLDivElement>(null);
 
@@ -425,6 +433,18 @@ function DashboardPage() {
   useEffect(() => {
     agentEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [agentMessages]);
+
+  // Show citations onboarding dialog + fetch citation history when tab opens
+  useEffect(() => {
+    if (activeTab !== "citations" || !brand) return;
+    if (!localStorage.getItem("citationsOnboardingSeen")) {
+      setShowCitationOnboarding(true);
+      setCitationOnboardingStep(0);
+    }
+    fetch(`/api/citations/history?brandId=${brand.id}`)
+      .then((r) => r.json())
+      .then((d) => { if (d.series) setCitationHistory(d.series); });
+  }, [activeTab, brand]);
 
   // Countdown to next daily cron scan (8am UTC daily)
   useEffect(() => {
@@ -1294,173 +1314,475 @@ function DashboardPage() {
           {/* CITATIONS */}
           {activeTab === "citations" && (
             <>
+              {/* 3-step onboarding dialog */}
+              {showCitationOnboarding && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+                  <div className="bg-[#faf7f2] rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden">
+                    {/* Header bar */}
+                    <div className="flex items-center justify-between px-8 pt-7 pb-0">
+                      <h2 className="text-lg font-bold text-gray-900">Get Cited in AI Responses — In 3 Steps</h2>
+                      <div className="flex gap-1.5">
+                        {[0,1,2].map((i) => (
+                          <div key={i} className={`w-2.5 h-2.5 rounded-full transition-colors ${i === citationOnboardingStep ? "bg-[#c8372d]" : "bg-gray-300"}`} />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Step content */}
+                    <div className="flex gap-8 px-8 py-8 min-h-[380px] items-center">
+                      {/* Left: text */}
+                      <div className="flex-1 min-w-0">
+                        {citationOnboardingStep === 0 && (
+                          <>
+                            <h3 className="text-2xl font-bold text-gray-900 mb-4">AI Scans the <span className="text-[#c8372d]">Web</span></h3>
+                            <p className="text-gray-600 mb-3">AI answers pull from public discussions and citation sources.</p>
+                            <p className="text-gray-600 mb-3">If your brand isn't mentioned there, you don't appear.</p>
+                            <p className="font-semibold text-gray-800">Check the citation sources &amp; engage.</p>
+                          </>
+                        )}
+                        {citationOnboardingStep === 1 && (
+                          <>
+                            <h3 className="text-2xl font-bold text-gray-900 mb-4">Engage on <span className="text-[#c8372d]">Citation Sources</span></h3>
+                            <p className="text-gray-600 mb-3">Post valuable comments on Reddit and other cited sources using your connected account.</p>
+                            <p className="font-semibold text-gray-800">This is how your brand enters AI responses.</p>
+                          </>
+                        )}
+                        {citationOnboardingStep === 2 && (
+                          <>
+                            <h3 className="text-2xl font-bold text-gray-900 mb-4">Get Cited in <span className="text-[#c8372d]">AI Responses</span></h3>
+                            <p className="text-gray-600 mb-3">Your engaged content gets ranked, surfaced, and cited — bringing your brand directly into AI responses.</p>
+                            <p className="font-semibold text-gray-800">Visibility that compounds.</p>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Right: illustration card */}
+                      <div className="w-80 shrink-0">
+                        {citationOnboardingStep === 0 && (
+                          <div className="bg-white rounded-2xl p-5 shadow-sm border border-stone-100">
+                            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">AI response</p>
+                            <div className="bg-[#f5f0e8] rounded-xl px-4 py-3 mb-3">
+                              <p className="text-sm font-semibold text-gray-800">No brand presence</p>
+                            </div>
+                            <div className="flex items-center gap-2 mb-4">
+                              <span className="text-[10px] text-gray-500">Citations</span>
+                              <div className="flex gap-1">
+                                <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-[10px] font-bold text-orange-700">C</div>
+                                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-[10px] font-bold text-green-700">W</div>
+                                <div className="w-6 h-6 rounded-full bg-[#FF4500] flex items-center justify-center">
+                                  <svg viewBox="0 0 20 20" className="w-3.5 h-3.5 fill-white"><path d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.07 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.19.19 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.51-1.53zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.65a3.55 3.55 0 01-2.85.86 3.55 3.55 0 01-2.85-.86.19.19 0 01.27-.27 3.16 3.16 0 002.58.65 3.16 3.16 0 002.58-.65.19.19 0 01.27.27zm-.17-1.65a1 1 0 111-1 1 1 0 01-1 1z"/></svg>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="bg-[#fff5f2] border border-orange-100 rounded-lg px-3 py-2 flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-[#FF4500] flex items-center justify-center shrink-0">
+                                <svg viewBox="0 0 20 20" className="w-3.5 h-3.5 fill-white"><path d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.07 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.19.19 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.51-1.53zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.65a3.55 3.55 0 01-2.85.86 3.55 3.55 0 01-2.85-.86.19.19 0 01.27-.27 3.16 3.16 0 002.58.65 3.16 3.16 0 002.58-.65.19.19 0 01.27.27zm-.17-1.65a1 1 0 111-1 1 1 0 01-1 1z"/></svg>
+                              </div>
+                              <span className="text-xs text-gray-500 flex-1">reddit.com/r/…</span>
+                              <span className="text-xs font-medium text-[#c8372d] flex items-center gap-0.5">⚡ Engage</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {citationOnboardingStep === 1 && (
+                          <div className="bg-white rounded-2xl p-5 shadow-sm border border-stone-100">
+                            <div className="bg-[#f5f0e8] rounded-xl p-3 mb-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-7 h-7 rounded-full bg-[#FF4500] flex items-center justify-center">
+                                  <svg viewBox="0 0 20 20" className="w-4 h-4 fill-white"><path d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.07 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.19.19 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.51-1.53zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.65a3.55 3.55 0 01-2.85.86 3.55 3.55 0 01-2.85-.86.19.19 0 01.27-.27 3.16 3.16 0 002.58.65 3.16 3.16 0 002.58-.65.19.19 0 01.27.27zm-.17-1.65a1 1 0 111-1 1 1 0 01-1 1z"/></svg>
+                                </div>
+                                <div>
+                                  <p className="text-[11px] font-semibold text-gray-800">r/subreddit · 3 days ago</p>
+                                  <p className="text-[10px] text-gray-500">Kaytosmith</p>
+                                </div>
+                              </div>
+                              <p className="text-sm font-semibold text-gray-800">Looking for alternatives to…</p>
+                              <div className="h-1.5 bg-gray-200 rounded mt-1.5 mb-0.5 w-full" />
+                              <div className="h-1.5 bg-gray-200 rounded w-3/4" />
+                            </div>
+                            <div className="border border-[#c8372d]/30 rounded-xl p-3 mb-3">
+                              <div className="flex items-center gap-1.5 mb-2">
+                                <div className="w-5 h-5 rounded-full bg-blue-400" />
+                                <span className="text-[11px] font-medium text-gray-700">Your account · <span className="text-[#c8372d]">Post Immediately</span></span>
+                              </div>
+                              <div className="bg-stone-50 rounded-lg px-2.5 py-2 text-xs text-gray-700 border border-stone-200 mb-2">
+                                <span className="text-[#c8372d] font-medium">[{brand.name}]</span> is a good alternative that I&apos;ve been using
+                              </div>
+                              <button className="w-full text-xs font-semibold bg-[#c8372d] text-white rounded-lg py-1.5">Submit Comment</button>
+                            </div>
+                          </div>
+                        )}
+
+                        {citationOnboardingStep === 2 && (
+                          <div className="bg-white rounded-2xl p-5 shadow-sm border border-stone-100">
+                            <div className="bg-[#f5f0e8] rounded-xl p-3 mb-3">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-6 rounded-full bg-blue-400" />
+                                <span className="text-[11px] font-medium text-gray-700">Username · 8mo ago</span>
+                              </div>
+                              <p className="text-xs text-gray-700 mb-2"><span className="text-[#c8372d] font-medium">[{brand.name}]</span> is a good alternative that I&apos;ve been using</p>
+                              <div className="flex gap-2">
+                                <span className="text-[10px] font-semibold bg-blue-500 text-white px-2 py-0.5 rounded-full">↑ 100 Upvotes</span>
+                                <span className="text-[10px] font-semibold bg-[#c8372d] text-white px-2 py-0.5 rounded-full">2.3k Views</span>
+                              </div>
+                              <span className="text-[10px] font-semibold text-gray-600 mt-1 block">■ Ranked</span>
+                            </div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-px h-8 bg-gray-300 mx-auto" />
+                            </div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-8 h-8 rounded-full bg-[#FF4500] flex items-center justify-center">
+                                <svg viewBox="0 0 20 20" className="w-4 h-4 fill-white"><path d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.07 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.19.19 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.51-1.53zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.65a3.55 3.55 0 01-2.85.86 3.55 3.55 0 01-2.85-.86.19.19 0 01.27-.27 3.16 3.16 0 002.58.65 3.16 3.16 0 002.58-.65.19.19 0 01.27.27zm-.17-1.65a1 1 0 111-1 1 1 0 01-1 1z"/></svg>
+                              </div>
+                              <span className="text-xs font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">10x AI Visibility</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-[9px] font-bold text-orange-600">C</div>
+                              <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-[9px] font-bold text-green-600">G</div>
+                              <div className="flex-1 ml-2 bg-[#f5f0e8] rounded-lg px-3 py-1.5">
+                                <p className="text-xs font-semibold text-[#b5820a]">[{brand.name}]</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="flex items-center justify-between px-8 pb-7 border-t border-stone-200 pt-5">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={dontShowCitationsOnboarding}
+                          onChange={(e) => setDontShowCitationsOnboarding(e.target.checked)}
+                          className="w-3.5 h-3.5 rounded border-stone-300"
+                        />
+                        <span className="text-xs text-gray-500">Don&apos;t show it again</span>
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => setCitationOnboardingStep((s) => Math.max(0, s - 1))}
+                          disabled={citationOnboardingStep === 0}
+                          className="text-sm text-gray-400 disabled:opacity-30 hover:text-gray-600 transition-colors"
+                        >
+                          Previous
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (citationOnboardingStep < 2) {
+                              setCitationOnboardingStep((s) => s + 1);
+                            } else {
+                              if (dontShowCitationsOnboarding) localStorage.setItem("citationsOnboardingSeen", "true");
+                              setShowCitationOnboarding(false);
+                            }
+                          }}
+                          className="text-sm font-semibold bg-[#c8372d] text-white px-5 py-2 rounded-lg hover:bg-[#b02e25] transition-colors"
+                        >
+                          {citationOnboardingStep === 2 ? "Get Started" : "Next"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {!scanned && loadingResults ? (
                 <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" /></div>
               ) : !scanned ? (
-                <EmptyState label="No citation data" sub="Run a scan to see where AI engines are citing your brand" />
+                <EmptyState label="No citation data" sub="Monitoring starts automatically — check back after your first daily scan" />
               ) : totalCitations === 0 ? (
                 <EmptyState label="No citations detected" sub="Citations appear when AI engines reference sources in their responses" />
               ) : (
                 <>
-                  <h2 className="text-xl font-bold text-gray-900 mb-1">Citations</h2>
-                  <p className="text-sm text-gray-400 mb-5">Sources AI engines cited when mentioning {brand.name}</p>
+                  <h2 className="text-xl font-bold text-gray-900 mb-0.5">Citations</h2>
+                  <p className="text-sm text-gray-400 mb-5">Discover the sources AI uses in its responses</p>
 
-                  {/* Stat cards */}
-                  <div className="grid grid-cols-2 gap-3 mb-5">
-                    <StatCard label="Total Citations" value={totalCitations} sub={`avg ${Math.round(totalCitations / Math.max(results.length, 1))} per response`} />
-                    <StatCard label="Unique Domains" value={citationDomains.length} sub="domains citing your brand" />
+                  {/* Engagement Platforms */}
+                  <div className="mb-6">
+                    <div className="flex items-center gap-1.5 mb-3">
+                      <p className="text-sm font-semibold text-gray-800">Engagement Platforms</p>
+                      <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01"/></svg>
+                    </div>
+                    <p className="text-xs text-gray-400 mb-3">Engage on these platforms to increase your AI visibility</p>
+                    <div className="grid grid-cols-4 gap-3">
+                      {/* Reddit — live */}
+                      <div className="bg-white border-2 border-orange-200 rounded-xl p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-8 h-8 rounded-lg bg-[#FF4500] flex items-center justify-center shrink-0">
+                            <svg viewBox="0 0 20 20" className="w-5 h-5 fill-white"><path d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.07 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.19.19 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.51-1.53zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.65a3.55 3.55 0 01-2.85.86 3.55 3.55 0 01-2.85-.86.19.19 0 01.27-.27 3.16 3.16 0 002.58.65 3.16 3.16 0 002.58-.65.19.19 0 01.27.27zm-.17-1.65a1 1 0 111-1 1 1 0 01-1 1z"/></svg>
+                          </div>
+                          <span className="text-sm font-semibold text-gray-900">Reddit</span>
+                          <span className="ml-auto text-[10px] font-bold bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded uppercase tracking-wide">High impact</span>
+                        </div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div>
+                            <p className="text-[10px] text-gray-500">Instant visibility</p>
+                            <p className="text-[10px] text-gray-500">increase</p>
+                          </div>
+                          <div className="relative w-10 h-10 shrink-0">
+                            <svg viewBox="0 0 36 36" className="w-10 h-10 -rotate-90">
+                              <circle cx="18" cy="18" r="14" fill="none" stroke="#e5e7eb" strokeWidth="3"/>
+                              <circle cx="18" cy="18" r="14" fill="none" stroke="#14b8a6" strokeWidth="3" strokeDasharray={`${75 * 0.879} 87.9`} strokeLinecap="round"/>
+                            </svg>
+                            <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-teal-600">75%</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const redditEntry = citationDomains.find(([d]) => d.includes("reddit.com"));
+                            if (redditEntry) {
+                              const instances = citationInstances[redditEntry[0]];
+                              if (instances?.[0]) {
+                                setEngageItem({ url: instances[0].url, promptText: instances[0].promptText, engine: instances[0].engine });
+                                setEngageDraft("");
+                              }
+                            }
+                          }}
+                          className="w-full flex items-center justify-center gap-1.5 text-sm font-semibold bg-[#FF4500] text-white rounded-lg py-2 hover:bg-[#e03d00] transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                          Engage
+                        </button>
+                      </div>
+
+                      {/* Coming soon platforms */}
+                      {[
+                        { name: "Quora", color: "#b92b27", letter: "Q" },
+                        { name: "Facebook", color: "#1877f2", letter: "f" },
+                        { name: "YouTube", color: "#ff0000", letter: "▶" },
+                      ].map((p) => (
+                        <div key={p.name} className="bg-white border border-stone-200 rounded-xl p-4 opacity-60 relative">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-white text-sm font-bold" style={{ backgroundColor: p.color }}>{p.letter}</div>
+                            <span className="text-sm font-semibold text-gray-900">{p.name}</span>
+                          </div>
+                          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/60">
+                            <span className="text-xs font-semibold border border-stone-300 bg-white text-gray-600 px-3 py-1 rounded-full">Coming soon</span>
+                          </div>
+                          <div className="h-10 mb-2" />
+                          <div className="h-8 bg-stone-100 rounded-lg" />
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Reddit engage card — shown when any Reddit citation exists */}
-                  {citationDomains.some(([d]) => d.includes("reddit.com")) && (
-                    <div className="mb-5 bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center gap-4">
-                      <div className="w-9 h-9 rounded-lg bg-[#FF4500] flex items-center justify-center shrink-0">
-                        <svg viewBox="0 0 20 20" className="w-5 h-5 fill-white"><circle cx="10" cy="10" r="10" fill="#FF4500"/><path fill="white" d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.07 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.19.19 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.51-1.53zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.65a3.55 3.55 0 01-2.85.86 3.55 3.55 0 01-2.85-.86.19.19 0 01.27-.27 3.16 3.16 0 002.58.65 3.16 3.16 0 002.58-.65.19.19 0 01.27.27zm-.17-1.65a1 1 0 111-1 1 1 0 01-1 1z"/></svg>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-sm font-semibold text-gray-900">Reddit</span>
-                          <span className="text-[10px] font-bold bg-orange-200 text-orange-800 px-1.5 py-0.5 rounded uppercase tracking-wide">High impact</span>
-                        </div>
-                        <p className="text-xs text-gray-500">AI engines are citing Reddit threads about {brand.name} — engage to influence these conversations</p>
-                      </div>
-                      <button
-                        onClick={() => {
-                          const redditEntry = citationDomains.find(([d]) => d.includes("reddit.com"));
-                          if (redditEntry) {
-                            const instances = citationInstances[redditEntry[0]];
-                            if (instances?.[0]) {
-                              setEngageItem({ url: instances[0].url, promptText: instances[0].promptText, engine: instances[0].engine });
-                              setEngageDraft("");
-                            }
-                          }
-                        }}
-                        className="shrink-0 px-4 py-2 rounded-lg bg-[#FF4500] text-white text-sm font-medium hover:bg-[#e03d00] transition-colors"
-                      >
-                        Engage
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Top Cited Domains */}
-                  <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
-                    <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
-                      <p className="text-sm font-semibold text-gray-900">Top Cited Domains <span className="ml-1.5 text-[11px] font-normal text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">{citationDomains.length}</span></p>
-                      <p className="text-xs text-gray-400">Click a row to expand URLs</p>
-                    </div>
-
-                    {/* Table header */}
-                    <div className="grid grid-cols-[28px_1fr_auto_auto_auto_28px] gap-x-3 px-5 py-2.5 border-b border-stone-100 bg-stone-50/50">
-                      <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">#</span>
-                      <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Domain</span>
-                      <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Type</span>
-                      <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Engines</span>
-                      <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest text-right">Citations</span>
-                      <span />
-                    </div>
-
-                    {citationDomains.map(([domain, info], idx) => {
-                      const isExpanded = expandedCitationDomains.has(domain);
-                      const instances = citationInstances[domain] ?? [];
-                      return (
-                        <div key={domain} className="border-b border-stone-50 last:border-0">
-                          {/* Domain row */}
-                          <button
-                            onClick={() => setExpandedCitationDomains((prev) => {
-                              const next = new Set(prev);
-                              next.has(domain) ? next.delete(domain) : next.add(domain);
-                              return next;
-                            })}
-                            className="w-full grid grid-cols-[28px_1fr_auto_auto_auto_28px] gap-x-3 px-5 py-3 hover:bg-stone-50/80 transition-colors text-left items-center"
-                          >
-                            <span className="text-xs text-gray-400 font-medium">{idx + 1}</span>
-                            <div className="flex items-center gap-2 min-w-0">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={`https://www.google.com/s2/favicons?domain=${domain}&sz=16`}
-                                alt=""
-                                width={16}
-                                height={16}
-                                className="rounded shrink-0"
-                                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                              />
-                              <span className="text-sm text-gray-800 font-medium truncate">{domain}</span>
-                            </div>
-                            <span className={`text-[10px] font-medium px-2 py-0.5 rounded shrink-0 ${SOURCE_TYPE_COLORS[info.type] ?? "bg-gray-100 text-gray-600"}`}>{info.type}</span>
-                            <div className="flex gap-1 shrink-0">
-                              {[...info.engines].map((e) => (
-                                <span key={e} className={`w-2 h-2 rounded-full ${ENGINE_COLORS[e as AIEngine] ?? "bg-gray-300"}`} title={ENGINE_LABELS[e as AIEngine] ?? e} />
+                  {/* Line chart + Top Cited Domains side by side */}
+                  {(() => {
+                    const chartColors = ["#c8372d","#3b82f6","#10b981","#f59e0b","#8b5cf6"];
+                    const allDates = citationHistory[0]?.data.map((d) => d.date) ?? [];
+                    const maxCount = Math.max(...citationHistory.flatMap((s) => s.data.map((d) => d.count)), 1);
+                    const W = 420, H = 160, padL = 28, padR = 8, padT = 10, padB = 28;
+                    const xStep = allDates.length > 1 ? (W - padL - padR) / (allDates.length - 1) : W - padL - padR;
+                    const toX = (i: number) => padL + (allDates.length > 1 ? i * xStep : (W - padL - padR) / 2);
+                    const toY = (v: number) => padT + (H - padT - padB) * (1 - v / maxCount);
+                    return (
+                      <div className="grid grid-cols-[1fr_280px] gap-4 mb-5">
+                        {/* Line chart */}
+                        <div className="bg-white border border-stone-200 rounded-xl p-5">
+                          <p className="text-sm font-semibold text-gray-900 mb-0.5">Top Citations</p>
+                          <p className="text-xs text-gray-400 mb-3">Daily citation count for top 5 domains</p>
+                          {citationHistory.length === 0 ? (
+                            <div className="flex items-center justify-center h-24 text-xs text-gray-400">Chart data loads after first few scans</div>
+                          ) : (
+                            <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                              {/* Y gridlines */}
+                              {[0,0.5,1].map((t) => (
+                                <line key={t} x1={padL} x2={W - padR} y1={padT + (H - padT - padB) * (1 - t)} y2={padT + (H - padT - padB) * (1 - t)} stroke="#f3f4f6" strokeWidth="1"/>
                               ))}
-                            </div>
-                            <span className="text-sm font-semibold text-gray-900 text-right">{info.count}</span>
-                            <svg
-                              className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
-                              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                              {/* Lines */}
+                              {citationHistory.map((series, si) => {
+                                if (allDates.length === 1) {
+                                  const x = toX(0), y = toY(series.data[0]?.count ?? 0);
+                                  return <circle key={si} cx={x} cy={y} r="4" fill={chartColors[si % chartColors.length]} />;
+                                }
+                                const pts = series.data.map((d, i) => `${toX(i)},${toY(d.count)}`).join(" ");
+                                return <polyline key={si} points={pts} fill="none" stroke={chartColors[si % chartColors.length]} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>;
+                              })}
+                              {/* X labels */}
+                              {allDates.map((d, i) => (
+                                <text key={i} x={toX(i)} y={H - 4} textAnchor="middle" fontSize="8" fill="#9ca3af">
+                                  {d.slice(5).replace("-","/")}
+                                </text>
+                              ))}
                             </svg>
-                          </button>
-
-                          {/* Expanded URL rows */}
-                          {isExpanded && (
-                            <div className="bg-stone-50/60 border-t border-stone-100">
-                              {instances.length === 0 ? (
-                                <p className="px-5 py-3 text-xs text-gray-400">No individual URLs available</p>
-                              ) : (
-                                instances.map((item, i) => {
-                                  const isReddit = item.url.includes("reddit.com");
-                                  const urlDisplay = item.url.replace(/^https?:\/\/(www\.)?/, "").replace(/\?.*$/, "");
-                                  const promptSnippet = item.promptText.length > 45
-                                    ? item.promptText.slice(0, 45) + "…"
-                                    : item.promptText;
-                                  return (
-                                    <div key={i} className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-x-3 px-5 py-2.5 border-b border-stone-100/60 last:border-0 items-center">
-                                      <a
-                                        href={item.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        onClick={(e) => e.stopPropagation()}
-                                        className="text-xs text-blue-600 hover:underline truncate"
-                                        title={item.url}
-                                      >
-                                        {urlDisplay}
-                                      </a>
-                                      <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${SOURCE_TYPE_COLORS[getSourceType(domain)] ?? "bg-gray-100 text-gray-600"}`}>
-                                        {getSourceType(domain)}
-                                      </span>
-                                      <div className="flex items-center gap-1 shrink-0">
-                                        <span className={`w-1.5 h-1.5 rounded-full ${ENGINE_COLORS[item.engine as AIEngine] ?? "bg-gray-300"}`} />
-                                        <span className="text-xs text-gray-500">{ENGINE_LABELS[item.engine as AIEngine] ?? item.engine}</span>
-                                      </div>
-                                      <span className="text-xs text-gray-400 shrink-0 max-w-[160px] truncate hidden lg:block" title={item.promptText}>{promptSnippet}</span>
-                                      {isReddit ? (
-                                        <button
-                                          onClick={() => { setEngageItem({ url: item.url, promptText: item.promptText, engine: item.engine }); setEngageDraft(""); }}
-                                          className="shrink-0 text-xs font-medium px-3 py-1 rounded-lg bg-[#FF4500] text-white hover:bg-[#e03d00] transition-colors"
-                                        >
-                                          Engage
-                                        </button>
-                                      ) : (
-                                        <a
-                                          href={item.url}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          onClick={(e) => e.stopPropagation()}
-                                          className="shrink-0 text-xs font-medium px-3 py-1 rounded-lg border border-stone-200 text-gray-500 hover:bg-stone-100 transition-colors"
-                                        >
-                                          View →
-                                        </a>
-                                      )}
-                                    </div>
-                                  );
-                                })
-                              )}
+                          )}
+                          {allDates.length === 1 && <p className="text-[10px] text-gray-400 mt-1">More data after your first week of daily scans</p>}
+                          {/* Legend */}
+                          {citationHistory.length > 0 && (
+                            <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
+                              {citationHistory.map((s, si) => (
+                                <div key={si} className="flex items-center gap-1">
+                                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: chartColors[si % chartColors.length] }} />
+                                  <span className="text-[10px] text-gray-500 truncate max-w-[80px]">{s.domain}</span>
+                                </div>
+                              ))}
                             </div>
                           )}
                         </div>
-                      );
-                    })}
-                  </div>
+
+                        {/* Top Cited Domains card */}
+                        <div className="bg-white border border-stone-200 rounded-xl p-5">
+                          <p className="text-sm font-semibold text-gray-900 mb-0.5">Top Cited Domains</p>
+                          <p className="text-xs text-gray-400 mb-3">{citationDomains.length} domains</p>
+                          <div className="space-y-3">
+                            {citationDomains.slice(0, 5).map(([domain, info], i) => {
+                              const pct = Math.round((info.count / totalCitations) * 100);
+                              return (
+                                <div key={domain} className="flex items-center gap-2">
+                                  <span className="text-[10px] text-gray-400 w-4 shrink-0">#{i+1}</span>
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=16`} alt="" width={16} height={16} className="rounded shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />
+                                  <span className="text-xs text-gray-700 truncate flex-1">{domain}</span>
+                                  <div className="text-right shrink-0">
+                                    <p className="text-xs font-semibold text-gray-900">{pct}%</p>
+                                    <p className="text-[10px] text-gray-400">{info.count} citations</p>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Search + filter bar */}
+                  {(() => {
+                    const allTypes = ["All", ...Array.from(new Set(citationDomains.map(([,v]) => v.type)))];
+                    const allPrompts = ["All", ...brand.trackedPrompts.map((p) => p.text)];
+                    const filtered = citationDomains.filter(([domain, info]) => {
+                      const matchSearch = !citationSearch || domain.toLowerCase().includes(citationSearch.toLowerCase());
+                      const matchType = citationTypeFilter === "All" || info.type === citationTypeFilter;
+                      const matchPrompt = citationPromptFilter === "All" || (citationInstances[domain] ?? []).some((x) => x.promptText === citationPromptFilter);
+                      return matchSearch && matchType && matchPrompt;
+                    });
+
+                    // Sort: Reddit FEATURED first, then by count
+                    const redditDomain = filtered.find(([d]) => d.includes("reddit.com"));
+                    const rest = filtered.filter(([d]) => !d.includes("reddit.com"));
+                    const orderedDomains = redditDomain ? [redditDomain, ...rest] : rest;
+
+                    return (
+                      <>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="flex items-center gap-2 flex-1 bg-white border border-stone-200 rounded-lg px-3 py-2">
+                            <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input
+                              value={citationSearch}
+                              onChange={(e) => setCitationSearch(e.target.value)}
+                              placeholder="Search citations"
+                              className="text-sm flex-1 outline-none bg-transparent text-gray-800 placeholder:text-gray-400"
+                            />
+                          </div>
+                          <select
+                            value={citationPromptFilter}
+                            onChange={(e) => setCitationPromptFilter(e.target.value)}
+                            className="text-xs border border-stone-200 rounded-lg px-3 py-2 bg-white text-gray-700 outline-none"
+                          >
+                            {allPrompts.map((p) => <option key={p} value={p}>{p === "All" ? "All prompts" : p.length > 30 ? p.slice(0,30)+"…" : p}</option>)}
+                          </select>
+                          <select
+                            value={citationTypeFilter}
+                            onChange={(e) => setCitationTypeFilter(e.target.value)}
+                            className="text-xs border border-stone-200 rounded-lg px-3 py-2 bg-white text-gray-700 outline-none"
+                          >
+                            {allTypes.map((t) => <option key={t} value={t}>{t === "All" ? "All domain types" : t}</option>)}
+                          </select>
+                        </div>
+
+                        {/* Domain table */}
+                        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
+                          {/* Table header */}
+                          <div className="grid grid-cols-[48px_1fr_auto_auto_160px] gap-x-4 px-5 py-2.5 border-b border-stone-100 bg-stone-50/50">
+                            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Rank</span>
+                            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Domain</span>
+                            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Type</span>
+                            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest text-right">Citations</span>
+                            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest text-right">Details</span>
+                          </div>
+
+                          {orderedDomains.length === 0 && (
+                            <p className="px-5 py-8 text-sm text-gray-400 text-center">No citations match your filters</p>
+                          )}
+
+                          {orderedDomains.map(([domain, info], displayIdx) => {
+                            const isReddit = domain.includes("reddit.com");
+                            const isExpanded = expandedCitationDomains.has(domain);
+                            const instances = citationInstances[domain] ?? [];
+                            const originalRank = citationDomains.findIndex(([d]) => d === domain) + 1;
+
+                            return (
+                              <div
+                                key={domain}
+                                className={`border-b border-stone-100 last:border-0 ${isReddit ? "border-l-2 border-l-[#FF4500]" : ""}`}
+                              >
+                                {/* Domain row */}
+                                <button
+                                  onClick={() => setExpandedCitationDomains((prev) => {
+                                    const next = new Set(prev);
+                                    next.has(domain) ? next.delete(domain) : next.add(domain);
+                                    return next;
+                                  })}
+                                  className={`w-full grid grid-cols-[48px_1fr_auto_auto_160px] gap-x-4 px-5 py-3.5 hover:bg-stone-50/60 transition-colors text-left items-center ${isReddit ? "bg-orange-50/30" : ""}`}
+                                >
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-xs text-gray-400 font-medium">#{originalRank}</span>
+                                    {isReddit && <span className="text-[9px] font-bold bg-orange-100 text-orange-700 px-1 rounded uppercase">Featured</span>}
+                                  </div>
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=16`} alt="" width={16} height={16} className="rounded shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />
+                                    <span className="text-sm text-gray-800 font-medium truncate">{domain}</span>
+                                  </div>
+                                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded shrink-0 ${SOURCE_TYPE_COLORS[info.type] ?? "bg-gray-100 text-gray-600"}`}>{info.type}</span>
+                                  <span className="text-sm font-semibold text-gray-900 text-right">{info.count}</span>
+                                  <div className="flex items-center justify-end gap-2">
+                                    {isReddit ? (
+                                      <span className="text-xs text-[#c8372d] font-medium">Engagement opportunities</span>
+                                    ) : (
+                                      <a href={`https://${domain}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-[#c8372d] hover:underline">Learn more ↗</a>
+                                    )}
+                                    <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0 ${isExpanded ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
+                                  </div>
+                                </button>
+
+                                {/* Expanded URL rows */}
+                                {isExpanded && (
+                                  <div className="bg-stone-50/60 border-t border-stone-100">
+                                    {instances.length === 0 ? (
+                                      <p className="px-6 py-3 text-xs text-gray-400">No individual URLs available</p>
+                                    ) : (
+                                      instances.map((item, i) => {
+                                        const itemIsReddit = item.url.includes("reddit.com");
+                                        const urlDisplay = item.url.replace(/^https?:\/\/(www\.)?/, "").replace(/\?.*$/, "");
+                                        const promptSnippet = item.promptText.length > 45 ? item.promptText.slice(0, 45) + "…" : item.promptText;
+                                        return (
+                                          <div key={i} className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-x-3 px-6 py-2.5 border-b border-stone-100/60 last:border-0 items-center">
+                                            <a href={item.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-blue-600 hover:underline truncate" title={item.url}>{urlDisplay}</a>
+                                            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${SOURCE_TYPE_COLORS[getSourceType(domain)] ?? "bg-gray-100 text-gray-600"}`}>{getSourceType(domain)}</span>
+                                            <div className="flex items-center gap-1 shrink-0">
+                                              <span className={`w-1.5 h-1.5 rounded-full ${ENGINE_COLORS[item.engine as AIEngine] ?? "bg-gray-300"}`} />
+                                              <span className="text-xs text-gray-500">{ENGINE_LABELS[item.engine as AIEngine] ?? item.engine}</span>
+                                            </div>
+                                            <span className="text-xs text-gray-400 shrink-0 max-w-[140px] truncate hidden lg:block" title={item.promptText}>{promptSnippet}</span>
+                                            {itemIsReddit ? (
+                                              <button onClick={() => { setEngageItem({ url: item.url, promptText: item.promptText, engine: item.engine }); setEngageDraft(""); }} className="shrink-0 text-xs font-medium px-3 py-1 rounded-lg bg-[#FF4500] text-white hover:bg-[#e03d00] transition-colors">Engage</button>
+                                            ) : (
+                                              <a href={item.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="shrink-0 text-xs font-medium px-3 py-1 rounded-lg border border-stone-200 text-gray-500 hover:bg-stone-100 transition-colors">View →</a>
+                                            )}
+                                          </div>
+                                        );
+                                      })
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </>
+                    );
+                  })()}
                 </>
               )}
             </>
