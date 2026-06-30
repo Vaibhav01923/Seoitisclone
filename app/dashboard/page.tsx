@@ -327,6 +327,7 @@ function DashboardPage() {
   // Prompts tab state
   const [selectedPromptId, setSelectedPromptId] = useState<string | null>(null);
   const [selectedCitationDomain, setSelectedCitationDomain] = useState<string | null>(null);
+  const [selectedResponseResult, setSelectedResponseResult] = useState<ScanResult | null>(null);
   const [promptSearch, setPromptSearch] = useState("");
   const [scanProgress, setScanProgress] = useState<{ done: number; total: number } | null>(null);
   const agentEndRef = useRef<HTMLDivElement>(null);
@@ -1485,6 +1486,91 @@ function DashboardPage() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Recent Responses table */}
+                    {promptResults.length > 0 && (
+                      <div className="bg-white border border-stone-200 rounded-2xl p-5 mb-4">
+                        <p className="text-sm font-semibold text-gray-900 mb-0.5">Recent Responses for Your Prompt</p>
+                        <p className="text-xs text-gray-400 mb-4">Latest AI responses when this specific prompt was used</p>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-xs">
+                            <thead>
+                              <tr className="border-b border-stone-100">
+                                <th className="text-left text-[10px] font-semibold text-gray-400 pb-2 pr-3 w-8">LLM</th>
+                                <th className="text-left text-[10px] font-semibold text-gray-400 pb-2 pr-3">Response</th>
+                                <th className="text-left text-[10px] font-semibold text-gray-400 pb-2 pr-3 w-16">Position</th>
+                                <th className="text-left text-[10px] font-semibold text-gray-400 pb-2 pr-3 w-20">Mentioned?</th>
+                                <th className="text-left text-[10px] font-semibold text-gray-400 pb-2 pr-3 w-16">Citations</th>
+                                <th className="text-left text-[10px] font-semibold text-gray-400 pb-2 w-20">Created</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-stone-50">
+                              {promptResults.map((r, i) => {
+                                const ago = (() => {
+                                  const diff = Date.now() - new Date(r.scannedAt).getTime();
+                                  const h = Math.floor(diff / 3600000);
+                                  const d = Math.floor(h / 24);
+                                  return d > 0 ? `${d}d ago` : h > 0 ? `${h}h ago` : "just now";
+                                })();
+                                return (
+                                  <tr key={i} className="hover:bg-stone-50 cursor-pointer" onClick={() => setSelectedResponseResult(r)}>
+                                    <td className="py-3 pr-3">
+                                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0 ${ENGINE_COLORS[r.engine]}`}>{ENGINE_LABELS[r.engine][0]}</div>
+                                    </td>
+                                    <td className="py-3 pr-3 max-w-xs">
+                                      <span className="text-gray-700 line-clamp-2 leading-snug">{r.response.slice(0, 140)}{r.response.length > 140 ? "…" : ""}</span>
+                                    </td>
+                                    <td className="py-3 pr-3">
+                                      <span className={`font-bold ${r.brandRank ? "text-green-600" : "text-gray-400"}`}>{r.brandRank ? `#${r.brandRank}` : "—"}</span>
+                                    </td>
+                                    <td className="py-3 pr-3">
+                                      {r.brandMentioned
+                                        ? <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 border border-green-100 px-2 py-0.5 rounded-full text-[10px] font-semibold">✓ Yes</span>
+                                        : <span className="inline-flex items-center gap-1 bg-red-50 text-red-600 border border-red-100 px-2 py-0.5 rounded-full text-[10px] font-semibold">✗ No</span>
+                                      }
+                                    </td>
+                                    <td className="py-3 pr-3">
+                                      <div className="flex items-center gap-1">
+                                        {r.citations.slice(0, 3).map((url, ci) => {
+                                          try {
+                                            const d = new URL(url).hostname.replace(/^www\./, "");
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            return <img key={ci} src={`https://www.google.com/s2/favicons?domain=${d}&sz=16`} alt={d} width={14} height={14} className="rounded" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />;
+                                          } catch { return null; }
+                                        })}
+                                        {r.citations.length > 3 && <span className="text-[10px] text-gray-400">+{r.citations.length - 3}</span>}
+                                        {r.citations.length === 0 && <span className="text-gray-300">—</span>}
+                                      </div>
+                                    </td>
+                                    <td className="py-3 text-gray-400">{ago}</td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Full response modal */}
+                    {selectedResponseResult && (
+                      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setSelectedResponseResult(null)}>
+                        <div className="bg-[#111] rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${ENGINE_COLORS[selectedResponseResult.engine]}`}>{ENGINE_LABELS[selectedResponseResult.engine][0]}</div>
+                              <span className="text-sm font-semibold text-white">{ENGINE_LABELS[selectedResponseResult.engine]}</span>
+                            </div>
+                            <button onClick={() => setSelectedResponseResult(null)} className="text-gray-400 hover:text-white transition-colors text-lg leading-none">×</button>
+                          </div>
+                          <div className="bg-[#1a1a1a] rounded-xl px-4 py-3 mb-4">
+                            <p className="text-xs text-gray-400 mb-1">Prompt</p>
+                            <p className="text-sm text-white">{selectedResponseResult.promptText}</p>
+                          </div>
+                          <div className="prose prose-invert prose-sm max-w-none text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">{selectedResponseResult.response}</div>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Top Citations split view */}
                     {sortedCitDomains.length > 0 && (
