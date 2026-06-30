@@ -419,15 +419,18 @@ function DashboardPage() {
     }
 
     loadBrand(brandId);
+  }, []);
 
-    // Realtime: live updates as Inngest writes scan data in the background
+  // Realtime: runs after brand loads regardless of whether brandId was in the URL
+  useEffect(() => {
+    if (!brand?.id) return;
     const supabase = createSupabaseBrowserClient();
 
     const runsChannel = supabase
       .channel("scan_runs_live")
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "scan_runs", filter: `brand_id=eq.${brandId}` },
+        { event: "UPDATE", schema: "public", table: "scan_runs", filter: `brand_id=eq.${brand.id}` },
         (payload) => {
           const updated = payload.new as { id: string; overall_score: number };
           setScanHistory((prev) =>
@@ -441,7 +444,7 @@ function DashboardPage() {
       .channel("scan_results_live")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "scan_results", filter: `brand_id=eq.${brandId}` },
+        { event: "INSERT", schema: "public", table: "scan_results", filter: `brand_id=eq.${brand.id}` },
         (payload) => {
           const r = payload.new as {
             prompt_id: string; prompt_text: string; engine: string;
@@ -461,8 +464,6 @@ function DashboardPage() {
             scannedAt: r.scanned_at,
           };
           setResults((prev) => {
-            // Only stream in results from the latest scan run to avoid mixing runs
-            // Drop if we already have a result for this prompt+engine combo
             const exists = prev.some((x) => x.promptId === newResult.promptId && x.engine === newResult.engine);
             if (exists) return prev;
             setScanned(true);
@@ -476,7 +477,7 @@ function DashboardPage() {
       supabase.removeChannel(runsChannel);
       supabase.removeChannel(resultsChannel);
     };
-  }, []);
+  }, [brand?.id]);
 
   useEffect(() => {
     if (!brand || results.length === 0) return;
