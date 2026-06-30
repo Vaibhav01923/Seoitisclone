@@ -25,6 +25,29 @@ const ENGINE_COLORS: Record<AIEngine, string> = {
   grok: "bg-gray-800",
 };
 
+const ENGINE_ICONS: Record<AIEngine, string> = {
+  chatgpt: "/engines/chatgpt.png",
+  claude: "/engines/claude.png",
+  gemini: "/engines/gemini.png",
+  perplexity: "/engines/perplexity.svg",
+  google: "/engines/gemini.png",
+  grok: "/engines/grok.png",
+};
+
+function EngineIcon({ engine, size = 20 }: { engine: AIEngine; size?: number }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={ENGINE_ICONS[engine]}
+      alt={ENGINE_LABELS[engine]}
+      width={size}
+      height={size}
+      className="rounded-full object-contain bg-white border border-gray-100"
+      style={{ width: size, height: size }}
+    />
+  );
+}
+
 const ENGINE_TEXT_COLORS: Record<AIEngine, string> = {
   chatgpt: "text-green-600",
   claude: "text-orange-500",
@@ -1402,7 +1425,7 @@ function DashboardPage() {
                             <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${typeColor}`}>{typeLabel}</span>
                             <div className="flex items-center gap-1">
                               {promptResults.slice(0,3).map((r) => (
-                                <div key={r.engine} className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white ${ENGINE_COLORS[r.engine]}`}>{ENGINE_LABELS[r.engine][0]}</div>
+                                <EngineIcon key={r.engine} engine={r.engine} size={20} />
                               ))}
                             </div>
                           </div>
@@ -1492,7 +1515,7 @@ function DashboardPage() {
                                 <div className="min-w-0">
                                   <div className="flex items-center gap-2 mb-0.5">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={`https://www.google.com/s2/favicons?domain=${b.domain}&sz=32`} alt="" width={22} height={22} className="rounded shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />
+                                    <img src={`https://logo.clearbit.com/${b.domain}`} alt="" width={22} height={22} className="rounded shrink-0" onError={(e) => { const el = e.target as HTMLImageElement; el.src = `https://www.google.com/s2/favicons?domain=${b.domain}&sz=32`; el.onerror = () => { el.style.display = "none"; }; }} />
                                     <span className="text-xs font-semibold text-gray-800 truncate">{b.name}</span>
                                   </div>
                                   <div className="flex items-center gap-2 ml-7">
@@ -1505,7 +1528,7 @@ function DashboardPage() {
                                 </div>
                                 <div className="flex gap-0.5 w-12 justify-end">
                                   {b.engines.slice(0, 2).map((e) => (
-                                    <div key={e} className={`w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold text-white ${ENGINE_COLORS[e]}`}>{ENGINE_LABELS[e][0]}</div>
+                                    <EngineIcon key={e} engine={e} size={20} />
                                   ))}
                                 </div>
                               </div>
@@ -1543,7 +1566,7 @@ function DashboardPage() {
                                 return (
                                   <tr key={i} className="hover:bg-stone-50 cursor-pointer" onClick={() => setSelectedResponseResult(r)}>
                                     <td className="py-3 pr-3">
-                                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0 ${ENGINE_COLORS[r.engine]}`}>{ENGINE_LABELS[r.engine][0]}</div>
+                                      <EngineIcon engine={r.engine} size={24} />
                                     </td>
                                     <td className="py-3 pr-3 max-w-xs">
                                       <span className="text-gray-700 line-clamp-2 leading-snug">{r.response.slice(0, 140)}{r.response.length > 140 ? "…" : ""}</span>
@@ -1586,7 +1609,7 @@ function DashboardPage() {
                         <div className="bg-[#111] rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2">
-                              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${ENGINE_COLORS[selectedResponseResult.engine]}`}>{ENGINE_LABELS[selectedResponseResult.engine][0]}</div>
+                              <EngineIcon engine={selectedResponseResult.engine} size={28} />
                               <span className="text-sm font-semibold text-white">{ENGINE_LABELS[selectedResponseResult.engine]}</span>
                             </div>
                             <button onClick={() => setSelectedResponseResult(null)} className="text-gray-400 hover:text-white transition-colors text-lg leading-none">×</button>
@@ -1668,7 +1691,7 @@ function DashboardPage() {
                                       </div>
                                       <div className="flex items-center gap-1.5 mt-2">
                                         <span className="text-[10px] text-gray-400">Cited by</span>
-                                        <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white ${ENGINE_COLORS[item.engine]}`}>{ENGINE_LABELS[item.engine][0]}</div>
+                                        <EngineIcon engine={item.engine} size={16} />
                                         {isReddit && (
                                           <button onClick={() => { setEngageItem({ url: item.url, promptText: prompt.text, engine: item.engine }); setEngageDraft(""); navTo("citations"); }} className="ml-auto text-[10px] font-semibold bg-[#FF4500] text-white px-2 py-0.5 rounded-full hover:bg-[#e03d00] transition-colors">Engage</button>
                                         )}
