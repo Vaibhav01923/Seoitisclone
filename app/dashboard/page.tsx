@@ -1293,11 +1293,27 @@ function DashboardPage() {
                 const ranks = promptResults.filter((r) => r.brandMentioned && r.brandRank).map((r) => r.brandRank!);
                 const avgPos = ranks.length ? (ranks.reduce((s, r) => s + r, 0) / ranks.length) : null;
 
-                // Top brands from competitor mentions
+                // Top brands — re-detect live from response text so stale stored competitorMentions don't hide results
                 const compMap: Record<string, { name: string; count: number; totalRank: number; engines: AIEngine[] }> = {};
-                // Add our own brand first
                 promptResults.forEach((r) => {
-                  r.competitorMentions.forEach((cm) => {
+                  const responseLower = r.response.toLowerCase();
+                  const listItems = r.response.match(/\d+[\.\)]\s+([^\n]+)/g) ?? [];
+                  const rankedItems = listItems.map((item, idx) => ({ rank: idx + 1, text: item.toLowerCase() }));
+
+                  // Use stored mentions first, then re-detect from current competitors list
+                  const seen = new Set<string>();
+                  const allMentions: { name: string; rank: number | null }[] = [...r.competitorMentions];
+                  brand.competitors.forEach((comp) => {
+                    const cLower = comp.toLowerCase();
+                    if (responseLower.includes(cLower) && !allMentions.some((m) => m.name.toLowerCase() === cLower)) {
+                      const ranked = rankedItems.find((ri) => ri.text.includes(cLower));
+                      allMentions.push({ name: comp, rank: ranked ? ranked.rank : null });
+                    }
+                  });
+
+                  allMentions.forEach((cm) => {
+                    if (seen.has(cm.name)) return;
+                    seen.add(cm.name);
                     if (!compMap[cm.name]) compMap[cm.name] = { name: cm.name, count: 0, totalRank: 0, engines: [] };
                     compMap[cm.name].count++;
                     if (cm.rank) compMap[cm.name].totalRank += cm.rank;
