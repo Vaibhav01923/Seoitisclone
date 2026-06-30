@@ -419,6 +419,24 @@ function DashboardPage() {
     }
 
     loadBrand(brandId);
+
+    // Realtime: patch scan_runs rows as Inngest updates scores in the background
+    const supabase = createSupabaseBrowserClient();
+    const channel = supabase
+      .channel("scan_runs_live")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "scan_runs", filter: `brand_id=eq.${brandId}` },
+        (payload) => {
+          const updated = payload.new as { id: string; overall_score: number };
+          setScanHistory((prev) =>
+            prev.map((r) => (r.id === updated.id ? { ...r, overall_score: updated.overall_score } : r))
+          );
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   useEffect(() => {
@@ -1178,24 +1196,36 @@ function DashboardPage() {
 
                   {/* Scan history cards */}
                   <div className="space-y-2.5">
-                    {scanHistory.map((run) => (
+                    {scanHistory.map((run) => {
+                      const isScanning = run.overall_score === 0 && (Date.now() - new Date(run.created_at).getTime()) < 10 * 60 * 1000;
+                      return (
                       <div key={run.id} className="bg-white border border-stone-200 rounded-xl px-5 py-4 flex items-center gap-4">
-                        <div className="text-2xl font-black text-gray-900 w-14 shrink-0">{run.overall_score}%</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-wrap gap-x-3 gap-y-0.5 mb-1">
-                            {run.visibility_scores?.map((s) => (
-                              <span key={s.engine} className="text-xs text-gray-500">
-                                {ENGINE_LABELS[s.engine as AIEngine]}: <span className="font-semibold text-gray-800">{s.score}%</span>
-                              </span>
-                            ))}
+                        {isScanning ? (
+                          <div className="w-14 shrink-0 flex items-center">
+                            <span className="w-5 h-5 border-2 border-stone-300 border-t-[#c8372d] rounded-full animate-spin" />
                           </div>
+                        ) : (
+                          <div className="text-2xl font-black text-gray-900 w-14 shrink-0">{run.overall_score}%</div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          {isScanning ? (
+                            <p className="text-xs font-medium text-[#c8372d] mb-1">Scanning in progress…</p>
+                          ) : (
+                            <div className="flex flex-wrap gap-x-3 gap-y-0.5 mb-1">
+                              {run.visibility_scores?.map((s) => (
+                                <span key={s.engine} className="text-xs text-gray-500">
+                                  {ENGINE_LABELS[s.engine as AIEngine]}: <span className="font-semibold text-gray-800">{s.score}%</span>
+                                </span>
+                              ))}
+                            </div>
+                          )}
                           <p className="text-xs text-gray-400">{new Date(run.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
                         </div>
                         <div className="flex gap-1 shrink-0">
                           {run.engines.map((e) => <div key={e} className={`w-2 h-2 rounded-full ${ENGINE_COLORS[e as AIEngine] ?? "bg-gray-300"}`} />)}
                         </div>
                       </div>
-                    ))}
+                    )})}
                   </div>
                 </>
               )}
