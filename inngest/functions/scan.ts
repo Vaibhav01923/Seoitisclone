@@ -3,7 +3,7 @@ import { serverClient } from "@/lib/supabase";
 import { runScanForBrand } from "@/lib/scan-engine";
 import { AIEngine, BrandData } from "@/lib/types";
 
-const SCAN_ENGINES: AIEngine[] = ["chatgpt", "claude"];
+const SCAN_ENGINES: AIEngine[] = ["chatgpt", "claude", "gemini", "perplexity", "grok"];
 
 // Triggered daily at 8am UTC — fans out one scan job per brand
 export const scheduledScanAll = inngest.createFunction(
