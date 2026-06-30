@@ -1293,27 +1293,30 @@ function DashboardPage() {
                 const ranks = promptResults.filter((r) => r.brandMentioned && r.brandRank).map((r) => r.brandRank!);
                 const avgPos = ranks.length ? (ranks.reduce((s, r) => s + r, 0) / ranks.length) : null;
 
-                // Top brands — re-detect live from response text so stale stored competitorMentions don't hide results
+                // Top brands — extract from ranked list items in the response directly (no pre-config needed)
                 const compMap: Record<string, { name: string; count: number; totalRank: number; engines: AIEngine[] }> = {};
+                const brandNameLower = brand.name.toLowerCase();
                 promptResults.forEach((r) => {
-                  const responseLower = r.response.toLowerCase();
                   const listItems = r.response.match(/\d+[\.\)]\s+([^\n]+)/g) ?? [];
-                  const rankedItems = listItems.map((item, idx) => ({ rank: idx + 1, text: item.toLowerCase() }));
-
-                  // Use stored mentions first, then re-detect from current competitors list
                   const seen = new Set<string>();
-                  const allMentions: { name: string; rank: number | null }[] = [...r.competitorMentions];
-                  brand.competitors.forEach((comp) => {
-                    const cLower = comp.toLowerCase();
-                    if (responseLower.includes(cLower) && !allMentions.some((m) => m.name.toLowerCase() === cLower)) {
-                      const ranked = rankedItems.find((ri) => ri.text.includes(cLower));
-                      allMentions.push({ name: comp, rank: ranked ? ranked.rank : null });
-                    }
+
+                  listItems.forEach((item, idx) => {
+                    // Extract the brand/tool name: first bold phrase (**Name**) or first word(s) before : or ,
+                    const boldMatch = item.match(/\*{1,2}([A-Za-z][A-Za-z0-9\s\.\-]+?)\*{1,2}/);
+                    const plainMatch = item.match(/\d+[\.\)]\s+([A-Za-z][A-Za-z0-9\s\.\-]{1,30}?)[\s:,\(]/);
+                    const name = (boldMatch?.[1] ?? plainMatch?.[1] ?? "").trim();
+                    if (!name || name.toLowerCase() === brandNameLower || seen.has(name.toLowerCase())) return;
+                    seen.add(name.toLowerCase());
+                    if (!compMap[name]) compMap[name] = { name, count: 0, totalRank: 0, engines: [] };
+                    compMap[name].count++;
+                    compMap[name].totalRank += idx + 1;
+                    if (!compMap[name].engines.includes(r.engine)) compMap[name].engines.push(r.engine);
                   });
 
-                  allMentions.forEach((cm) => {
-                    if (seen.has(cm.name)) return;
-                    seen.add(cm.name);
+                  // Also include stored competitorMentions in case they're not in a numbered list
+                  r.competitorMentions.forEach((cm) => {
+                    if (seen.has(cm.name.toLowerCase()) || cm.name.toLowerCase() === brandNameLower) return;
+                    seen.add(cm.name.toLowerCase());
                     if (!compMap[cm.name]) compMap[cm.name] = { name: cm.name, count: 0, totalRank: 0, engines: [] };
                     compMap[cm.name].count++;
                     if (cm.rank) compMap[cm.name].totalRank += cm.rank;
