@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
           if (i > 0) await new Promise((r) => setTimeout(r, 200));
           try {
             const response = await queryWithRetry(engine, prompt.text);
-            const mentions = extractMentions(response, brand.name, brand.competitors);
+            const mentions = extractMentions(response, brand.name, brand.domain, brand.competitors);
             const result: import("@/lib/types").ScanResult = {
               promptId: prompt.id,
               promptText: prompt.text,

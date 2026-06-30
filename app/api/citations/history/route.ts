@@ -19,6 +19,10 @@ export async function GET(req: NextRequest) {
 
   if (!runs?.length) return NextResponse.json({ series: [] });
 
+  // Fetch brand domain to exclude self-citations
+  const { data: brandRow } = await db.from("brands").select("domain").eq("id", brandId).single();
+  const brandHost = (brandRow?.domain ?? "").replace(/^www\./, "");
+
   // For each run, fetch citations from scan_results
   const runData = await Promise.all(
     runs.map(async (run) => {
@@ -27,12 +31,18 @@ export async function GET(req: NextRequest) {
         .select("citations")
         .eq("scan_run_id", run.id);
 
+      // Count each domain max once per scan_result row; exclude brand's own domain
       const domainCounts: Record<string, number> = {};
       (rows ?? []).forEach((r) => {
+        const seenInRow = new Set<string>();
         (r.citations ?? []).forEach((url: string) => {
           try {
             const domain = new URL(url).hostname.replace(/^www\./, "");
-            if (domain) domainCounts[domain] = (domainCounts[domain] ?? 0) + 1;
+            if (!domain) return;
+            if (brandHost && (domain === brandHost || domain.endsWith("." + brandHost))) return;
+            if (seenInRow.has(domain)) return;
+            seenInRow.add(domain);
+            domainCounts[domain] = (domainCounts[domain] ?? 0) + 1;
           } catch {}
         });
       });

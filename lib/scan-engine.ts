@@ -13,6 +13,7 @@ const BLOCKED_DOMAINS = ["example.com", "example.org", "example.net", "localhost
 export function extractMentions(
   response: string,
   brandName: string,
+  brandDomain: string,
   competitors: string[]
 ): { brandMentioned: boolean; brandRank: number | null; competitorMentions: { name: string; rank: number | null }[]; citations: string[] } {
   const lower = response.toLowerCase();
@@ -37,11 +38,13 @@ export function extractMentions(
     })
     .filter(Boolean) as { name: string; rank: number | null }[];
 
+  const brandHost = brandDomain.replace(/^www\./, "");
   const urlMatches = (response.match(/https?:\/\/[^\s\)\"<>]+/g) ?? [])
     .map((u) => u.replace(/['".,;:!?)\]}>]+$/, ""))
     .filter((u) => {
       try {
         const host = new URL(u).hostname.replace(/^www\./, "");
+        if (host === brandHost || host.endsWith("." + brandHost)) return false;
         return !BLOCKED_DOMAINS.some((b) => host === b || host.endsWith("." + b));
       } catch { return false; }
     });
@@ -162,7 +165,7 @@ export async function runScanForBrand(
       if (i > 0) await new Promise((r) => setTimeout(r, 200));
       try {
         const response = await queryWithRetry(engine, prompt.text);
-        const mentions = extractMentions(response, brand.name, brand.competitors);
+        const mentions = extractMentions(response, brand.name, brand.domain, brand.competitors);
         const result: ScanResult = {
           promptId: prompt.id,
           promptText: prompt.text,

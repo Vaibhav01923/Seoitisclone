@@ -796,13 +796,16 @@ function DashboardPage() {
   // Citations derived data
   const citationDomains = (() => {
     const map: Record<string, { count: number; engines: Set<string>; type: string }> = {};
+    const brandHost = brand.domain.replace(/^www\./, "");
     results.forEach((r) => {
+      const seenInThisResult = new Set<string>();
       r.citations.forEach((url) => {
         const domain = url.replace(/^https?:\/\//, "").split("/")[0].replace(/^www\./, "");
         if (!domain) return;
-        const isBrand = domain.includes(brand.domain.replace(/^www\./, ""));
-        const type = isBrand ? "Owned" : getSourceType(domain);
-        if (!map[domain]) map[domain] = { count: 0, engines: new Set(), type };
+        if (domain === brandHost || domain.endsWith("." + brandHost)) return;
+        if (seenInThisResult.has(domain)) return;
+        seenInThisResult.add(domain);
+        if (!map[domain]) map[domain] = { count: 0, engines: new Set(), type: getSourceType(domain) };
         map[domain].count++;
         map[domain].engines.add(r.engine);
       });
@@ -810,15 +813,15 @@ function DashboardPage() {
     return Object.entries(map).sort((a, b) => b[1].count - a[1].count);
   })();
 
-  const totalCitations = results.reduce((s, r) => s + r.citations.length, 0);
-
   const citationInstances = (() => {
     const map: Record<string, { url: string; engine: string; promptText: string }[]> = {};
+    const brandHost = brand.domain.replace(/^www\./, "");
     results.forEach((r) => {
       r.citations.forEach((url) => {
         try {
           const domain = new URL(url).hostname.replace(/^www\./, "");
           if (!domain) return;
+          if (domain === brandHost || domain.endsWith("." + brandHost)) return;
           if (!map[domain]) map[domain] = [];
           const exists = map[domain].some((x) => x.url === url && x.engine === r.engine);
           if (!exists) map[domain].push({ url, engine: r.engine, promptText: r.promptText });
@@ -1888,7 +1891,7 @@ function DashboardPage() {
                 <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" /></div>
               ) : !scanned ? (
                 <EmptyState label="No citation data" sub="Monitoring starts automatically — check back after your first daily scan" />
-              ) : totalCitations === 0 ? (
+              ) : citationDomains.length === 0 ? (
                 <EmptyState label="No citations detected" sub="Citations appear when AI engines reference sources in their responses" />
               ) : (
                 <>
@@ -2148,7 +2151,7 @@ function DashboardPage() {
                           <p className="text-base font-bold text-gray-900 mb-4">{citationDomains.length} Domains</p>
                           <div className="space-y-1">
                             {citationDomains.slice(0, 7).map(([domain, info], i) => {
-                              const pct = Math.round((info.count / totalCitations) * 100);
+                              const pct = results.length ? Math.round((info.count / results.length) * 100) : 0;
                               return (
                                 <div key={domain} className="flex items-center gap-3 py-2 border-b border-stone-50 last:border-0">
                                   <span className="text-xs text-gray-400 w-5 shrink-0 font-medium">#{i+1}</span>
