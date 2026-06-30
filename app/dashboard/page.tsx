@@ -420,9 +420,10 @@ function DashboardPage() {
 
     loadBrand(brandId);
 
-    // Realtime: patch scan_runs rows as Inngest updates scores in the background
+    // Realtime: live updates as Inngest writes scan data in the background
     const supabase = createSupabaseBrowserClient();
-    const channel = supabase
+
+    const runsChannel = supabase
       .channel("scan_runs_live")
       .on(
         "postgres_changes",
@@ -436,7 +437,45 @@ function DashboardPage() {
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    const resultsChannel = supabase
+      .channel("scan_results_live")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "scan_results", filter: `brand_id=eq.${brandId}` },
+        (payload) => {
+          const r = payload.new as {
+            prompt_id: string; prompt_text: string; engine: string;
+            response: string; brand_mentioned: boolean; brand_rank: number | null;
+            competitor_mentions: { name: string; rank: number | null }[];
+            citations: string[]; scanned_at: string;
+          };
+          const newResult: ScanResult = {
+            promptId: r.prompt_id,
+            promptText: r.prompt_text,
+            engine: r.engine as AIEngine,
+            response: r.response,
+            brandMentioned: r.brand_mentioned,
+            brandRank: r.brand_rank,
+            competitorMentions: r.competitor_mentions ?? [],
+            citations: r.citations ?? [],
+            scannedAt: r.scanned_at,
+          };
+          setResults((prev) => {
+            // Only stream in results from the latest scan run to avoid mixing runs
+            // Drop if we already have a result for this prompt+engine combo
+            const exists = prev.some((x) => x.promptId === newResult.promptId && x.engine === newResult.engine);
+            if (exists) return prev;
+            setScanned(true);
+            return [...prev, newResult];
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(runsChannel);
+      supabase.removeChannel(resultsChannel);
+    };
   }, []);
 
   useEffect(() => {
