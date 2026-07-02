@@ -197,10 +197,11 @@ export async function runScanForBrand(
 
   const allResults: ScanResult[] = [];
 
-  await Promise.allSettled(engines.map(async (engine) => {
+  const runEngine = async (engine: AIEngine) => {
     for (let i = 0; i < brand.trackedPrompts.length; i++) {
       const prompt = brand.trackedPrompts[i];
-      if (i > 0) await new Promise((r) => setTimeout(r, 200));
+      const delay = (engine === "gemini" || engine === "google") ? 2000 : 200;
+      if (i > 0) await new Promise((r) => setTimeout(r, delay));
       try {
         const { text, citations: engineCitations } = await queryWithRetry(engine, prompt.text);
         const mentions = extractMentions(text, brand.name, brand.domain, brand.competitors, engineCitations);
@@ -233,7 +234,15 @@ export async function runScanForBrand(
         console.error(`[scan] ${engine} × "${prompt.text.slice(0, 50)}" FAILED:`, err);
       }
     }
-  }));
+  };
+
+  // chatgpt runs in parallel; gemini and google share the same Google API quota
+  const googleEngines = engines.filter((e) => e === "gemini" || e === "google");
+  const otherEngines = engines.filter((e) => e !== "gemini" && e !== "google");
+  await Promise.allSettled([
+    ...otherEngines.map(runEngine),
+    (async () => { for (const e of googleEngines) await runEngine(e); })(),
+  ]);
 
   const { scores, overallScore } = computeScores(allResults, engines);
 

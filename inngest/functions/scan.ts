@@ -7,7 +7,7 @@ const SCAN_ENGINES: AIEngine[] = ["chatgpt", "gemini", "google"];
 
 // Triggered daily at 8am UTC — fans out one scan job per brand
 export const scheduledScanAll = inngest.createFunction(
-  { id: "scheduled-scan-all", triggers: [{ cron: "0 8 * * *" }] },
+  { id: "scheduled-scan-all", triggers: [{ event: "scan/cron.disabled" }] },
   async ({ step }) => {
     const db = serverClient();
 
