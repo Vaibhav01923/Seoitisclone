@@ -2222,41 +2222,6 @@ function DashboardPage() {
                         </button>
                       </div>
 
-                      {/* Coming soon platforms */}
-                      {[
-                        { name: "Quora", color: "#b92b27", letter: "Q" },
-                        { name: "Facebook", color: "#1877f2", letter: "f" },
-                        { name: "YouTube", color: "#ff0000", letter: "▶" },
-                      ].map((p) => (
-                        <div key={p.name} className="relative bg-white border border-stone-200 rounded-xl p-4 flex flex-col overflow-hidden">
-                          {/* Ghost content behind blur */}
-                          <div className="flex items-center gap-2 mb-3">
-                            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-white text-base font-bold shadow-sm" style={{ backgroundColor: p.color }}>{p.letter}</div>
-                            <span className="text-sm font-semibold text-gray-900">{p.name}</span>
-                          </div>
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="flex-1 space-y-1">
-                              <div className="h-2 bg-stone-100 rounded w-3/4" />
-                              <div className="h-2 bg-stone-100 rounded w-1/2" />
-                            </div>
-                            <div className="relative w-12 h-12 shrink-0">
-                              <svg viewBox="0 0 44 44" className="w-12 h-12 -rotate-90">
-                                <circle cx="22" cy="22" r="17" fill="none" stroke="#e5e7eb" strokeWidth="3.5"/>
-                                <circle cx="22" cy="22" r="17" fill="none" stroke="#d1d5db" strokeWidth="3.5" strokeDasharray={`${60 * 1.068} 106.8`} strokeLinecap="round"/>
-                              </svg>
-                              <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-gray-400">—</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1.5 mb-3">
-                            <div className="h-2 bg-stone-100 rounded w-2/3" />
-                          </div>
-                          <div className="mt-auto h-10 bg-stone-100 rounded-xl" />
-                          {/* Coming soon overlay */}
-                          <div className="absolute inset-0 flex items-center justify-center rounded-xl backdrop-blur-[2px] bg-white/50">
-                            <span className="text-xs font-semibold border border-stone-300 bg-white text-gray-600 px-4 py-1.5 rounded-full shadow-sm">Coming soon</span>
-                          </div>
-                        </div>
-                      ))}
                     </div>
                   </div>
 
@@ -2512,7 +2477,6 @@ function DashboardPage() {
                                 >
                                   <div className="flex items-center gap-2 min-w-0">
                                     <span className="text-xs text-gray-500 font-medium shrink-0">#{originalRank}</span>
-                                    {isReddit && <span className="text-[9px] font-bold bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded-full flex items-center gap-0.5 whitespace-nowrap">🔔 FEATURED</span>}
                                   </div>
                                   <div className="flex items-center gap-2.5 min-w-0">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
