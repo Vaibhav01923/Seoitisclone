@@ -92,10 +92,18 @@ export async function queryEngine(engine: AIEngine, prompt: string): Promise<{ t
   }
 
   if (engine === "gemini") {
+    const apiKey = process.env.GOOGLE_GEMINI_API_KEY ?? "";
+    console.log(`[gemini] using key ...${apiKey.slice(-6)} prompt="${prompt.slice(0, 40)}"`);
     // Plain LLM call — NO search grounding tool (grounding costs ~$35/1000 req)
     const model = getGemini().getGenerativeModel({ model: "gemini-3.5-flash" });
-    const result = await model.generateContent(`${systemMsg}\n\nUser: ${prompt}`);
-    return { text: result.response.text(), citations: [] };
+    try {
+      const result = await model.generateContent(`${systemMsg}\n\nUser: ${prompt}`);
+      console.log(`[gemini] OK prompt="${prompt.slice(0, 40)}"`);
+      return { text: result.response.text(), citations: [] };
+    } catch (err) {
+      console.error(`[gemini] FAILED key=...${apiKey.slice(-6)} status=${(err as { status?: number })?.status} msg=${(err as Error).message?.slice(0, 120)}`);
+      throw err;
+    }
   }
 
   if (engine === "google") {
