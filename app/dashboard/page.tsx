@@ -351,6 +351,7 @@ function DashboardPage() {
   const [taskSubmitting, setTaskSubmitting] = useState(false);
   const [taskSubmitted, setTaskSubmitted] = useState(false);
   const [engageTasks, setEngageTasks] = useState<EngageTask[]>([]);
+  const [taskFilter, setTaskFilter] = useState<"pending" | "completed">("pending");
   const [hoveredScanIdx, setHoveredScanIdx] = useState<number | null>(null);
   // Citations page state
   const [showCitationOnboarding, setShowCitationOnboarding] = useState(false);
@@ -3448,23 +3449,59 @@ function DashboardPage() {
           {/* TASKS TAB */}
           {activeTab === "tasks" && (
             <div className="max-w-3xl mx-auto w-full">
-              <div className="mb-6">
+              <div className="mb-5">
                 <h2 className="text-lg font-semibold text-gray-900">Tasks</h2>
                 <p className="text-sm text-gray-500 mt-0.5">Replies and upvote orders you've submitted from the Citations tab.</p>
               </div>
 
-              {engageTasks.length === 0 ? (
+              {/* Subtabs */}
+              <div className="flex gap-1 mb-5 bg-stone-100 rounded-xl p-1 w-fit">
+                {(["pending", "completed"] as const).map((f) => {
+                  const count = engageTasks.filter((t) => t.status === f).length;
+                  return (
+                    <button
+                      key={f}
+                      onClick={() => setTaskFilter(f)}
+                      className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        taskFilter === f
+                          ? "bg-white text-gray-900 shadow-sm"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      {f === "pending" ? "Pending" : "Completed"}
+                      {count > 0 && (
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                          taskFilter === f
+                            ? f === "pending" ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"
+                            : "bg-stone-200 text-gray-500"
+                        }`}>{count}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {engageTasks.filter((t) => t.status === taskFilter).length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
                   <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mb-3">
                     <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                   </div>
-                  <p className="text-sm font-medium text-gray-700 mb-1">No tasks yet</p>
-                  <p className="text-xs text-gray-400 max-w-xs">Go to Citations, click Engage on a Reddit link, draft a reply and submit a task to track it here.</p>
-                  <button onClick={() => navTo("citations")} className="mt-4 text-xs font-medium text-[#FF4500] hover:underline">Go to Citations →</button>
+                  {taskFilter === "pending" ? (
+                    <>
+                      <p className="text-sm font-medium text-gray-700 mb-1">No pending tasks</p>
+                      <p className="text-xs text-gray-400 max-w-xs">Go to Citations, click Engage on a Reddit link, draft a reply and submit a task to track it here.</p>
+                      <button onClick={() => navTo("citations")} className="mt-4 text-xs font-medium text-[#FF4500] hover:underline">Go to Citations →</button>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-medium text-gray-700 mb-1">No completed tasks yet</p>
+                      <p className="text-xs text-gray-400 max-w-xs">Completed tasks will appear here once an admin marks them done.</p>
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {engageTasks.map((task) => (
+                  {engageTasks.filter((t) => t.status === taskFilter).map((task) => (
                     <div key={task.id} className="bg-white border border-stone-200 rounded-xl p-4 hover:border-stone-300 transition-colors">
                       <div className="flex items-start gap-3">
                         <div className="w-8 h-8 rounded-lg bg-[#FF4500] flex items-center justify-center shrink-0 mt-0.5">
