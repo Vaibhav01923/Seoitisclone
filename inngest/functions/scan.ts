@@ -1,6 +1,7 @@
 import { inngest } from "@/inngest/client";
 import { serverClient } from "@/lib/supabase";
 import { runScanForBrand } from "@/lib/scan-engine";
+import { fireAlerts } from "@/lib/alerts";
 import { AIEngine, BrandData } from "@/lib/types";
 
 const SCAN_ENGINES: AIEngine[] = ["chatgpt", "gemini", "google"];
@@ -71,10 +72,14 @@ export const scanBrand = inngest.createFunction(
 
     const result = await step.run("run-scan", async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { overallScore } = await runScanForBrand(brand, SCAN_ENGINES, db as any);
-      return { brand: brand.name, overallScore };
+      const { overallScore, scores } = await runScanForBrand(brand, SCAN_ENGINES, db as any);
+      return { brand: brand.name, overallScore, scores };
     });
 
-    return result;
+    await step.run("fire-alerts", async () => {
+      await fireAlerts(brand.id!, brand.name, result.overallScore, result.scores);
+    });
+
+    return { brand: result.brand, overallScore: result.overallScore };
   }
 );

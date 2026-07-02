@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { AIEngine, BrandData } from "@/lib/types";
 import { clientFromRequest } from "@/lib/supabase";
 import { extractMentions, queryWithRetry, computeScores } from "@/lib/scan-engine";
+import { fireAlerts } from "@/lib/alerts";
 
 export const maxDuration = 300;
 
@@ -125,6 +126,11 @@ export async function POST(req: NextRequest) {
           }))
         );
       }
+
+      // Fire alerts in background — don't block the stream response
+      fireAlerts(brand.id!, brand.name, overallScore, scores).catch((e) =>
+        console.error("[alerts] fireAlerts failed:", e)
+      );
 
       send({ type: "done", scores, overallScore });
       controller.close();
