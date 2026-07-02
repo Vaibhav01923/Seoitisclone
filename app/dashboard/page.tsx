@@ -311,7 +311,7 @@ function DashboardPage() {
   const [overallScore, setOverallScore] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [scanned, setScanned] = useState(false);
-  const [selectedEngines] = useState<AIEngine[]>(["google"]);
+  const [selectedEngines] = useState<AIEngine[]>(["chatgpt", "gemini", "google"]);
   const [nextCheckIn, setNextCheckIn] = useState<string>("");
   const [error, setError] = useState("");
   const [scanHistory, setScanHistory] = useState<ScanRun[]>([]);
@@ -731,12 +731,12 @@ function DashboardPage() {
     if (!brand) return;
     setScanning(true);
     setError("");
-    const total = Math.min(5, brand.trackedPrompts.length) * selectedEngines.length;
+    const total = Math.min(20, brand.trackedPrompts.length) * selectedEngines.length;
     setScanProgress({ done: 0, total });
     const accumulated: ScanResult[] = [];
 
     try {
-      const promptIds = brand.trackedPrompts.slice(0, 5).map((p) => p.id);
+      const promptIds = brand.trackedPrompts.slice(0, 20).map((p) => p.id);
       const res = await fetch("/api/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1801,11 +1801,10 @@ function DashboardPage() {
 
                       {/* Table */}
                       <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden">
-                        <div className="grid grid-cols-[1fr_80px_60px_100px_70px_40px_32px] gap-x-4 px-5 py-3 border-b border-stone-100 bg-stone-50/60">
+                        <div className="grid grid-cols-[1fr_80px_60px_70px_40px_32px] gap-x-4 px-5 py-3 border-b border-stone-100 bg-stone-50/60">
                           <span className="text-[11px] font-semibold text-gray-500">Prompts</span>
                           <span className="text-[11px] font-semibold text-gray-500 text-center">Position</span>
                           <span className="text-[11px] font-semibold text-gray-500 text-center">Volume</span>
-                          <span className="text-[11px] font-semibold text-gray-500 text-center">Brands</span>
                           <span className="text-[11px] font-semibold text-gray-500 text-center">Mentioned?</span>
                           <span className="text-[11px] font-semibold text-gray-500 text-center">Type</span>
                           <span />
@@ -1829,7 +1828,7 @@ function DashboardPage() {
                           return (
                             <div
                               key={p.id}
-                              className="group grid grid-cols-[1fr_80px_60px_100px_70px_40px_32px] gap-x-4 px-5 py-4 border-b border-stone-100 last:border-0 hover:bg-stone-50/70 transition-colors items-center"
+                              className="group grid grid-cols-[1fr_80px_60px_70px_40px_32px] gap-x-4 px-5 py-4 border-b border-stone-100 last:border-0 hover:bg-stone-50/70 transition-colors items-center"
                             >
                               {/* Prompt with visibility ring — clickable */}
                               <button onClick={() => { setSelectedPromptId(p.id); setSelectedCitationDomain(null); }} className="flex items-center gap-3 min-w-0 text-left">
@@ -1853,19 +1852,6 @@ function DashboardPage() {
                                 {[1,2,3,4].map((b) => (
                                   <div key={b} className={`w-1.5 rounded-sm ${b <= volBars ? volColor : "bg-stone-200"}`} style={{ height: `${6 + b * 4}px` }} />
                                 ))}
-                              </div>
-                              {/* Brand favicons */}
-                              <div className="flex items-center justify-center">
-                                <div className="flex -space-x-1.5">
-                                  {topCmps.slice(0,3).map((name) => {
-                                    const d = name.includes(".") ? name : name.toLowerCase() + ".com";
-                                    return (
-                                      // eslint-disable-next-line @next/next/no-img-element
-                                      <img key={name} src={`https://www.google.com/s2/favicons?domain=${d}&sz=32`} alt={name} width={20} height={20} className="rounded-full border-2 border-white shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />
-                                    );
-                                  })}
-                                  {topCmps.length > 3 && <div className="w-5 h-5 rounded-full border-2 border-white bg-stone-200 flex items-center justify-center text-[8px] font-bold text-gray-500">+{topCmps.length - 3}</div>}
-                                </div>
                               </div>
                               {/* Mentioned */}
                               <div className="text-center">
