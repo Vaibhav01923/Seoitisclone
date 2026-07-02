@@ -1032,15 +1032,15 @@ function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* "Next check in" countdown — shown once scanned, hidden during scan */}
-            {scanned && !scanning && (
+            {/* "Next check in" countdown — shown once scanned, hidden during scan or non-scan tabs */}
+            {scanned && !scanning && activeTab !== "tasks" && activeTab !== "articles" && activeTab !== "publishing" && activeTab !== "schedule" && activeTab !== "brands" && activeTab !== "alerts" && activeTab !== "agent" && (
               <div className="flex items-center gap-1.5 text-xs text-gray-400 border border-stone-200 rounded-lg px-3 py-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                 Next check in: <span className="font-medium text-gray-600">{nextCheckIn}</span>
               </div>
             )}
-            {/* Scan button — always visible when not scanning */}
-            {!scanning && !loadingResults && (
+            {/* Scan button — hidden on tabs where it doesn't apply */}
+            {!scanning && !loadingResults && activeTab !== "tasks" && activeTab !== "articles" && activeTab !== "publishing" && activeTab !== "schedule" && activeTab !== "brands" && activeTab !== "alerts" && activeTab !== "agent" && (
               <button
                 onClick={runScan}
                 disabled={selectedEngines.length === 0}
