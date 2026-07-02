@@ -67,9 +67,12 @@ export type EngageTask = {
   replyText: string | null;
   upvotesOrdered: number;
   deliverySpeed: string;
-  status: "in_progress" | "completed" | "cancelled";
+  status: "pending" | "completed" | "cancelled";
   createdAt: string;
+  completedAt: string | null;
 };
+
+export type AdminTask = EngageTask & { userEmail: string; userId: string };
 
 export type RedditThread = {
   id: string;

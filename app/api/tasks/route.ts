@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       reply_text: replyText ?? null,
       upvotes_ordered: upvotesOrdered ?? 0,
       delivery_speed: deliverySpeed ?? "normal",
-      status: "in_progress",
+      status: "pending",
     })
     .select()
     .single();
