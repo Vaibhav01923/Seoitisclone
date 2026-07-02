@@ -157,13 +157,16 @@ export async function queryEngine(engine: AIEngine, prompt: string): Promise<str
   return "";
 }
 
-export async function queryWithRetry(engine: AIEngine, promptText: string, retries = 2): Promise<string> {
+export async function queryWithRetry(engine: AIEngine, promptText: string, retries = 1): Promise<string> {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       return await queryEngine(engine, promptText);
     } catch (err) {
+      const status = (err as { status?: number })?.status;
+      // Never retry billing blocks, quota errors, or auth failures — they won't succeed
+      if (status === 403 || status === 401 || status === 429) throw err;
       if (attempt === retries) throw err;
-      await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+      await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
     }
   }
   return "";
