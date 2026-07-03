@@ -380,6 +380,10 @@ function DashboardPage() {
   const [selectedResponseResult, setSelectedResponseResult] = useState<ScanResult | null>(null);
   const [promptSearch, setPromptSearch] = useState("");
   const [newPromptText, setNewPromptText] = useState("");
+  const [editingCompetitors, setEditingCompetitors] = useState(false);
+  const [competitorDraft, setCompetitorDraft] = useState<string[]>([]);
+  const [newCompetitorInput, setNewCompetitorInput] = useState("");
+  const [savingCompetitors, setSavingCompetitors] = useState(false);
   const [addingPrompt, setAddingPrompt] = useState(false);
   const [deletingPromptId, setDeletingPromptId] = useState<string | null>(null);
   const [scanProgress, setScanProgress] = useState<{ done: number; total: number } | null>(null);
@@ -2613,28 +2617,97 @@ function DashboardPage() {
             <>
               {!scanned && loadingResults ? (
                 <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" /></div>
-              ) : !scanned ? (
-                <EmptyState label="No competitor data" sub="Run a scan to see share of voice vs competitors" />
               ) : (
-                <div className="bg-white border border-stone-200 rounded-xl p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-1">Competitors</h2>
-                  <p className="text-sm text-gray-400 mb-5">Share of voice across AI engines</p>
-                  {[...brand.competitors, brand.name].map((name) => {
-                    const isBrand = name === brand.name;
-                    const mentions = isBrand
-                      ? results.filter((r) => r.brandMentioned).length
-                      : results.filter((r) => r.competitorMentions.some((c) => c.name === name)).length;
-                    const pct = results.length ? Math.round((mentions / results.length) * 100) : 0;
-                    return (
-                      <div key={name} className={`flex items-center gap-3 mb-3 ${isBrand ? "pt-3 border-t border-gray-100 mt-1" : ""}`}>
-                        <span className={`text-sm w-40 truncate ${isBrand ? "font-semibold text-gray-900" : "text-gray-600"}`}>{name}</span>
-                        <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${isBrand ? "bg-red-500" : "bg-gray-300"}`} style={{ width: `${pct}%` }} />
-                        </div>
-                        <span className={`text-sm font-medium w-10 text-right ${isBrand ? "text-red-600" : "text-gray-500"}`}>{pct}%</span>
+                <div className="space-y-4">
+                  {/* Manage competitors card */}
+                  <div className="bg-white border border-stone-200 rounded-xl p-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h2 className="text-base font-semibold text-gray-900">Tracked Competitors</h2>
+                        <p className="text-xs text-gray-400 mt-0.5">Added to every scan — AI engines are checked for mentions of these brands</p>
                       </div>
-                    );
-                  })}
+                      {!editingCompetitors && (
+                        <button onClick={() => { setCompetitorDraft(brand.competitors); setEditingCompetitors(true); }} className="text-xs font-medium text-gray-600 hover:text-gray-900 border border-stone-200 rounded-lg px-3 py-1.5 hover:bg-stone-50 transition-colors">
+                          Edit
+                        </button>
+                      )}
+                    </div>
+                    {editingCompetitors ? (
+                      <div>
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {competitorDraft.map((c) => (
+                            <span key={c} className="flex items-center gap-1.5 text-xs bg-stone-100 text-gray-700 px-2.5 py-1 rounded-full">
+                              {c}
+                              <button onClick={() => setCompetitorDraft(competitorDraft.filter((x) => x !== c))} className="text-gray-400 hover:text-red-500 leading-none">×</button>
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex gap-2 mb-4">
+                          <input
+                            value={newCompetitorInput}
+                            onChange={(e) => setNewCompetitorInput(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const t = newCompetitorInput.trim(); if (t && !competitorDraft.includes(t)) setCompetitorDraft([...competitorDraft, t]); setNewCompetitorInput(""); }}}
+                            placeholder="Add competitor name…"
+                            className="flex-1 text-sm border border-stone-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                          />
+                          <button onClick={() => { const t = newCompetitorInput.trim(); if (t && !competitorDraft.includes(t)) setCompetitorDraft([...competitorDraft, t]); setNewCompetitorInput(""); }} className="text-xs font-medium bg-gray-900 text-white rounded-lg px-3 py-1.5">Add</button>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            disabled={savingCompetitors}
+                            onClick={async () => {
+                              setSavingCompetitors(true);
+                              await fetch("/api/brand", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: brand.id, name: brand.name, niche: brand.niche, competitors: competitorDraft, targetAudience: brand.targetAudience }) });
+                              setBrand({ ...brand, competitors: competitorDraft });
+                              setEditingCompetitors(false);
+                              setSavingCompetitors(false);
+                            }}
+                            className="text-xs font-medium bg-gray-900 text-white rounded-lg px-4 py-1.5 disabled:opacity-50"
+                          >
+                            {savingCompetitors ? "Saving…" : "Save"}
+                          </button>
+                          <button onClick={() => setEditingCompetitors(false)} className="text-xs text-gray-500 hover:text-gray-700 px-3 py-1.5">Cancel</button>
+                        </div>
+                      </div>
+                    ) : brand.competitors.length === 0 ? (
+                      <p className="text-sm text-gray-400">No competitors tracked yet. Click <strong>Edit</strong> to add some.</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {brand.competitors.map((c) => (
+                          <span key={c} className="text-xs bg-stone-100 text-gray-700 px-2.5 py-1 rounded-full">{c}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Share of voice chart — only when scanned and competitors exist */}
+                  {scanned && brand.competitors.length > 0 && (
+                    <div className="bg-white border border-stone-200 rounded-xl p-5">
+                      <h3 className="text-base font-semibold text-gray-900 mb-1">Share of Voice</h3>
+                      <p className="text-xs text-gray-400 mb-4">Across all AI engines</p>
+                      {[...brand.competitors, brand.name].map((name) => {
+                        const isBrand = name === brand.name;
+                        const mentions = isBrand
+                          ? results.filter((r) => r.brandMentioned).length
+                          : results.filter((r) => r.competitorMentions.some((c) => c.name === name)).length;
+                        const pct = results.length ? Math.round((mentions / results.length) * 100) : 0;
+                        return (
+                          <div key={name} className={`flex items-center gap-3 mb-3 ${isBrand ? "pt-3 border-t border-gray-100 mt-1" : ""}`}>
+                            <span className={`text-sm w-40 truncate ${isBrand ? "font-semibold text-gray-900" : "text-gray-600"}`}>{name}</span>
+                            <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                              <div className={`h-full rounded-full ${isBrand ? "bg-red-500" : "bg-gray-300"}`} style={{ width: `${pct}%` }} />
+                            </div>
+                            <span className={`text-sm font-medium w-10 text-right ${isBrand ? "text-red-600" : "text-gray-500"}`}>{pct}%</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {scanned && brand.competitors.length === 0 && (
+                    <div className="bg-white border border-stone-200 rounded-xl p-8 text-center">
+                      <p className="text-sm text-gray-400">Add competitors above, then re-scan to see share of voice data.</p>
+                    </div>
+                  )}
                 </div>
               )}
             </>
