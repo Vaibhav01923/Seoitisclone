@@ -1818,9 +1818,8 @@ function DashboardPage() {
 
                       {/* Table */}
                       <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden">
-                        <div className="grid grid-cols-[1fr_80px_130px_120px_40px_32px] gap-x-4 px-5 py-3 border-b border-stone-100 bg-stone-50/60">
+                        <div className="grid grid-cols-[1fr_130px_120px_40px_32px] gap-x-4 px-5 py-3 border-b border-stone-100 bg-stone-50/60">
                           <span className="text-[11px] font-semibold text-gray-500">Prompts</span>
-                          <span className="text-[11px] font-semibold text-gray-500 text-center">Position</span>
                           <span className="text-[11px] font-semibold text-gray-500">Engines</span>
                           <span className="text-[11px] font-semibold text-gray-500">Competing with</span>
                           <span className="text-[11px] font-semibold text-gray-500 text-center">Type</span>
@@ -1831,8 +1830,6 @@ function DashboardPage() {
                           const pr = results.filter((r) => r.promptId === p.id);
                           const mc = pr.filter((r) => r.brandMentioned).length;
                           const vis = pr.length ? Math.round(mc / pr.length * 100) : 0;
-                          const rks = pr.filter((r) => r.brandMentioned && r.brandRank).map((r) => r.brandRank!);
-                          const ap = rks.length ? rks.reduce((s, r) => s + r, 0) / rks.length : null;
                           const hasGap = pr.length > 0 && mc === 0;
                           const cmpMap: Record<string, number> = {};
                           pr.forEach((r) => r.competitorMentions.forEach((c) => { cmpMap[c.name] = (cmpMap[c.name] ?? 0) + 1; }));
@@ -1844,7 +1841,7 @@ function DashboardPage() {
                           return (
                             <div
                               key={p.id}
-                              className="group grid grid-cols-[1fr_80px_130px_120px_40px_32px] gap-x-4 px-5 py-4 border-b border-stone-100 last:border-0 hover:bg-stone-50/70 transition-colors items-center"
+                              className="group grid grid-cols-[1fr_130px_120px_40px_32px] gap-x-4 px-5 py-4 border-b border-stone-100 last:border-0 hover:bg-stone-50/70 transition-colors items-center"
                             >
                               {/* Prompt with visibility ring — clickable */}
                               <button onClick={() => { setSelectedPromptId(p.id); setSelectedCitationDomain(null); }} className="flex items-center gap-3 min-w-0 text-left">
@@ -1857,12 +1854,6 @@ function DashboardPage() {
                                 </div>
                                 <span className="text-sm text-gray-800 font-medium leading-snug line-clamp-2">{p.text}</span>
                               </button>
-                              {/* Position */}
-                              <div className="text-center">
-                                <span className={`text-sm font-bold ${ap && ap <= 2 ? "text-green-600" : ap && ap <= 4 ? "text-amber-500" : "text-gray-500"}`}>
-                                  {ap ? `#${ap.toFixed(1)}` : "—"}
-                                </span>
-                              </div>
                               {/* Engine mention dots */}
                               <div className="flex items-center gap-2">
                                 {selectedEngines.map((eng) => {
