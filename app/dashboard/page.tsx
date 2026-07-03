@@ -1775,7 +1775,7 @@ function DashboardPage() {
                   const competitorCount = allPrompts.filter((p) => p.category?.toLowerCase().includes("competitor")).length;
                   const commercialCount = allPrompts.filter((p) => p.category?.toLowerCase().includes("commercial")).length;
                   const used = allPrompts.length;
-                  const limit = 20;
+                  const limit = 25;
                   const filtered = allPrompts.filter((p) => !promptSearch || p.text.toLowerCase().includes(promptSearch.toLowerCase()));
 
                   return (
