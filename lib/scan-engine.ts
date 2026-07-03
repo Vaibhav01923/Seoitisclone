@@ -99,7 +99,7 @@ export async function queryEngine(engine: AIEngine, prompt: string): Promise<{ t
   }
 
   if (engine === "gemini") {
-    const model = getGemini().getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = getGemini().getGenerativeModel({ model: "gemini-3.5-flash" });
     const result = await model.generateContent(`${systemMsg}\n\nUser: ${prompt}`);
     return { text: result.response.text(), citations: [] };
   }
