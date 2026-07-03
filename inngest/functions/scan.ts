@@ -181,22 +181,15 @@ export const manualScanBrand = inngest.createFunction(
           const db = serverClient(); // fresh connection per step invocation
           const results: ScanResult[] = [];
 
-          if (engine === "google") {
-            // DataForSEO: no rate limit — run 4 prompts concurrently per batch
-            // Each prompt gets 2 retries (3 × 20s = 60s max) to handle slow responses
-            const BATCH = 4;
-            for (let i = 0; i < promptsToRun.length; i += BATCH) {
-              const batch = promptsToRun.slice(i, i + BATCH);
-              await Promise.all(
-                batch.map((prompt) => runOnePrompt(engine, prompt, brand, scanRunId, brandId, db, results, 2))
-              );
-            }
-          } else {
-            // ChatGPT / Gemini: sequential with small inter-prompt delays
-            for (let i = 0; i < promptsToRun.length; i++) {
-              if (i > 0) await new Promise((r) => setTimeout(r, engine === "gemini" ? 1000 : 200));
-              await runOnePrompt(engine, promptsToRun[i], brand, scanRunId, brandId, db, results, 1);
-            }
+          // All engines run in concurrent batches — no sequential delays needed.
+          // Batch sizes are conservative to stay well within API rate limits.
+          const BATCH = engine === "google" ? 4 : 3; // google=4, chatgpt/gemini=3
+          const retries = engine === "google" ? 2 : 1;
+          for (let i = 0; i < promptsToRun.length; i += BATCH) {
+            const batch = promptsToRun.slice(i, i + BATCH);
+            await Promise.all(
+              batch.map((prompt) => runOnePrompt(engine, prompt, brand, scanRunId, brandId, db, results, retries))
+            );
           }
           return results;
         }).catch(() => [] as ScanResult[]) // engine failure → empty array, not a crash

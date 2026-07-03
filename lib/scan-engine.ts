@@ -99,8 +99,8 @@ export async function queryEngine(engine: AIEngine, prompt: string): Promise<{ t
   }
 
   if (engine === "gemini") {
-    // Plain LLM call — NO search grounding tool (grounding costs ~$35/1000 req)
-    const model = getGemini().getGenerativeModel({ model: "gemini-2.5-flash" });
+    // gemini-2.0-flash: no thinking overhead, ~3x faster than 2.5-flash for simple queries
+    const model = getGemini().getGenerativeModel({ model: "gemini-2.0-flash" });
     const result = await model.generateContent(`${systemMsg}\n\nUser: ${prompt}`);
     return { text: result.response.text(), citations: [] };
   }
