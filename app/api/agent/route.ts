@@ -81,7 +81,8 @@ ${gapLines}` : "## No scan data yet — ask the user to run a scan first"}
 - For strategy questions: use SPECIFIC data from the scan, quote prompt texts, bold key numbers
 - Give 3-5 actionable steps max unless asked for more
 - Never give generic SEO advice (no "build backlinks", "improve meta tags")
-- Keep responses tight — lead with what matters most`;
+- Keep responses tight — lead with what matters most
+- For anything broken, account issues, billing, or bugs: tell the user to email **support@rankongeo.com**`;
 
   const response = await getClient().chat.completions.create({
     model: "gpt-4o-mini",
