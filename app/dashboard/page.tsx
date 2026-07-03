@@ -70,7 +70,7 @@ const AVAILABLE_ENGINES: AIEngine[] = ["chatgpt", "claude", "gemini", "perplexit
 
 type Tab =
   | "overview" | "history" | "results" | "citations" | "competitors"
-  | "gaps" | "keywords" | "articles" | "tasks"
+  | "gaps" | "articles" | "tasks"
   | "publishing"
   | "brands" | "alerts"
   | "agent" | "admin";
@@ -82,7 +82,6 @@ const TAB_LABELS: Record<Tab, string> = {
   citations: "Citations",
   competitors: "Competitors",
   gaps: "Research",
-  keywords: "Keywords",
   articles: "Articles",
 
   tasks: "Tasks",
@@ -1006,7 +1005,6 @@ function DashboardPage() {
             <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2.5 mb-1.5">Create</p>
             <div className="space-y-0.5">
               <NavItem label="Research" active={activeTab === "gaps"} onClick={() => navTo("gaps")} badge={gaps.length || undefined} />
-              <NavItem label="Keywords" active={activeTab === "keywords"} onClick={() => navTo("keywords")} />
               <NavItem label="Articles" active={activeTab === "articles"} onClick={() => navTo("articles")} badge={draftCount || undefined} />
               <NavItem label="Tasks" active={activeTab === "tasks"} onClick={() => navTo("tasks")} badge={engageTasks.filter(t => t.status === "pending").length || undefined} />
             </div>
@@ -1783,7 +1781,15 @@ function DashboardPage() {
                   return (
                     <>
                       <h2 className="text-xl font-bold text-gray-900 mb-0.5">Prompts</h2>
-                      <p className="text-sm text-gray-400 mb-5">Manage your search prompts</p>
+                      <p className="text-sm text-gray-400 mb-5">Manage your search prompts &amp; track visibility gaps</p>
+
+                      {/* Stat cards */}
+                      <div className="grid grid-cols-4 gap-3 mb-5">
+                        <StatCard label="Prompts" value={allPrompts.length} sub="tracked" />
+                        <StatCard label="With gaps" value={gaps.length} sub="need articles" />
+                        <StatCard label="Avg visibility" value={overallScore !== null ? `${overallScore}%` : "—"} sub="across engines" />
+                        <StatCard label="Engines" value={selectedEngines.length} sub="being tracked" />
+                      </div>
 
                       {/* Usage bar */}
                       <div className="bg-white border border-stone-200 rounded-2xl px-5 py-4 mb-5">
@@ -1812,11 +1818,12 @@ function DashboardPage() {
 
                       {/* Table */}
                       <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden">
-                        <div className="grid grid-cols-[1fr_80px_60px_70px_40px_32px] gap-x-4 px-5 py-3 border-b border-stone-100 bg-stone-50/60">
+                        <div className="grid grid-cols-[1fr_80px_60px_80px_120px_40px_32px] gap-x-4 px-5 py-3 border-b border-stone-100 bg-stone-50/60">
                           <span className="text-[11px] font-semibold text-gray-500">Prompts</span>
                           <span className="text-[11px] font-semibold text-gray-500 text-center">Position</span>
                           <span className="text-[11px] font-semibold text-gray-500 text-center">Volume</span>
-                          <span className="text-[11px] font-semibold text-gray-500 text-center">Mentioned?</span>
+                          <span className="text-[11px] font-semibold text-gray-500 text-center">Status</span>
+                          <span className="text-[11px] font-semibold text-gray-500">Competing with</span>
                           <span className="text-[11px] font-semibold text-gray-500 text-center">Type</span>
                           <span />
                         </div>
@@ -1827,10 +1834,11 @@ function DashboardPage() {
                           const vis = pr.length ? Math.round(mc / pr.length * 100) : 0;
                           const rks = pr.filter((r) => r.brandMentioned && r.brandRank).map((r) => r.brandRank!);
                           const ap = rks.length ? rks.reduce((s, r) => s + r, 0) / rks.length : null;
-                          const mentioned = mc > 0;
+                          const hasGap = pr.length > 0 && mc === 0;
+                          const isCovered = mc > 0;
                           const cmpMap: Record<string, number> = {};
                           pr.forEach((r) => r.competitorMentions.forEach((c) => { cmpMap[c.name] = (cmpMap[c.name] ?? 0) + 1; }));
-                          const topCmps = Object.entries(cmpMap).sort((a,b) => b[1]-a[1]).slice(0,3).map(([n]) => n);
+                          const topCompetitor = Object.entries(cmpMap).sort((a,b) => b[1]-a[1])[0]?.[0] ?? null;
                           const pType = p.category || "";
                           const typeDot = pType.toLowerCase().includes("brand") ? "bg-purple-500" : pType.toLowerCase().includes("competitor") ? "bg-amber-400" : "bg-blue-400";
                           const volBars = Math.min(4, Math.max(1, Math.ceil(vis / 25)));
@@ -1839,7 +1847,7 @@ function DashboardPage() {
                           return (
                             <div
                               key={p.id}
-                              className="group grid grid-cols-[1fr_80px_60px_70px_40px_32px] gap-x-4 px-5 py-4 border-b border-stone-100 last:border-0 hover:bg-stone-50/70 transition-colors items-center"
+                              className="group grid grid-cols-[1fr_80px_60px_80px_120px_40px_32px] gap-x-4 px-5 py-4 border-b border-stone-100 last:border-0 hover:bg-stone-50/70 transition-colors items-center"
                             >
                               {/* Prompt with visibility ring — clickable */}
                               <button onClick={() => { setSelectedPromptId(p.id); setSelectedCitationDomain(null); }} className="flex items-center gap-3 min-w-0 text-left">
@@ -1864,13 +1872,30 @@ function DashboardPage() {
                                   <div key={b} className={`w-1.5 rounded-sm ${b <= volBars ? volColor : "bg-stone-200"}`} style={{ height: `${6 + b * 4}px` }} />
                                 ))}
                               </div>
-                              {/* Mentioned */}
+                              {/* Status */}
                               <div className="text-center">
-                                {mentioned
-                                  ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-600"><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>Yes</span>
-                                  : <span className="text-xs font-semibold text-red-400">No</span>
+                                {pr.length === 0
+                                  ? <span className="text-xs text-gray-400">—</span>
+                                  : hasGap
+                                    ? <span className="text-xs font-medium bg-red-50 text-red-600 px-2 py-0.5 rounded-full">Gap</span>
+                                    : <span className="text-xs font-medium bg-green-50 text-green-700 px-2 py-0.5 rounded-full">Covered</span>
                                 }
+                                {hasGap && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const gapItem = gaps.find((g) => g.promptText === p.text);
+                                      const params = new URLSearchParams({ gapPrompt: p.text, brand: brand.name, niche: brand.niche, brandId: brand.id ?? "", engines: encodeURIComponent(JSON.stringify(gapItem?.engines ?? [])), ...(gapItem?.topCompetitor ? { competitor: gapItem.topCompetitor } : {}) });
+                                      window.open(`/article?${params}`, "_blank");
+                                    }}
+                                    className="mt-1 block text-[10px] font-medium text-gray-400 hover:text-gray-700 transition-colors"
+                                  >
+                                    + Article
+                                  </button>
+                                )}
                               </div>
+                              {/* Competing with */}
+                              <div className="text-xs text-gray-500 truncate">{topCompetitor ?? "—"}</div>
                               {/* Type dot */}
                               <div className="flex justify-center">
                                 <div className={`w-2.5 h-2.5 rounded-full ${typeDot}`} />
@@ -2633,100 +2658,6 @@ function DashboardPage() {
           )}
 
           {/* KEYWORDS */}
-          {activeTab === "keywords" && (
-            <>
-              <div className="flex items-center justify-between mb-5">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">Keywords</h2>
-                  <p className="text-sm text-gray-400 mt-0.5">Tracked prompts &amp; visibility opportunities for {brand.domain}</p>
-                </div>
-                <button
-                  onClick={() => navTo("gaps")}
-                  className="text-xs font-medium bg-gray-900 text-white px-3 py-1.5 rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  + Add keyword
-                </button>
-              </div>
-
-              {brand.trackedPrompts.length === 0 ? (
-                <EmptyState label="No keywords tracked" sub="Add prompts during setup to track keyword visibility" />
-              ) : (
-                <>
-                  <div className="grid grid-cols-4 gap-3 mb-5">
-                    <StatCard label="Keywords" value={brand.trackedPrompts.length} sub="tracked prompts" />
-                    <StatCard label="With gaps" value={gaps.length} sub="need articles" />
-                    <StatCard label="Avg visibility" value={overallScore !== null ? `${overallScore}%` : "—"} sub="across engines" />
-                    <StatCard label="Engines" value={selectedEngines.length} sub="being tracked" />
-                  </div>
-
-                  <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
-                    <div className="px-5 py-4 border-b border-stone-100 flex items-center gap-3">
-                      <input
-                        value={keywordSearch}
-                        onChange={(e) => setKeywordSearch(e.target.value)}
-                        placeholder="Search keywords…"
-                        className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent"
-                      />
-                    </div>
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-stone-100">
-                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Prompt / Keyword</th>
-                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Visibility</th>
-                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Status</th>
-                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Competing with</th>
-                          <th className="px-5 py-3" />
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-stone-50">
-                        {keywordRows.map((row) => (
-                          <tr key={row.promptId} className="hover:bg-stone-50/50">
-                            <td className="px-5 py-3 text-sm text-gray-800 max-w-xs">
-                              <span className="line-clamp-1">{row.text}</span>
-                            </td>
-                            <td className="px-5 py-3">
-                              {row.vis !== null ? (
-                                <div className="flex items-center gap-2">
-                                  <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                    <div className="h-full bg-red-400 rounded-full" style={{ width: `${row.vis}%` }} />
-                                  </div>
-                                  <span className="text-xs font-medium text-gray-700">{row.vis}%</span>
-                                </div>
-                              ) : <span className="text-xs text-gray-400">No scan yet</span>}
-                            </td>
-                            <td className="px-5 py-3">
-                              {row.hasGap ? (
-                                <span className="text-xs font-medium bg-red-50 text-red-600 px-2 py-0.5 rounded-full">Gap</span>
-                              ) : row.vis !== null ? (
-                                <span className="text-xs font-medium bg-green-50 text-green-700 px-2 py-0.5 rounded-full">Covered</span>
-                              ) : (
-                                <span className="text-xs text-gray-400">—</span>
-                              )}
-                            </td>
-                            <td className="px-5 py-3 text-xs text-gray-500">{row.topCompetitor ?? "—"}</td>
-                            <td className="px-5 py-3 text-right">
-                              {row.hasGap && (
-                                <button
-                                  onClick={() => {
-                                    const params = new URLSearchParams({ gapPrompt: row.text, brand: brand.name, niche: brand.niche, brandId: brand.id ?? "", engines: encodeURIComponent(JSON.stringify(gaps.find(g => g.promptText === row.text)?.engines ?? [])) });
-                                    window.open(`/article?${params}`, "_blank");
-                                  }}
-                                  className="text-xs font-medium text-gray-500 hover:text-gray-900 border border-gray-200 hover:border-gray-400 px-2.5 py-1 rounded-lg transition-colors"
-                                >
-                                  + Article
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </>
-              )}
-            </>
-          )}
-
           {/* ARTICLES */}
           {activeTab === "articles" && (
             <div className="flex gap-5 h-full">
