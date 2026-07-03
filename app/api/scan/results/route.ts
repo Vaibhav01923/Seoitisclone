@@ -47,7 +47,9 @@ export async function GET(req: NextRequest) {
     brandMentioned: r.brand_mentioned,
     brandRank: r.brand_rank,
     competitorMentions: r.competitor_mentions ?? [],
-    citations: r.citations ?? [],
+    citations: (r.citations ?? []).filter((u: string) => {
+      try { return !new URL(u).hostname.endsWith("dataforseo.com"); } catch { return false; }
+    }),
     scannedAt: r.scanned_at,
   }));
 
