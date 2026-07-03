@@ -115,6 +115,7 @@ type SavedArticle = {
 };
 
 type AgentMessage = { role: "user" | "assistant"; content: string };
+type ChatSession = { id: string; title: string; messages: AgentMessage[]; createdAt: number };
 
 type PublishingChannel = {
   id: string;
@@ -338,6 +339,8 @@ function DashboardPage() {
   const [agentInput, setAgentInput] = useState("");
   const [agentLoading, setAgentLoading] = useState(false);
   const [agentInitialized, setAgentInitialized] = useState(false);
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [expandedPrompts, setExpandedPrompts] = useState<Set<string>>(new Set());
   const [expandedCitationDomains, setExpandedCitationDomains] = useState<Set<string>>(new Set());
   const [engageItem, setEngageItem] = useState<{ url: string; promptText: string; engine: string } | null>(null);
@@ -381,6 +384,17 @@ function DashboardPage() {
   const [deletingPromptId, setDeletingPromptId] = useState<string | null>(null);
   const [scanProgress, setScanProgress] = useState<{ done: number; total: number } | null>(null);
   const agentEndRef = useRef<HTMLDivElement>(null);
+  const agentMessagesRef = useRef<AgentMessage[]>([]);
+  agentMessagesRef.current = agentMessages;
+
+  // Load chat history from localStorage when brand loads
+  useEffect(() => {
+    if (!brand?.id) return;
+    try {
+      const stored = localStorage.getItem(`grog_chats_${brand.id}`);
+      if (stored) setChatSessions(JSON.parse(stored));
+    } catch {}
+  }, [brand?.id]);
 
   // Articles state
   const [savedArticles, setSavedArticles] = useState<SavedArticle[]>([]);
@@ -806,6 +820,39 @@ function DashboardPage() {
     }
   }
 
+  function saveChatToStorage(msgs: AgentMessage[], chatId: string | null, sessions: ChatSession[], brandId: string) {
+    const userMsgs = msgs.filter((m) => m.role === "user");
+    if (!userMsgs.length) return sessions;
+    const title = userMsgs[0].content.slice(0, 45) + (userMsgs[0].content.length > 45 ? "…" : "");
+    const id = chatId ?? Date.now().toString();
+    const session: ChatSession = { id, title, messages: msgs, createdAt: Date.now() };
+    const updated = chatId
+      ? sessions.map((s) => s.id === chatId ? session : s)
+      : [session, ...sessions].slice(0, 20);
+    try { localStorage.setItem(`grog_chats_${brandId}`, JSON.stringify(updated)); } catch {}
+    return updated;
+  }
+
+  function startNewChat() {
+    if (brand?.id) {
+      const updated = saveChatToStorage(agentMessagesRef.current, activeChatId, chatSessions, brand.id);
+      setChatSessions(updated);
+    }
+    setActiveChatId(null);
+    setAgentMessages([]);
+    setAgentInitialized(false);
+  }
+
+  function loadChatSession(session: ChatSession) {
+    if (brand?.id) {
+      const updated = saveChatToStorage(agentMessagesRef.current, activeChatId, chatSessions, brand.id);
+      setChatSessions(updated);
+    }
+    setActiveChatId(session.id);
+    setAgentMessages(session.messages);
+    setAgentInitialized(true);
+  }
+
   async function sendAgentMessage() {
     if (!agentInput.trim() || agentLoading || !brand) return;
     const userMsg: AgentMessage = { role: "user", content: agentInput.trim() };
@@ -813,6 +860,17 @@ function DashboardPage() {
     setAgentMessages(newMessages);
     setAgentInput("");
     setAgentLoading(true);
+
+    // Build per-prompt breakdown for richer context
+    const promptBreakdown = brand.trackedPrompts.map((p) => {
+      const pr = results.filter((r) => r.promptId === p.id);
+      return {
+        text: p.text,
+        chatgpt: pr.find((r) => r.engine === "chatgpt")?.brandMentioned ?? null,
+        gemini: pr.find((r) => r.engine === "gemini")?.brandMentioned ?? null,
+        google: pr.find((r) => r.engine === "google")?.brandMentioned ?? null,
+      };
+    });
 
     try {
       const res = await fetch("/api/agent", {
@@ -826,16 +884,26 @@ function DashboardPage() {
             niche: brand.niche,
             overallScore,
             scores,
-            gaps: gaps.slice(0, 5),
+            gaps,
             totalPrompts: brand.trackedPrompts.length,
             competitors: brand.competitors,
+            promptBreakdown,
           },
         }),
       });
 
       if (!res.ok) throw new Error("Agent failed");
       const d = await res.json();
-      setAgentMessages((prev) => [...prev, { role: "assistant", content: d.reply }]);
+      const finalMessages: AgentMessage[] = [...newMessages, { role: "assistant", content: d.reply }];
+      setAgentMessages(finalMessages);
+
+      // Auto-save after each reply
+      if (brand.id) {
+        const newId = activeChatId ?? Date.now().toString();
+        if (!activeChatId) setActiveChatId(newId);
+        const updated = saveChatToStorage(finalMessages, newId, chatSessions, brand.id);
+        setChatSessions(updated);
+      }
     } catch {
       setAgentMessages((prev) => [...prev, { role: "assistant", content: "Sorry, I couldn't reach the server. Try again in a moment." }]);
     } finally {
@@ -1113,7 +1181,7 @@ function DashboardPage() {
             )}
             {activeTab === "agent" && (
               <button
-                onClick={() => { setAgentMessages([]); setAgentInitialized(false); }}
+                onClick={startNewChat}
                 className="text-xs text-gray-500 hover:text-gray-800 border border-gray-200 px-3 py-1.5 rounded-lg transition-colors"
               >
                 + New chat
@@ -2842,7 +2910,42 @@ function DashboardPage() {
 
           {/* AGENT */}
           {activeTab === "agent" && (
-            <div className="flex flex-col flex-1 min-h-0">
+            <div className="flex flex-1 min-h-0">
+              {/* Chat history sidebar */}
+              <div className="w-52 border-r border-stone-200 bg-stone-50/60 flex flex-col shrink-0">
+                <div className="p-3 border-b border-stone-100">
+                  <button onClick={startNewChat} className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-white border border-stone-200 rounded-lg px-3 py-2 transition-colors">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg>
+                    New chat
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-2">
+                  {chatSessions.length > 0 && (
+                    <>
+                      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-2 py-1.5">Recents</p>
+                      {chatSessions.map((session) => (
+                        <button
+                          key={session.id}
+                          onClick={() => loadChatSession(session)}
+                          className={`w-full text-left text-xs px-2.5 py-2 rounded-lg mb-0.5 transition-colors truncate ${
+                            activeChatId === session.id
+                              ? "bg-white border border-stone-200 text-gray-900 font-medium"
+                              : "text-gray-600 hover:bg-white hover:text-gray-900"
+                          }`}
+                        >
+                          {session.title}
+                        </button>
+                      ))}
+                    </>
+                  )}
+                  {chatSessions.length === 0 && (
+                    <p className="text-[11px] text-gray-400 px-2 py-3">No previous chats yet</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Chat area */}
+              <div className="flex flex-col flex-1 min-h-0">
               <div className="px-6 pt-5 pb-2 shrink-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-red-600 text-lg">✳</span>
@@ -2910,6 +3013,7 @@ function DashboardPage() {
                   </div>
                 </div>
               </div>
+              </div> {/* end chat area */}
             </div>
           )}
 
