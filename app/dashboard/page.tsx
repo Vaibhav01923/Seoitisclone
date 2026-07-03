@@ -1818,11 +1818,10 @@ function DashboardPage() {
 
                       {/* Table */}
                       <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden">
-                        <div className="grid grid-cols-[1fr_80px_60px_80px_120px_40px_32px] gap-x-4 px-5 py-3 border-b border-stone-100 bg-stone-50/60">
+                        <div className="grid grid-cols-[1fr_80px_130px_120px_40px_32px] gap-x-4 px-5 py-3 border-b border-stone-100 bg-stone-50/60">
                           <span className="text-[11px] font-semibold text-gray-500">Prompts</span>
                           <span className="text-[11px] font-semibold text-gray-500 text-center">Position</span>
-                          <span className="text-[11px] font-semibold text-gray-500 text-center">Volume</span>
-                          <span className="text-[11px] font-semibold text-gray-500 text-center">Status</span>
+                          <span className="text-[11px] font-semibold text-gray-500">Engines</span>
                           <span className="text-[11px] font-semibold text-gray-500">Competing with</span>
                           <span className="text-[11px] font-semibold text-gray-500 text-center">Type</span>
                           <span />
@@ -1835,19 +1834,17 @@ function DashboardPage() {
                           const rks = pr.filter((r) => r.brandMentioned && r.brandRank).map((r) => r.brandRank!);
                           const ap = rks.length ? rks.reduce((s, r) => s + r, 0) / rks.length : null;
                           const hasGap = pr.length > 0 && mc === 0;
-                          const isCovered = mc > 0;
                           const cmpMap: Record<string, number> = {};
                           pr.forEach((r) => r.competitorMentions.forEach((c) => { cmpMap[c.name] = (cmpMap[c.name] ?? 0) + 1; }));
                           const topCompetitor = Object.entries(cmpMap).sort((a,b) => b[1]-a[1])[0]?.[0] ?? null;
                           const pType = p.category || "";
                           const typeDot = pType.toLowerCase().includes("brand") ? "bg-purple-500" : pType.toLowerCase().includes("competitor") ? "bg-amber-400" : "bg-blue-400";
-                          const volBars = Math.min(4, Math.max(1, Math.ceil(vis / 25)));
-                          const volColor = vis >= 75 ? "bg-green-500" : vis >= 50 ? "bg-amber-400" : vis >= 25 ? "bg-orange-400" : "bg-red-400";
+                          const engineDotColor: Record<string, string> = { chatgpt: "#22c55e", gemini: "#3b82f6", google: "#ef4444" };
 
                           return (
                             <div
                               key={p.id}
-                              className="group grid grid-cols-[1fr_80px_60px_80px_120px_40px_32px] gap-x-4 px-5 py-4 border-b border-stone-100 last:border-0 hover:bg-stone-50/70 transition-colors items-center"
+                              className="group grid grid-cols-[1fr_80px_130px_120px_40px_32px] gap-x-4 px-5 py-4 border-b border-stone-100 last:border-0 hover:bg-stone-50/70 transition-colors items-center"
                             >
                               {/* Prompt with visibility ring — clickable */}
                               <button onClick={() => { setSelectedPromptId(p.id); setSelectedCitationDomain(null); }} className="flex items-center gap-3 min-w-0 text-left">
@@ -1866,20 +1863,19 @@ function DashboardPage() {
                                   {ap ? `#${ap.toFixed(1)}` : "—"}
                                 </span>
                               </div>
-                              {/* Volume bars */}
-                              <div className="flex items-end justify-center gap-0.5">
-                                {[1,2,3,4].map((b) => (
-                                  <div key={b} className={`w-1.5 rounded-sm ${b <= volBars ? volColor : "bg-stone-200"}`} style={{ height: `${6 + b * 4}px` }} />
-                                ))}
-                              </div>
-                              {/* Status */}
-                              <div className="text-center">
-                                {pr.length === 0
-                                  ? <span className="text-xs text-gray-400">—</span>
-                                  : hasGap
-                                    ? <span className="text-xs font-medium bg-red-50 text-red-600 px-2 py-0.5 rounded-full">Gap</span>
-                                    : <span className="text-xs font-medium bg-green-50 text-green-700 px-2 py-0.5 rounded-full">Covered</span>
-                                }
+                              {/* Engine mention dots */}
+                              <div className="flex items-center gap-2">
+                                {selectedEngines.map((eng) => {
+                                  const r = pr.find((x) => x.engine === eng);
+                                  const mentioned = r?.brandMentioned ?? false;
+                                  const hasData = !!r;
+                                  return (
+                                    <div key={eng} className="flex items-center gap-1" title={`${eng}: ${!hasData ? "no data" : mentioned ? "mentioned" : "not mentioned"}`}>
+                                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: hasData && mentioned ? engineDotColor[eng] ?? "#9ca3af" : "#e5e7eb" }} />
+                                      <span className="text-[10px] text-gray-400 capitalize">{eng === "chatgpt" ? "GPT" : eng === "google" ? "Google" : "Gemini"}</span>
+                                    </div>
+                                  );
+                                })}
                                 {hasGap && (
                                   <button
                                     onClick={(e) => {
@@ -1888,7 +1884,7 @@ function DashboardPage() {
                                       const params = new URLSearchParams({ gapPrompt: p.text, brand: brand.name, niche: brand.niche, brandId: brand.id ?? "", engines: encodeURIComponent(JSON.stringify(gapItem?.engines ?? [])), ...(gapItem?.topCompetitor ? { competitor: gapItem.topCompetitor } : {}) });
                                       window.open(`/article?${params}`, "_blank");
                                     }}
-                                    className="mt-1 block text-[10px] font-medium text-gray-400 hover:text-gray-700 transition-colors"
+                                    className="text-[10px] font-medium text-gray-400 hover:text-gray-700 border border-gray-200 hover:border-gray-400 px-1.5 py-0.5 rounded transition-colors"
                                   >
                                     + Article
                                   </button>
