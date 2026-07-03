@@ -20,6 +20,8 @@ const BLOCKED_DOMAINS = [
   // Google internal/search infrastructure (vertexaisearch.cloud.google.com is handled in filterUrl below)
   "google.com", "googleapis.com", "googleusercontent.com",
   "gstatic.com", "googlesyndication.com", "doubleclick.net",
+  // DataForSEO CDN — their own image cache leaks into references[]
+  "dataforseo.com",
   // Generic search engines (not relevant citations)
   "bing.com", "search.yahoo.com", "duckduckgo.com", "baidu.com",
   // Generic social aggregators with no page-specific value
