@@ -191,37 +191,80 @@ function PromptsContent() {
 }
 
 // ── CITATIONS ─────────────────────────────────────────────────────
+type EngageDemoItem = { platform: "Reddit" | "LinkedIn"; color: string; icon: string; url: string; prompt: string };
+
+const CITATION_DOMAINS = [
+  { rank: 1, domain: "youtube.com", count: 16, color: "#FF0000", icon: "▶", engagement: false },
+  { rank: 2, domain: "reddit.com", count: 11, color: "#FF4500", icon: "R", engagement: true },
+  { rank: 3, domain: "medium.com", count: 6, color: "#111", icon: "M", engagement: false },
+  { rank: 4, domain: "linkedin.com", count: 5, color: "#0A66C2", icon: "in", engagement: true },
+  { rank: 5, domain: "github.com", count: 3, color: "#111", icon: "◆", engagement: false },
+];
+
+const CITATION_INSTANCES: Record<string, { url: string; source: string; prompt: string }[]> = {
+  "reddit.com": [
+    { url: "reddit.com/r/softwaretesting/comments/1b91vv6/playwright_costs/", source: "Google AI", prompt: "Is Playwright free" },
+    { url: "reddit.com/r/QualityAssurance/comments/1mxe2yc/ai_in_qaautomation/", source: "Google AI", prompt: "best web automation tool for QA teams" },
+    { url: "reddit.com/r/softwaretesting/comments/1bovaoa/selenium_vs_playwright/", source: "Google AI", prompt: "Playwright vs Selenium which is better" },
+  ],
+  "linkedin.com": [
+    { url: "linkedin.com/posts/qa-weekly_playwright-vs-selenium-activity/", source: "Perplexity", prompt: "Playwright vs Selenium which is better" },
+    { url: "linkedin.com/posts/testautomation-hub_switching-to-playwright/", source: "ChatGPT", prompt: "switching from Selenium to Playwright" },
+  ],
+  "youtube.com": [{ url: "youtube.com/watch?v=playwright-crash-course", source: "ChatGPT", prompt: "how good is Playwright" }],
+  "medium.com": [{ url: "medium.com/@qaeng/playwright-vs-cypress-2026", source: "Gemini", prompt: "best browser automation tool for QA teams" }],
+  "github.com": [{ url: "github.com/microsoft/playwright", source: "Perplexity", prompt: "Playwright review" }],
+};
+
+const REDDIT_REPLY = "Playwright's auto-waiting alone cut our flaky test rate way down — worth a look if Selenium timeouts are the pain point.";
+const LINKEDIN_REPLY = "We moved our E2E suite from Selenium to Playwright and cut CI time in half — happy to share specifics if useful.";
+
 function CitationsContent() {
-  const platforms = [
+  const [expandedDomain, setExpandedDomain] = useState<string | null>(null);
+  const [engageItem, setEngageItem] = useState<EngageDemoItem | null>(null);
+  const [engageDraft, setEngageDraft] = useState("");
+  const [engageSubmitted, setEngageSubmitted] = useState(false);
+
+  const platforms: { name: "Reddit" | "LinkedIn"; color: string; icon: string; desc: string }[] = [
     { name: "Reddit", color: "#FF4500", icon: "R", desc: "Engage on Reddit threads to get cited in AI responses and boost your visibility." },
     { name: "LinkedIn", color: "#0A66C2", icon: "in", desc: "Engage on LinkedIn posts to get cited in AI responses and boost your visibility." },
   ];
-  const domains = [
-    { rank: 1, domain: "youtube.com", count: 16, color: "#FF0000", icon: "▶", engagement: false },
-    { rank: 2, domain: "reddit.com", count: 11, color: "#FF4500", icon: "R", engagement: true },
-    { rank: 3, domain: "medium.com", count: 6, color: "#111", icon: "M", engagement: false },
-    { rank: 4, domain: "linkedin.com", count: 5, color: "#0A66C2", icon: "in", engagement: true },
-    { rank: 5, domain: "github.com", count: 3, color: "#111", icon: "◆", engagement: false },
-  ];
+
+  function openEngage(platform: "Reddit" | "LinkedIn", url: string, prompt: string) {
+    const meta = platform === "Reddit" ? { color: "#FF4500", icon: "R" } : { color: "#0A66C2", icon: "in" };
+    setEngageItem({ platform, url, prompt, ...meta });
+    setEngageDraft("");
+    setEngageSubmitted(false);
+  }
+
   return (
-    <div className="p-5" style={{ animation: "fadeUp 0.2s ease forwards" }}>
+    <div className="relative p-5" style={{ animation: "fadeUp 0.2s ease forwards" }}>
       <h2 className="text-lg font-bold text-[#111] mb-0.5">Citations</h2>
       <p className="text-xs text-[#aaa] mb-4">Discover the sources AI uses in its responses</p>
 
       <p className="text-xs font-semibold text-[#333] mb-0.5">Engagement Platforms</p>
       <p className="text-[11px] text-[#aaa] mb-3">Engage on these platforms to increase your AI visibility</p>
       <div className="grid grid-cols-2 gap-2.5 mb-4">
-        {platforms.map((p) => (
-          <div key={p.name} className="bg-white border-2 rounded-xl p-3.5" style={{ borderColor: `${p.color}33` }}>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-white text-[11px] font-bold" style={{ background: p.color }}>{p.icon}</div>
-              <span className="text-sm font-semibold text-[#111]">{p.name}</span>
-              <span className="ml-auto text-[9px] font-bold bg-teal-50 text-teal-700 px-1.5 py-0.5 rounded-full border border-teal-100 whitespace-nowrap">High impact</span>
+        {platforms.map((p) => {
+          const firstInstance = CITATION_INSTANCES[p.name === "Reddit" ? "reddit.com" : "linkedin.com"][0];
+          return (
+            <div key={p.name} className="bg-white border-2 rounded-xl p-3.5" style={{ borderColor: `${p.color}33` }}>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-white text-[11px] font-bold" style={{ background: p.color }}>{p.icon}</div>
+                <span className="text-sm font-semibold text-[#111]">{p.name}</span>
+                <span className="ml-auto text-[9px] font-bold bg-teal-50 text-teal-700 px-1.5 py-0.5 rounded-full border border-teal-100 whitespace-nowrap">High impact</span>
+              </div>
+              <p className="text-[10px] text-[#999] mb-2.5 leading-snug">{p.desc}</p>
+              <button
+                onClick={() => openEngage(p.name, firstInstance.url, firstInstance.prompt)}
+                className="w-full text-xs font-semibold text-white rounded-lg py-1.5 hover:opacity-90 transition-opacity"
+                style={{ background: p.color }}
+              >
+                Engage
+              </button>
             </div>
-            <p className="text-[10px] text-[#999] mb-2.5 leading-snug">{p.desc}</p>
-            <button className="w-full text-xs font-semibold text-white rounded-lg py-1.5" style={{ background: p.color }}>Engage</button>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="bg-white border border-[#e5e0da] rounded-xl overflow-hidden">
@@ -232,20 +275,123 @@ function CitationsContent() {
         <div className="grid grid-cols-[40px_1fr_70px_150px] gap-x-3 px-4 py-2 text-[9px] font-semibold text-[#bbb] tracking-wider uppercase border-b border-[#f0ece6]">
           <span>Rank</span><span>Domain</span><span className="text-right">Citations</span><span className="text-right">Details</span>
         </div>
-        {domains.map((d) => (
-          <div key={d.domain} className="grid grid-cols-[40px_1fr_70px_150px] gap-x-3 px-4 py-2.5 items-center border-b border-[#f5f3f0] last:border-0">
-            <span className="text-[11px] text-[#999] font-medium">#{d.rank}</span>
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="w-5 h-5 rounded flex items-center justify-center text-[9px] font-bold text-white shrink-0" style={{ background: d.color }}>{d.icon}</div>
-              <span className="text-xs text-[#222] font-medium truncate">{d.domain}</span>
+        {CITATION_DOMAINS.map((d) => {
+          const isExpanded = expandedDomain === d.domain;
+          const instances = CITATION_INSTANCES[d.domain] ?? [];
+          return (
+            <div key={d.domain} className="border-b border-[#f5f3f0] last:border-0">
+              <button
+                onClick={() => setExpandedDomain(isExpanded ? null : d.domain)}
+                className="w-full grid grid-cols-[40px_1fr_70px_150px] gap-x-3 px-4 py-2.5 items-center hover:bg-[#fafaf8] transition-colors text-left"
+              >
+                <span className="text-[11px] text-[#999] font-medium">#{d.rank}</span>
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="w-5 h-5 rounded flex items-center justify-center text-[9px] font-bold text-white shrink-0" style={{ background: d.color }}>{d.icon}</div>
+                  <span className="text-xs text-[#222] font-medium truncate">{d.domain}</span>
+                </div>
+                <span className="text-xs font-semibold text-[#111] text-right">{d.count}</span>
+                <div className="flex items-center justify-end gap-1.5">
+                  <span className="text-[11px] text-right font-medium text-[#c8372d]">
+                    {d.engagement ? "Engagement opportunities" : "Learn more ↗"}
+                  </span>
+                  <svg className={`w-3 h-3 text-[#bbb] shrink-0 transition-transform ${isExpanded ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </div>
+              </button>
+              {isExpanded && (
+                <div className="bg-[#fafaf8] border-t border-[#f0ece6] px-4 py-2">
+                  {instances.map((inst, i) => (
+                    <div key={i} className="flex items-center gap-2 py-1.5 border-b border-[#f0ece6] last:border-0">
+                      <a href={`https://${inst.url}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-[11px] text-blue-600 hover:underline truncate flex-1 min-w-0">{inst.url}</a>
+                      <span className="text-[9px] font-medium text-[#888] bg-white border border-[#e5e0da] rounded px-1.5 py-0.5 shrink-0">{inst.source}</span>
+                      <span className="text-[10px] text-[#bbb] italic truncate w-28 shrink-0 hidden sm:block">{inst.prompt}</span>
+                      {d.engagement && (
+                        <button
+                          onClick={() => openEngage(d.domain === "reddit.com" ? "Reddit" : "LinkedIn", inst.url, inst.prompt)}
+                          className="text-[10px] font-semibold text-white rounded-md px-2 py-1 shrink-0"
+                          style={{ background: d.color }}
+                        >
+                          Engage
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <span className="text-xs font-semibold text-[#111] text-right">{d.count}</span>
-            <span className="text-[11px] text-right font-medium text-[#c8372d]">
-              {d.engagement ? "Engagement opportunities" : "Learn more ↗"}
-            </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
+      {/* Engage overlay */}
+      {engageItem && (
+        <div className="absolute inset-0 z-20 flex rounded-b-xl overflow-hidden">
+          <div className="flex-1 bg-black/30" onClick={() => setEngageItem(null)} />
+          <div className="w-[280px] h-full bg-white shadow-2xl flex flex-col border-l border-[#e5e0da]">
+            <div className="px-4 py-3 border-b border-[#f0ece6] flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-white text-[11px] font-bold" style={{ background: engageItem.color }}>{engageItem.icon}</div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-[#111]">Engage on {engageItem.platform}</p>
+                <p className="text-[10px] text-[#aaa] truncate">Draft a reply to influence this citation</p>
+              </div>
+              <button onClick={() => setEngageItem(null)} className="ml-auto text-[#bbb] hover:text-[#666] shrink-0">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <div className="px-4 py-3 border-b border-[#f0ece6] bg-[#fafaf8]">
+              <p className="text-[9px] font-semibold text-[#bbb] uppercase tracking-widest mb-1.5">Thread</p>
+              <p className="text-[11px] text-blue-600 break-all leading-relaxed">{engageItem.url}</p>
+              <p className="text-[10px] text-[#aaa] italic mt-1.5 truncate">for prompt: &ldquo;{engageItem.prompt}&rdquo;</p>
+            </div>
+
+            <div className="flex-1 flex flex-col px-4 py-3 gap-2.5 overflow-y-auto">
+              {engageSubmitted ? (
+                <div className="flex-1 flex flex-col items-center justify-center gap-3 py-6 text-center">
+                  <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  </div>
+                  <p className="text-xs font-semibold text-[#111]">Task submitted!</p>
+                  <p className="text-[10px] text-[#999]">Your reply is queued for review.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <p className="text-[9px] font-semibold text-[#bbb] uppercase tracking-widest">Reply draft</p>
+                    <button
+                      onClick={() => setEngageDraft(engageItem.platform === "Reddit" ? REDDIT_REPLY : LINKEDIN_REPLY)}
+                      className="text-[10px] font-medium flex items-center gap-1"
+                      style={{ color: engageItem.color }}
+                    >
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                      AI suggest
+                    </button>
+                  </div>
+                  <textarea
+                    value={engageDraft}
+                    onChange={(e) => setEngageDraft(e.target.value)}
+                    placeholder="Write your reply, or click AI suggest…"
+                    rows={5}
+                    className="w-full text-[11px] text-[#333] placeholder:text-[#bbb] border border-[#e5e0da] rounded-lg p-2.5 resize-none outline-none"
+                  />
+                </>
+              )}
+            </div>
+
+            {!engageSubmitted && (
+              <div className="px-4 py-3 border-t border-[#f0ece6]">
+                <button
+                  onClick={() => setEngageSubmitted(true)}
+                  disabled={!engageDraft.trim()}
+                  className="w-full text-xs font-semibold text-white rounded-lg py-2 disabled:opacity-40 transition-opacity"
+                  style={{ background: engageItem.color }}
+                >
+                  Submit reply
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
