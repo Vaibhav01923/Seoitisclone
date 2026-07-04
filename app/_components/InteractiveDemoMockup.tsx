@@ -224,6 +224,9 @@ function CitationsContent() {
   const [engageItem, setEngageItem] = useState<EngageDemoItem | null>(null);
   const [engageDraft, setEngageDraft] = useState("");
   const [engageSubmitted, setEngageSubmitted] = useState(false);
+  const [upvoteEnabled, setUpvoteEnabled] = useState(false);
+  const [upvoteQty, setUpvoteQty] = useState(10);
+  const [upvoteSpeed, setUpvoteSpeed] = useState<"Slow" | "Normal" | "Fast">("Normal");
 
   const platforms: { name: "Reddit" | "LinkedIn"; color: string; icon: string; desc: string }[] = [
     { name: "Reddit", color: "#FF4500", icon: "R", desc: "Engage on Reddit threads to get cited in AI responses and boost your visibility." },
@@ -235,6 +238,9 @@ function CitationsContent() {
     setEngageItem({ platform, url, prompt, ...meta });
     setEngageDraft("");
     setEngageSubmitted(false);
+    setUpvoteEnabled(false);
+    setUpvoteQty(10);
+    setUpvoteSpeed("Normal");
   }
 
   return (
@@ -373,6 +379,57 @@ function CitationsContent() {
                     rows={5}
                     className="w-full text-[11px] text-[#333] placeholder:text-[#bbb] border border-[#e5e0da] rounded-lg p-2.5 resize-none outline-none"
                   />
+
+                  {/* Upvote ordering — Reddit only */}
+                  {engageItem.platform === "Reddit" && (
+                    <div className="border border-[#e5e0da] rounded-lg overflow-hidden">
+                      <button
+                        onClick={() => setUpvoteEnabled((v) => !v)}
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-[#fafaf8] transition-colors"
+                      >
+                        <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 transition-colors ${upvoteEnabled ? "bg-[#FF4500]" : "border border-[#ccc]"}`}>
+                          {upvoteEnabled && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                        </div>
+                        <div className="text-left flex-1 min-w-0">
+                          <p className="text-[11px] font-semibold text-[#222]">Order upvotes to rank this reply</p>
+                          <p className="text-[9px] text-[#999]">Boost visibility so AI engines surface your comment</p>
+                        </div>
+                        <svg className={`w-3.5 h-3.5 text-[#bbb] shrink-0 transition-transform ${upvoteEnabled ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                      </button>
+
+                      {upvoteEnabled && (
+                        <div className="px-3 pb-3 pt-1 border-t border-[#f0ece6] space-y-2.5">
+                          <div className="flex gap-2.5">
+                            <div className="flex-1">
+                              <p className="text-[9px] font-semibold text-[#999] mb-1">Quantity</p>
+                              <div className="flex items-center gap-1.5">
+                                <button onClick={() => setUpvoteQty((q) => Math.max(1, q - 5))} className="w-6 h-6 rounded-md border border-[#e5e0da] flex items-center justify-center text-[#666] font-medium text-xs">−</button>
+                                <span className="text-xs font-semibold text-[#111] w-6 text-center">{upvoteQty}</span>
+                                <button onClick={() => setUpvoteQty((q) => q + 5)} className="w-6 h-6 rounded-md border border-[#e5e0da] flex items-center justify-center text-[#666] font-medium text-xs">+</button>
+                              </div>
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-[9px] font-semibold text-[#999] mb-1">Speed</p>
+                              <select
+                                value={upvoteSpeed}
+                                onChange={(e) => setUpvoteSpeed(e.target.value as "Slow" | "Normal" | "Fast")}
+                                className="w-full text-[11px] border border-[#e5e0da] rounded-md px-1.5 py-1 bg-white text-[#333] outline-none"
+                              >
+                                <option value="Slow">Slow (safer)</option>
+                                <option value="Normal">Normal</option>
+                                <option value="Fast">Fast</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-[10px] text-[#999] bg-[#fafaf8] rounded-md px-2.5 py-1.5">
+                            <span>{upvoteQty} upvotes × $0.10</span>
+                            <span className="font-semibold text-[#333]">${(upvoteQty * 0.10).toFixed(2)}</span>
+                          </div>
+                          <p className="text-[10px] text-amber-700 bg-amber-50 rounded-md px-2.5 py-1.5 leading-relaxed">Comments under 200 chars have ~35% removal rate. Keep replies natural and helpful.</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </>
               )}
             </div>
@@ -385,7 +442,7 @@ function CitationsContent() {
                   className="w-full text-xs font-semibold text-white rounded-lg py-2 disabled:opacity-40 transition-opacity"
                   style={{ background: engageItem.color }}
                 >
-                  Submit reply
+                  {upvoteEnabled ? `Submit Task · $${(upvoteQty * 0.10).toFixed(2)}` : "Submit reply"}
                 </button>
               </div>
             )}
