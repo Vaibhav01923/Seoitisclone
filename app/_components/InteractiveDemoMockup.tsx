@@ -104,52 +104,85 @@ function EnginesContent() {
 }
 
 // ── PROMPTS ───────────────────────────────────────────────────────
+const PROMPT_ENGINE_COLORS: Record<string, string> = { gpt: "#22c55e", gemini: "#3b82f6", google: "#ef4444" };
+const PROMPT_TYPE_COLORS: Record<string, string> = { branded: "#a855f7", competitor: "#fbbf24", commercial: "#60a5fa" };
+
 function PromptsContent() {
-  const [expanded, setExpanded] = useState<number | null>(1);
-  const rows = [
-    { engine: "Perplexity", prompt: "what's the best way to run parallel tests in different brow…", status: "Absent" },
-    {
-      engine: "ChatGPT",
-      prompt: "what tools can help me create visual dashboards for test…",
-      status: "Absent",
-      response: "Here are some top tools for creating visual dashboards for test results: 1. **Tableau** — A powerful data visualization tool that allows you to create interactive dashboards from various data sources. 2. **Microsoft Power BI** — User-friendly, integrates well with Microsoft products, and offers extensive reporting features. 3. **Google Data Studio** — A free tool that connects with various sources. 4. **Grafana** — Excellent for real-time monitoring, particularly with time-series data...",
-    },
-    {
-      engine: "Gemini",
-      prompt: "what tools can help me create visual dashboards for test…",
-      status: "Absent",
-      response: "Here are top tools for creating visual dashboards for test results: * **Tableau:** Powerful, feature-rich, and highly interactive. * **Power BI:** Excellent integration with Microsoft products, strong data modeling. * **Grafana:** Open-source, great for real-time monitoring and time-series data. * **Kibana:** Specifically designed for Elasticsearch, ideal for log analysis...",
-    },
-    { engine: "Perplexity", prompt: "what tools can help me create visual dashboards for test…", status: "Absent" },
-    {
-      engine: "Gemini",
-      prompt: "what framework is best for testing web apps with divers…",
-      status: "Mentioned",
-      response: "Here are my top framework recommendations: * **Cypress:** Excellent for end-to-end testing, fast and reliable. * **Playwright:** Supports multiple browsers and is built for modern web applications. Robust cross-browser testing capabilities. * **Selenium WebDriver:** A mature and widely adopted framework with various language bindings and strong community support...",
-    },
-    { engine: "Perplexity", prompt: "what framework is best for testing web apps with divers…", status: "Absent" },
+  const [search, setSearch] = useState("");
+  const rows: { text: string; vis: number; engines: Record<"gpt" | "gemini" | "google", boolean>; competing: string; type: string }[] = [
+    { text: "Playwright review", vis: 67, engines: { gpt: true, gemini: true, google: false }, competing: "Selenium", type: "branded" },
+    { text: "Playwright pricing", vis: 100, engines: { gpt: true, gemini: true, google: true }, competing: "—", type: "branded" },
+    { text: "Is Playwright free", vis: 100, engines: { gpt: true, gemini: true, google: true }, competing: "—", type: "branded" },
+    { text: "best browser automation tool for QA teams", vis: 67, engines: { gpt: true, gemini: false, google: true }, competing: "Selenium", type: "commercial" },
+    { text: "Playwright vs Selenium which is better", vis: 33, engines: { gpt: false, gemini: true, google: false }, competing: "Selenium", type: "competitor" },
   ];
+  const filtered = rows.filter((r) => !search || r.text.toLowerCase().includes(search.toLowerCase()));
+
   return (
     <div className="p-5" style={{ animation: "fadeUp 0.2s ease forwards" }}>
-      <h2 className="text-lg font-bold text-[#111] mb-4">Prompts</h2>
-      <div className="space-y-2">
-        {rows.map((row, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-xl border border-[#e5e0da] px-4 py-3 cursor-pointer"
-            onClick={() => setExpanded(expanded === i ? null : i)}
-          >
-            <div className="flex items-center gap-3">
-              <span style={{ color: ENG_COLORS[row.engine], fontSize: 11, lineHeight: 1 }}>●</span>
-              <span className="text-xs font-medium text-[#555] w-20 shrink-0">{row.engine}</span>
-              <span className="flex-1 text-xs text-[#222] truncate">{row.prompt}</span>
-              <span className={`text-xs font-semibold shrink-0 ${row.status === "Mentioned" ? "text-green-600" : "text-[#c8372d]"}`}>
-                {row.status}
-              </span>
+      <h2 className="text-lg font-bold text-[#111] mb-0.5">Prompts</h2>
+      <p className="text-xs text-[#aaa] mb-4">Manage your search prompts &amp; track visibility gaps</p>
+
+      <div className="grid grid-cols-4 gap-2.5 mb-3">
+        {[{ label: "PROMPTS", val: "20", sub: "tracked" }, { label: "WITH GAPS", val: "5", sub: "need articles" }, { label: "AVG VISIBILITY", val: "92%", sub: "across engines" }, { label: "ENGINES", val: "3", sub: "being tracked" }].map((s) => (
+          <div key={s.label} className="bg-white rounded-xl border border-[#e5e0da] p-3.5">
+            <p className="text-[9px] font-semibold text-[#bbb] tracking-wider uppercase mb-1">{s.label}</p>
+            <p className="text-xl font-black text-[#111]">{s.val}</p>
+            <p className="text-[10px] text-[#aaa] mt-0.5">{s.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-white border border-[#e5e0da] rounded-xl px-4 py-3.5 mb-3">
+        <p className="text-xs font-semibold text-[#333] mb-2">20 of 25 prompts used</p>
+        <div className="h-1.5 bg-[#f0ece6] rounded-full overflow-hidden flex gap-0.5 mb-2">
+          <div className="h-full bg-blue-400 rounded-full" style={{ width: "36%" }} />
+          <div className="h-full bg-amber-300 rounded-full" style={{ width: "24%" }} />
+          <div className="h-full bg-purple-500 rounded-full" style={{ width: "20%" }} />
+        </div>
+        <div className="flex gap-4">
+          {([["bg-blue-400", "Commercial", 9], ["bg-amber-300", "Competitor", 6], ["bg-purple-500", "Branded", 5]] as const).map(([color, label, count]) => (
+            <div key={label} className="flex items-center gap-1.5">
+              <div className={`w-1.5 h-1.5 rounded-full ${color}`} />
+              <span className="text-[10px] text-[#888]">{label} ({count})</span>
             </div>
-            {expanded === i && "response" in row && row.response && (
-              <p className="mt-2 pt-2 text-[11px] text-[#666] leading-relaxed border-t border-[#f0ece6]">{row.response}</p>
-            )}
+          ))}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 bg-white border border-[#e5e0da] rounded-lg px-3 py-2 mb-3">
+        <svg className="w-3.5 h-3.5 text-[#bbb] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search prompts" className="text-xs flex-1 outline-none bg-transparent text-[#333] placeholder:text-[#bbb]" />
+      </div>
+
+      <div className="bg-white border border-[#e5e0da] rounded-xl overflow-hidden">
+        <div className="grid grid-cols-[1fr_100px_90px_36px] gap-x-3 px-4 py-2.5 border-b border-[#f0ece6] bg-[#fafaf8]">
+          <span className="text-[9px] font-semibold text-[#bbb] tracking-wider uppercase">Prompts</span>
+          <span className="text-[9px] font-semibold text-[#bbb] tracking-wider uppercase">Engines</span>
+          <span className="text-[9px] font-semibold text-[#bbb] tracking-wider uppercase">Competing with</span>
+          <span className="text-[9px] font-semibold text-[#bbb] tracking-wider uppercase text-center">Type</span>
+        </div>
+        {filtered.map((r, i) => (
+          <div key={i} className="grid grid-cols-[1fr_100px_90px_36px] gap-x-3 px-4 py-3 border-b border-[#f5f3f0] last:border-0 items-center">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="relative w-8 h-8 shrink-0">
+                <svg viewBox="0 0 32 32" className="w-8 h-8 -rotate-90">
+                  <circle cx="16" cy="16" r="13" fill="none" stroke="#f0ece6" strokeWidth="2.5"/>
+                  <circle cx="16" cy="16" r="13" fill="none" stroke={r.vis >= 80 ? "#22c55e" : r.vis >= 50 ? "#f59e0b" : "#ef4444"} strokeWidth="2.5" strokeDasharray={`${r.vis * 0.817} 81.7`} strokeLinecap="round"/>
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-[7px] font-bold text-[#444]">{r.vis}%</span>
+              </div>
+              <span className="text-xs text-[#222] font-medium truncate">{r.text}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              {(["gpt", "gemini", "google"] as const).map((e) => (
+                <span key={e} className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: r.engines[e] ? PROMPT_ENGINE_COLORS[e] : "#e5e0da" }} />
+              ))}
+            </div>
+            <span className="text-[11px] text-[#888] truncate">{r.competing}</span>
+            <div className="flex justify-center">
+              <div className="w-2 h-2 rounded-full" style={{ background: PROMPT_TYPE_COLORS[r.type] }} />
+            </div>
           </div>
         ))}
       </div>
@@ -159,52 +192,57 @@ function PromptsContent() {
 
 // ── CITATIONS ─────────────────────────────────────────────────────
 function CitationsContent() {
+  const platforms = [
+    { name: "Reddit", color: "#FF4500", icon: "R", desc: "Engage on Reddit threads to get cited in AI responses and boost your visibility." },
+    { name: "LinkedIn", color: "#0A66C2", icon: "in", desc: "Engage on LinkedIn posts to get cited in AI responses and boost your visibility." },
+  ];
+  const domains = [
+    { rank: 1, domain: "youtube.com", count: 16, color: "#FF0000", icon: "▶", engagement: false },
+    { rank: 2, domain: "reddit.com", count: 11, color: "#FF4500", icon: "R", engagement: true },
+    { rank: 3, domain: "medium.com", count: 6, color: "#111", icon: "M", engagement: false },
+    { rank: 4, domain: "linkedin.com", count: 5, color: "#0A66C2", icon: "in", engagement: true },
+    { rank: 5, domain: "github.com", count: 3, color: "#111", icon: "◆", engagement: false },
+  ];
   return (
     <div className="p-5" style={{ animation: "fadeUp 0.2s ease forwards" }}>
       <h2 className="text-lg font-bold text-[#111] mb-0.5">Citations</h2>
-      <p className="text-xs text-[#aaa] mb-4">Sources AI engines cited when mentioning Playwright</p>
-      <div className="grid grid-cols-3 gap-2.5 mb-3">
-        <div className="bg-white rounded-xl border border-[#e5e0da] p-4">
-          <p className="text-[9px] font-semibold text-[#bbb] tracking-wider uppercase mb-2">TOTAL CITATIONS</p>
-          <p className="text-3xl font-black text-[#111]">6</p>
-          <p className="text-[11px] text-[#aaa] mt-1">avg 0 per response</p>
-        </div>
-        <div className="bg-white rounded-xl border border-[#e5e0da] p-4">
-          <p className="text-[9px] font-semibold text-[#bbb] tracking-wider uppercase mb-2">BY SOURCE TYPE</p>
-          {[{ label: "Owned", count: 3 }, { label: "Editorial", count: 3 }].map((t) => (
-            <div key={t.label} className="flex items-center gap-2 mb-1.5">
-              <span className="text-xs text-[#444] w-14 shrink-0">{t.label}</span>
-              <div className="flex-1 h-1.5 bg-[#f0ece6] rounded-full">
-                <div className="h-full bg-[#c8372d] rounded-full" style={{ width: "50%" }} />
-              </div>
-              <span className="text-xs text-[#888] w-4 text-right">{t.count}</span>
+      <p className="text-xs text-[#aaa] mb-4">Discover the sources AI uses in its responses</p>
+
+      <p className="text-xs font-semibold text-[#333] mb-0.5">Engagement Platforms</p>
+      <p className="text-[11px] text-[#aaa] mb-3">Engage on these platforms to increase your AI visibility</p>
+      <div className="grid grid-cols-2 gap-2.5 mb-4">
+        {platforms.map((p) => (
+          <div key={p.name} className="bg-white border-2 rounded-xl p-3.5" style={{ borderColor: `${p.color}33` }}>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-white text-[11px] font-bold" style={{ background: p.color }}>{p.icon}</div>
+              <span className="text-sm font-semibold text-[#111]">{p.name}</span>
+              <span className="ml-auto text-[9px] font-bold bg-teal-50 text-teal-700 px-1.5 py-0.5 rounded-full border border-teal-100 whitespace-nowrap">High impact</span>
             </div>
-          ))}
-        </div>
-        <div className="bg-white rounded-xl border border-[#e5e0da] p-4">
-          <p className="text-[9px] font-semibold text-[#bbb] tracking-wider uppercase mb-2">TOP CITING SOURCES</p>
-          {[{ src: "playwright.dev", type: "Owned", count: 3 }, { src: "dev.to", type: "Editorial", count: 2 }, { src: "github.com", type: "Editorial", count: 1 }].map((s) => (
-            <div key={s.src} className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-[#444]">{s.src}</span>
-              <div className="flex items-center gap-1">
-                <span className={`text-[9px] px-1.5 py-0.5 rounded ${s.type === "Owned" ? "bg-blue-50 text-blue-700" : "bg-gray-100 text-[#666]"}`}>{s.type}</span>
-                <span className="text-xs text-[#888] w-3 text-right">{s.count}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+            <p className="text-[10px] text-[#999] mb-2.5 leading-snug">{p.desc}</p>
+            <button className="w-full text-xs font-semibold text-white rounded-lg py-1.5" style={{ background: p.color }}>Engage</button>
+          </div>
+        ))}
       </div>
-      <div className="bg-white rounded-xl border border-[#e5e0da] p-4">
-        <p className="text-sm font-semibold text-[#111] mb-3">All citing sources · 3</p>
-        <div className="grid grid-cols-[1fr_80px_100px_60px] text-[9px] font-semibold text-[#bbb] tracking-wider uppercase pb-2 border-b border-[#f0ece6] mb-1">
-          <span>Source</span><span>Type</span><span>Engines</span><span className="text-right">Citations</span>
+
+      <div className="bg-white border border-[#e5e0da] rounded-xl overflow-hidden">
+        <div className="px-4 py-3 border-b border-[#f0ece6] flex items-center justify-between">
+          <p className="text-xs font-semibold text-[#333]">Top Cited Domains</p>
+          <p className="text-[11px] text-[#aaa]">121 domains</p>
         </div>
-        {[{ src: "playwright.dev", type: "Owned", engine: "ChatGPT", count: 3 }, { src: "dev.to", type: "Editorial", engine: "ChatGPT", count: 2 }, { src: "github.com", type: "Editorial", engine: "ChatGPT", count: 1 }].map((row) => (
-          <div key={row.src} className="grid grid-cols-[1fr_80px_100px_60px] py-2.5 border-b border-[#f5f3f0] last:border-0 items-center">
-            <span className="text-xs text-[#333]">{row.src}</span>
-            <span className={`text-[10px] px-2 py-0.5 rounded w-fit ${row.type === "Owned" ? "bg-blue-50 text-blue-700" : "bg-gray-100 text-[#666]"}`}>{row.type}</span>
-            <span className="text-[10px] px-2 py-0.5 bg-green-50 text-green-700 rounded w-fit">{row.engine}</span>
-            <span className="text-sm font-semibold text-[#111] text-right">{row.count}</span>
+        <div className="grid grid-cols-[40px_1fr_70px_150px] gap-x-3 px-4 py-2 text-[9px] font-semibold text-[#bbb] tracking-wider uppercase border-b border-[#f0ece6]">
+          <span>Rank</span><span>Domain</span><span className="text-right">Citations</span><span className="text-right">Details</span>
+        </div>
+        {domains.map((d) => (
+          <div key={d.domain} className="grid grid-cols-[40px_1fr_70px_150px] gap-x-3 px-4 py-2.5 items-center border-b border-[#f5f3f0] last:border-0">
+            <span className="text-[11px] text-[#999] font-medium">#{d.rank}</span>
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-5 h-5 rounded flex items-center justify-center text-[9px] font-bold text-white shrink-0" style={{ background: d.color }}>{d.icon}</div>
+              <span className="text-xs text-[#222] font-medium truncate">{d.domain}</span>
+            </div>
+            <span className="text-xs font-semibold text-[#111] text-right">{d.count}</span>
+            <span className="text-[11px] text-right font-medium text-[#c8372d]">
+              {d.engagement ? "Engagement opportunities" : "Learn more ↗"}
+            </span>
           </div>
         ))}
       </div>
