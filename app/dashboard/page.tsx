@@ -1313,7 +1313,7 @@ function DashboardPage() {
               ) : !scanned && !scanning ? (
                 <EmptyState label="No scan data yet" sub={`${brand.trackedPrompts.length} prompts ready — click "+ Run scan" to start`} />
               ) : scanned && (
-                <div className="flex flex-col gap-6 max-w-4xl">
+                <div className="flex flex-col gap-6">
                   <div className="flex items-start justify-between">
                     <div className="flex flex-col gap-2">
                       <span className="text-[11px] font-semibold tracking-[1.4px] uppercase text-[var(--rust)]">Overview</span>
