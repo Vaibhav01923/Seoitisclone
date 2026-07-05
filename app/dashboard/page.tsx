@@ -202,7 +202,9 @@ function computeGaps(results: ScanResult[], brand: BrandData): GapItem[] {
   for (const promptId of promptIds) {
     const promptResults = results.filter((r) => r.promptId === promptId);
     const promptText = promptResults[0]?.promptText ?? "";
-    const missingEngines = promptResults.filter((r) => !r.brandMentioned).map((r) => r.engine);
+    // Rows with an empty response mean the engine had no answer surface at all
+    // (e.g. no Google AI Overview) — that's not a gap the brand can fill.
+    const missingEngines = promptResults.filter((r) => !r.brandMentioned && r.response.trim()).map((r) => r.engine);
     if (missingEngines.length === 0) continue;
     const competitorCounts: Record<string, number> = {};
     for (const r of promptResults) {
@@ -1763,7 +1765,13 @@ function DashboardPage() {
                                       <EngineIcon engine={r.engine} size={24} />
                                     </td>
                                     <td className="py-3 pr-3 max-w-xs">
-                                      <span className="text-ink/80 line-clamp-2 leading-snug">{r.response.slice(0, 140)}{r.response.length > 140 ? "…" : ""}</span>
+                                      {r.response.trim() ? (
+                                        <span className="text-ink/80 line-clamp-2 leading-snug">{r.response.slice(0, 140)}{r.response.length > 140 ? "…" : ""}</span>
+                                      ) : (
+                                        <span className="italic text-faint leading-snug">
+                                          {r.engine === "google" ? "No AI Overview appeared for this query on this scan" : "No response captured on this scan"}
+                                        </span>
+                                      )}
                                     </td>
                                     <td className="py-3 pr-3">
                                       <span className={`font-bold ${r.brandRank ? "text-mint" : "text-faint"}`}>{r.brandRank ? `#${r.brandRank}` : "—"}</span>
@@ -1771,7 +1779,9 @@ function DashboardPage() {
                                     <td className="py-3 pr-3">
                                       {r.brandMentioned
                                         ? <span className="inline-flex items-center gap-1 bg-mint/10 text-mint border border-mint/20 px-2 py-0.5 rounded-full text-[10px] font-semibold">✓ Yes</span>
-                                        : <span className="inline-flex items-center gap-1 bg-rose/10 text-rose border border-rose/25 px-2 py-0.5 rounded-full text-[10px] font-semibold">✗ No</span>
+                                        : r.response.trim()
+                                          ? <span className="inline-flex items-center gap-1 bg-rose/10 text-rose border border-rose/25 px-2 py-0.5 rounded-full text-[10px] font-semibold">✗ No</span>
+                                          : <span className="inline-flex items-center gap-1 bg-white/[0.05] text-faint border border-line px-2 py-0.5 rounded-full text-[10px] font-semibold">n/a</span>
                                       }
                                     </td>
                                     <td className="py-3 pr-3">

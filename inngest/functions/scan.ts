@@ -96,7 +96,12 @@ async function runOnePrompt(
   retries = 1,
 ) {
   try {
-    const { text, citations: engineCitations } = await queryWithRetry(engine, prompt.text, retries);
+    const answer = await queryWithRetry(engine, prompt.text, retries);
+    if (answer.unavailable) {
+      console.log(`[manual-scan] ${engine} × "${prompt.text.slice(0, 50)}" — no answer surface (e.g. no AI Overview), skipped`);
+      return;
+    }
+    const { text, citations: engineCitations } = answer;
     const mentions = extractMentions(text, brand.name, brand.domain, brand.competitors, engineCitations);
     await db.from("scan_results").insert({
       scan_run_id: scanRunId,

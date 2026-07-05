@@ -78,7 +78,16 @@ export function extractMentions(
   return { brandMentioned, brandRank, competitorMentions, citations };
 }
 
-export async function queryEngine(engine: AIEngine, prompt: string): Promise<{ text: string; citations: string[] }> {
+export type EngineAnswer = {
+  text: string;
+  citations: string[];
+  /** True when the engine genuinely had no answer surface for this query
+      (e.g. Google showed no AI Overview on the SERP). Not a failure — the
+      result should be skipped, not recorded as "brand not mentioned". */
+  unavailable?: boolean;
+};
+
+export async function queryEngine(engine: AIEngine, prompt: string): Promise<EngineAnswer> {
   const systemMsg = "You are a helpful assistant. Answer the user's question thoroughly and naturally.";
 
   if (engine === "claude") {
@@ -121,19 +130,44 @@ export async function queryEngine(engine: AIEngine, prompt: string): Promise<{ t
       }]),
       signal: AbortSignal.timeout(20000),
     });
+    if (!res.ok) throw new Error(`DataForSEO HTTP ${res.status}`);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = await res.json();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const serpItems: any[] = data?.tasks?.[0]?.result?.[0]?.items ?? [];
+    const task: any = data?.tasks?.[0];
+    // DataForSEO wraps failures (bad auth, no credits, bad request) in HTTP 200
+    // responses — 20000 is their success code. Throw so these surface as engine
+    // failures instead of being silently recorded as "brand not mentioned".
+    if (data?.status_code !== 20000 || (task && task.status_code !== 20000)) {
+      throw new Error(
+        `DataForSEO error ${task?.status_code ?? data?.status_code}: ${task?.status_message ?? data?.status_message ?? "unknown"}`
+      );
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const serpItems: any[] = task?.result?.[0]?.items ?? [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const aiOverview = serpItems.find((item: any) => item.type === "ai_overview");
 
-    // markdown holds the full AI Overview text with inline citations stripped
-    const text = aiOverview?.markdown ?? "";
+    // Google shows no AI Overview for many queries — that's a real outcome,
+    // not an empty answer. Callers skip these instead of storing them.
+    if (!aiOverview) return { text: "", citations: [], unavailable: true };
+
+    // markdown holds the full AI Overview text with inline citations stripped;
+    // when it's null the content usually still exists in items[].text
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fromItems: string = (aiOverview.items ?? [])
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((it: any) => it?.text ?? it?.title ?? "")
+      .filter(Boolean)
+      .join("\n\n");
+    const text: string = aiOverview.markdown ?? fromItems;
 
     // top-level references[] has all source URLs, deduplicated by DataForSEO
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const citations: string[] = (aiOverview?.references ?? []).map((r: any) => r.url).filter(Boolean);
+    const citations: string[] = (aiOverview.references ?? []).map((r: any) => r.url).filter(Boolean);
+
+    // AI Overview block present but still loading / empty — treat as absent
+    if (!text.trim()) return { text: "", citations: [], unavailable: true };
 
     return { text, citations };
   }
@@ -164,7 +198,7 @@ export async function queryEngine(engine: AIEngine, prompt: string): Promise<{ t
   return { text: "", citations: [] };
 }
 
-export async function queryWithRetry(engine: AIEngine, promptText: string, retries = 1): Promise<{ text: string; citations: string[] }> {
+export async function queryWithRetry(engine: AIEngine, promptText: string, retries = 1): Promise<EngineAnswer> {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       return await queryEngine(engine, promptText);
@@ -221,7 +255,12 @@ export async function runScanForBrand(
       const delay = (engine === "gemini" || engine === "google") ? 1000 : 200;
       if (i > 0) await new Promise((r) => setTimeout(r, delay));
       try {
-        const { text, citations: engineCitations } = await queryWithRetry(engine, prompt.text);
+        const answer = await queryWithRetry(engine, prompt.text);
+        if (answer.unavailable) {
+          console.log(`[scan] ${engine} × "${prompt.text.slice(0, 50)}" — no answer surface (e.g. no AI Overview), skipped`);
+          continue;
+        }
+        const { text, citations: engineCitations } = answer;
         const mentions = extractMentions(text, brand.name, brand.domain, brand.competitors, engineCitations);
         const result: ScanResult = {
           promptId: prompt.id,
