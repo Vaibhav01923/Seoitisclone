@@ -16,13 +16,15 @@ const ENGINE_LABELS: Record<AIEngine, string> = {
   grok: "Grok",
 };
 
+/* One harmonized engine palette — matched luminance on dark, no error-reds.
+   Mirrors the landing demo (InteractiveDemoMockup) exactly. */
 const ENGINE_COLORS: Record<AIEngine, string> = {
-  chatgpt: "bg-green-500",
-  claude: "bg-orange-500",
-  gemini: "bg-blue-500",
-  perplexity: "bg-purple-500",
-  google: "bg-red-500",
-  grok: "bg-gray-800",
+  chatgpt: "bg-[#3ecf9e]",
+  claude: "bg-[#e08a5e]",
+  gemini: "bg-[#6ba5ff]",
+  perplexity: "bg-[#35c3d6]",
+  google: "bg-[#ffb469]",
+  grok: "bg-[#cfd8d3]",
 };
 
 const ENGINE_ICONS: Record<AIEngine, string> = {
@@ -39,7 +41,7 @@ type EngagePlatform = "reddit" | "linkedin" | "other";
 const ENGAGE_PLATFORMS: Record<EngagePlatform, { label: string; bg: string; hoverBg: string; text: string }> = {
   reddit: { label: "Reddit", bg: "bg-[#FF4500]", hoverBg: "hover:bg-[#e03d00]", text: "text-[#FF4500]" },
   linkedin: { label: "LinkedIn", bg: "bg-[#0A66C2]", hoverBg: "hover:bg-[#004182]", text: "text-[#0A66C2]" },
-  other: { label: "this source", bg: "bg-gray-800", hoverBg: "hover:bg-gray-700", text: "text-gray-800" },
+  other: { label: "this source", bg: "bg-white/15", hoverBg: "hover:bg-white/25", text: "text-muted" },
 };
 
 function getEngagePlatform(url: string): EngagePlatform {
@@ -56,28 +58,28 @@ function EngineIcon({ engine, size = 20 }: { engine: AIEngine; size?: number }) 
       alt={ENGINE_LABELS[engine]}
       width={size}
       height={size}
-      className="rounded-full object-contain bg-white border border-gray-100"
+      className="rounded-full object-contain bg-white border border-white/20"
       style={{ width: size, height: size }}
     />
   );
 }
 
 const ENGINE_TEXT_COLORS: Record<AIEngine, string> = {
-  chatgpt: "text-green-600",
-  claude: "text-orange-500",
-  gemini: "text-blue-500",
-  perplexity: "text-purple-500",
-  google: "text-red-600",
-  grok: "text-gray-800",
+  chatgpt: "text-[#3ecf9e]",
+  claude: "text-[#e08a5e]",
+  gemini: "text-[#6ba5ff]",
+  perplexity: "text-[#35c3d6]",
+  google: "text-[#ffb469]",
+  grok: "text-[#cfd8d3]",
 };
 
 const ENGINE_BADGE_COLORS: Record<string, string> = {
-  chatgpt: "bg-green-50 text-green-700 border border-green-100",
-  claude: "bg-orange-50 text-orange-700 border border-orange-100",
-  gemini: "bg-blue-50 text-blue-700 border border-blue-100",
-  perplexity: "bg-purple-50 text-purple-700 border border-purple-100",
-  google: "bg-red-50 text-red-700 border border-red-100",
-  grok: "bg-gray-100 text-gray-700 border border-gray-200",
+  chatgpt: "bg-[#3ecf9e]/10 text-[#3ecf9e] border border-[#3ecf9e]/25",
+  claude: "bg-[#e08a5e]/10 text-[#e08a5e] border border-[#e08a5e]/25",
+  gemini: "bg-[#6ba5ff]/10 text-[#6ba5ff] border border-[#6ba5ff]/25",
+  perplexity: "bg-[#35c3d6]/10 text-[#35c3d6] border border-[#35c3d6]/25",
+  google: "bg-[#ffb469]/10 text-[#ffb469] border border-[#ffb469]/25",
+  grok: "bg-white/[0.06] text-[#cfd8d3] border border-line",
 };
 
 const AVAILABLE_ENGINES: AIEngine[] = ["chatgpt", "claude", "gemini", "perplexity", "grok", "google"];
@@ -185,13 +187,13 @@ function getSourceType(domain: string): string {
 }
 
 const SOURCE_TYPE_COLORS: Record<string, string> = {
-  Owned: "bg-blue-50 text-blue-700",
-  Editorial: "bg-gray-100 text-gray-600",
-  Review: "bg-yellow-50 text-yellow-700",
-  Reddit: "bg-orange-50 text-orange-700",
-  Wiki: "bg-green-50 text-green-700",
-  Social: "bg-purple-50 text-purple-700",
-  News: "bg-sky-50 text-sky-700",
+  Owned: "bg-blue-400/10 text-blue-300",
+  Editorial: "bg-white/[0.06] text-muted",
+  Review: "bg-amber/10 text-amber",
+  Reddit: "bg-orange-400/10 text-orange-300",
+  Wiki: "bg-mint/10 text-mint",
+  Social: "bg-purple-400/10 text-purple-300",
+  News: "bg-sky-400/10 text-sky-300",
 };
 
 function computeGaps(results: ScanResult[], brand: BrandData): GapItem[] {
@@ -230,9 +232,9 @@ function MiniTrendChart({ runs }: { runs: ScanRun[] }) {
   return (
     <div className="mt-2">
       <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
-        <polyline points={points} fill="none" stroke="#c8372d" strokeWidth="1.5" strokeLinejoin="round" strokeOpacity="0.4" />
+        <polyline points={points} fill="none" stroke="#37c98d" strokeWidth="1.5" strokeLinejoin="round" strokeOpacity="0.4" />
         {scores.map((s, i) => (
-          <circle key={i} cx={(i / (scores.length - 1)) * width} cy={height - (s / max) * height} r="2.5" fill="#c8372d" fillOpacity="0.5" />
+          <circle key={i} cx={(i / (scores.length - 1)) * width} cy={height - (s / max) * height} r="2.5" fill="#37c98d" fillOpacity="0.5" />
         ))}
       </svg>
     </div>
@@ -241,19 +243,19 @@ function MiniTrendChart({ runs }: { runs: ScanRun[] }) {
 
 function EmptyState({ label, sub }: { label: string; sub: string }) {
   return (
-    <div className="bg-white border border-dashed border-stone-200 rounded-xl p-12 text-center">
-      <p className="text-sm font-medium text-gray-500 mb-1">{label}</p>
-      <p className="text-xs text-gray-400">{sub}</p>
+    <div className="bg-surface border border-dashed border-line rounded-xl p-12 text-center">
+      <p className="text-sm font-medium text-muted mb-1">{label}</p>
+      <p className="text-xs text-faint">{sub}</p>
     </div>
   );
 }
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
-    <div className="bg-white border border-stone-200 rounded-xl p-5">
-      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{label}</p>
-      <p className="text-3xl font-bold text-gray-900">{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+    <div className="panel rounded-xl p-5">
+      <p className="text-[10px] font-semibold text-faint uppercase tracking-[0.14em] mb-1.5">{label}</p>
+      <p className="font-serif text-3xl font-[400] text-ink">{value}</p>
+      {sub && <p className="text-xs text-faint mt-1">{sub}</p>}
     </div>
   );
 }
@@ -263,24 +265,26 @@ function NavItem({ label, active, onClick, badge }: { label: string; active: boo
     <button
       onClick={onClick}
       className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition-colors text-left ${
-        active ? "bg-white shadow-sm text-gray-900 font-medium" : "text-gray-500 hover:text-gray-800 hover:bg-white/40"
+        active
+          ? "bg-mint/10 text-mint font-medium shadow-[inset_0_0_0_1px_rgba(140,245,195,0.2)]"
+          : "text-muted hover:text-ink hover:bg-white/[0.05]"
       }`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full shrink-0 transition-colors ${active ? "bg-red-500" : "bg-transparent"}`} />
+      <span className={`w-1.5 h-1.5 rounded-full shrink-0 transition-all ${active ? "bg-mint shadow-[0_0_8px_rgba(140,245,195,0.8)]" : "bg-transparent"}`} />
       {label}
       {badge !== undefined && badge > 0 && (
-        <span className="ml-auto text-[10px] font-semibold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">{badge}</span>
+        <span className="ml-auto text-[10px] font-semibold bg-amber/15 text-amber px-1.5 py-0.5 rounded-full">{badge}</span>
       )}
     </button>
   );
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-600",
-  review: "bg-yellow-50 text-yellow-700",
-  published: "bg-green-50 text-green-700",
-  scheduled: "bg-blue-50 text-blue-700",
-  writing: "bg-purple-50 text-purple-700",
+  draft: "bg-white/[0.06] text-muted",
+  review: "bg-amber/10 text-amber",
+  published: "bg-mint/10 text-mint",
+  scheduled: "bg-blue-400/10 text-blue-300",
+  writing: "bg-purple-400/10 text-purple-300",
 };
 
 function mapArticleFromDb(a: Record<string, unknown>): SavedArticle {
@@ -956,8 +960,8 @@ function DashboardPage() {
 
   if (loadingBrand) {
     return (
-      <div className="min-h-screen bg-[#ede6dc] flex items-center justify-center">
-        <span className="w-7 h-7 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <span className="w-7 h-7 border-2 border-mint border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -1039,30 +1043,33 @@ function DashboardPage() {
   const avgSeoScore = savedArticles.length ? Math.round(savedArticles.reduce((s, a) => s + a.seoScore, 0) / savedArticles.length) : null;
 
   return (
-    <div className="flex h-screen bg-[#ede6dc] overflow-hidden">
+    <div
+      className="flex h-screen overflow-hidden"
+      style={{ background: "linear-gradient(180deg, #0b1c13 0%, #071209 55%, #050e09 100%)" }}
+    >
       {/* Sidebar */}
-      <aside className="w-[272px] shrink-0 flex flex-col border-r border-stone-200/60">
+      <aside className="w-[272px] shrink-0 flex flex-col border-r border-line/60 bg-black/20">
         <div className="px-4 py-4 flex items-center gap-2 shrink-0">
-          <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-            <rect width="28" height="28" rx="7" fill="#c8372d" />
-            <path d="M14 5C10.96 5 8.5 7.46 8.5 10.5c0 4.63 5.5 12.5 5.5 12.5s5.5-7.87 5.5-12.5C19.5 7.46 17.04 5 14 5z" fill="white" />
-            <circle cx="14" cy="10.5" r="2.2" fill="#c8372d" />
+          <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="6" stroke="#8cf5c3" strokeWidth="2.5" />
+            <circle cx="16" cy="16" r="12.5" stroke="#8cf5c3" strokeWidth="1.8" strokeDasharray="4 5" transform="rotate(-20 16 16)" />
+            <circle cx="26.5" cy="9" r="2.5" fill="#ffb469" />
           </svg>
-          <span className="font-bold text-xl tracking-tight text-gray-900">RankOn<span className="text-red-600">Geo</span></span>
-          <span className="ml-auto text-[10px] font-semibold bg-stone-200 text-stone-500 px-1.5 py-0.5 rounded">v2.0</span>
+          <span className="font-bold text-xl tracking-tight text-ink">RankOn<span className="text-mint">Geo</span></span>
+          <span className="ml-auto text-[10px] font-semibold bg-white/[0.08] text-muted px-1.5 py-0.5 rounded">v2.0</span>
         </div>
 
         <div className="mx-3 mb-5 shrink-0 relative">
           <button
             onClick={() => setShowBrandDropdown((v) => !v)}
-            className="w-full bg-white rounded-xl px-3 py-3 flex items-center gap-3 hover:bg-white/90 transition-colors shadow-sm"
+            className="w-full bg-white/[0.04] rounded-xl px-3 py-3 flex items-center gap-3 hover:bg-white/[0.07] transition-colors shadow-[inset_0_0_0_1px_rgba(234,246,238,0.08)]"
           >
-            <div className="w-9 h-9 rounded-lg bg-gray-900 text-white flex items-center justify-center text-sm font-bold shrink-0">{brandInitial}</div>
+            <div className="w-9 h-9 rounded-lg bg-mint text-[#062015] flex items-center justify-center text-sm font-bold shrink-0">{brandInitial}</div>
             <div className="text-left min-w-0">
-              <p className="text-sm font-semibold text-gray-900 truncate">{brand.name}</p>
-              <p className="text-[10px] text-gray-400 uppercase tracking-wider">OWNER</p>
+              <p className="text-sm font-semibold text-ink truncate">{brand.name}</p>
+              <p className="text-[10px] text-faint uppercase tracking-wider">OWNER</p>
             </div>
-            <svg className={`ml-auto w-4 h-4 text-gray-300 shrink-0 transition-transform duration-150 ${showBrandDropdown ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className={`ml-auto w-4 h-4 text-faint/70 shrink-0 transition-transform duration-150 ${showBrandDropdown ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
@@ -1070,25 +1077,25 @@ function DashboardPage() {
           {showBrandDropdown && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setShowBrandDropdown(false)} />
-              <div className="absolute left-0 right-0 top-full mt-1.5 z-20 bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden">
-                <div className="px-3 py-2.5 flex items-center gap-3 bg-stone-50 border-b border-stone-100">
-                  <div className="w-7 h-7 rounded-lg bg-gray-900 text-white flex items-center justify-center text-xs font-bold shrink-0">{brandInitial}</div>
+              <div className="absolute left-0 right-0 top-full mt-1.5 z-20 bg-surface rounded-xl shadow-lg border border-line overflow-hidden">
+                <div className="px-3 py-2.5 flex items-center gap-3 bg-white/[0.03] border-b border-line">
+                  <div className="w-7 h-7 rounded-lg bg-mint text-[#062015] flex items-center justify-center text-xs font-bold shrink-0">{brandInitial}</div>
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-gray-900 truncate">{brand.name}</p>
-                    <p className="text-[9px] text-gray-400 uppercase tracking-wider">Current brand</p>
+                    <p className="text-xs font-semibold text-ink truncate">{brand.name}</p>
+                    <p className="text-[9px] text-faint uppercase tracking-wider">Current brand</p>
                   </div>
                   <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                 </div>
                 <button
                   onClick={() => { setShowBrandDropdown(false); router.push("/setup"); }}
-                  className="w-full px-3 py-2.5 flex items-center gap-3 hover:bg-stone-50 transition-colors group"
+                  className="w-full px-3 py-2.5 flex items-center gap-3 hover:bg-white/[0.04] transition-colors group"
                 >
-                  <div className="w-7 h-7 rounded-lg border-2 border-dashed border-stone-300 group-hover:border-stone-400 flex items-center justify-center shrink-0 transition-colors">
-                    <svg className="w-3.5 h-3.5 text-stone-400 group-hover:text-stone-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <div className="w-7 h-7 rounded-lg border-2 border-dashed border-line-2 group-hover:border-line-2 flex items-center justify-center shrink-0 transition-colors">
+                    <svg className="w-3.5 h-3.5 text-faint group-hover:text-muted transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                     </svg>
                   </div>
-                  <span className="text-xs font-medium text-stone-500 group-hover:text-stone-700 transition-colors">Add another brand</span>
+                  <span className="text-xs font-medium text-muted group-hover:text-ink/80 transition-colors">Add another brand</span>
                 </button>
               </div>
             </>
@@ -1101,7 +1108,7 @@ function DashboardPage() {
           </div>
 
           <div>
-            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2.5 mb-1.5">Measure</p>
+            <p className="text-[10px] font-semibold text-faint uppercase tracking-widest px-2.5 mb-1.5">Measure</p>
             <div className="space-y-0.5">
               <NavItem label="Overview" active={activeTab === "overview"} onClick={() => navTo("overview")} />
               <NavItem label="Engines" active={activeTab === "history"} onClick={() => navTo("history")} />
@@ -1112,7 +1119,7 @@ function DashboardPage() {
           </div>
 
           <div>
-            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2.5 mb-1.5">Create</p>
+            <p className="text-[10px] font-semibold text-faint uppercase tracking-widest px-2.5 mb-1.5">Create</p>
             <div className="space-y-0.5">
               <NavItem label="Research" active={activeTab === "gaps"} onClick={() => navTo("gaps")} badge={gaps.length || undefined} />
               <NavItem label="Articles" active={activeTab === "articles"} onClick={() => navTo("articles")} badge={draftCount || undefined} />
@@ -1121,7 +1128,7 @@ function DashboardPage() {
           </div>
 
           <div>
-            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2.5 mb-1.5">Distribute</p>
+            <p className="text-[10px] font-semibold text-faint uppercase tracking-widest px-2.5 mb-1.5">Distribute</p>
             <div className="space-y-0.5">
               <NavItem label="Publishing" active={activeTab === "publishing"} onClick={() => navTo("publishing")} />
 
@@ -1129,7 +1136,7 @@ function DashboardPage() {
           </div>
 
           <div>
-            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2.5 mb-1.5">On Page</p>
+            <p className="text-[10px] font-semibold text-faint uppercase tracking-widest px-2.5 mb-1.5">On Page</p>
             <div className="space-y-0.5">
               <NavItem label="Brands" active={activeTab === "brands"} onClick={() => navTo("brands")} />
               <NavItem label="Alerts" active={activeTab === "alerts"} onClick={() => navTo("alerts")} />
@@ -1138,7 +1145,7 @@ function DashboardPage() {
 
           {isAdmin && (
             <div>
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2.5 mb-1.5">Admin</p>
+              <p className="text-[10px] font-semibold text-faint uppercase tracking-widest px-2.5 mb-1.5">Admin</p>
               <div className="space-y-0.5">
                 <NavItem label="Admin" active={activeTab === "admin"} onClick={() => navTo("admin")} badge={adminTasks.filter(t => t.status === "pending").length || undefined} />
               </div>
@@ -1147,15 +1154,15 @@ function DashboardPage() {
         </nav>
 
         <div className="mx-3 mb-3 mt-3 shrink-0">
-          <div className="bg-white/60 rounded-xl px-3 py-2.5 flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+          <div className="bg-white/[0.05] rounded-xl px-3 py-2.5 flex items-center gap-2.5 shadow-[inset_0_0_0_1px_rgba(234,246,238,0.06)]">
+            <div className="w-7 h-7 rounded-full bg-amber/20 text-amber flex items-center justify-center text-xs font-bold shrink-0">
               {userEmail[0]?.toUpperCase() ?? "U"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-gray-700 truncate">{userEmail || brand.domain}</p>
-              <p className="text-[10px] text-gray-400">Workspace</p>
+              <p className="text-xs font-medium text-ink/80 truncate">{userEmail || brand.domain}</p>
+              <p className="text-[10px] text-faint">Workspace</p>
             </div>
-            <button onClick={signOut} title="Sign out" className="text-gray-300 hover:text-gray-600 transition-colors shrink-0">
+            <button onClick={signOut} title="Sign out" className="text-faint/70 hover:text-muted transition-colors shrink-0">
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
@@ -1167,20 +1174,32 @@ function DashboardPage() {
       {/* Main content */}
       <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
         {/* Top bar */}
-        <div className="bg-white/70 backdrop-blur-sm border-b border-stone-200/70 px-6 py-3 flex items-center justify-between shrink-0">
+        <div className="bg-black/20 backdrop-blur-sm border-b border-line/70 px-6 py-3 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2 text-sm">
-            <div className="w-5 h-5 rounded bg-gray-900 text-white flex items-center justify-center text-[10px] font-bold shrink-0">{brandInitial}</div>
-            <span className="font-medium text-gray-700">{brand.domain}</span>
-            <span className="text-gray-300 mx-0.5">/</span>
-            <span className="text-gray-500">{TAB_LABELS[activeTab]}</span>
+            <div className="w-5 h-5 rounded bg-mint text-[#062015] flex items-center justify-center text-[10px] font-bold shrink-0">{brandInitial}</div>
+            <span className="font-medium text-ink/80">{brand.domain}</span>
+            <span className="text-faint/70 mx-0.5">/</span>
+            <span className="text-muted">{TAB_LABELS[activeTab]}</span>
           </div>
 
           <div className="flex items-center gap-3">
+            {selectedEngines.length > 0 && (
+              <div className="hidden xl:flex items-center gap-1">
+                {selectedEngines.map((e) => (
+                  <span
+                    key={e}
+                    className="cursor-default rounded-full px-2 py-0.5 text-[10px] font-medium text-muted shadow-[inset_0_0_0_1px_rgba(234,246,238,0.1)]"
+                  >
+                    {ENGINE_LABELS[e]}
+                  </span>
+                ))}
+              </div>
+            )}
             {/* "Next check in" countdown — shown once scanned, hidden during scan or non-scan tabs */}
             {scanned && !scanning && activeTab !== "tasks" && activeTab !== "articles" && activeTab !== "publishing" && activeTab !== "brands" && activeTab !== "alerts" && activeTab !== "agent" && activeTab !== "admin" && (
-              <div className="flex items-center gap-1.5 text-xs text-gray-400 border border-stone-200 rounded-lg px-3 py-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                Next check in: <span className="font-medium text-gray-600">{nextCheckIn}</span>
+              <div className="flex items-center gap-1.5 text-xs text-faint border border-line rounded-lg px-3 py-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-mint-deep animate-pulse" />
+                Next check in: <span className="font-medium text-muted">{nextCheckIn}</span>
               </div>
             )}
             {/* Scan button — hidden on tabs where it doesn't apply */}
@@ -1188,34 +1207,34 @@ function DashboardPage() {
               <button
                 onClick={runScan}
                 disabled={selectedEngines.length === 0}
-                className="flex items-center gap-1.5 bg-gray-900 hover:bg-gray-700 disabled:opacity-50 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                className="flex items-center gap-1.5 bg-mint hover:bg-[#a5f8d1] disabled:opacity-50 text-[#062015] px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
               >
                 {scanned ? "Re-scan" : "Start monitoring"}
               </button>
             )}
             {scanning && (
-              <div className="flex items-center gap-1.5 text-xs text-gray-500 border border-stone-200 rounded-lg px-3 py-1.5">
-                <span className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+              <div className="flex items-center gap-1.5 text-xs text-muted border border-line rounded-lg px-3 py-1.5">
+                <span className="w-3 h-3 border-2 border-line-2 border-t-transparent rounded-full animate-spin" />
                 {scanned ? "Scanning…" : "Running initial scan…"}
               </div>
             )}
             {activeTab === "articles" && (
               <button
                 onClick={() => { setNewArticleTopic(""); setShowNewArticleModal(true); }}
-                className="flex items-center gap-1.5 bg-gray-900 hover:bg-gray-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                className="flex items-center gap-1.5 bg-mint hover:bg-[#a5f8d1] text-[#062015] px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
               >
                 + New article
               </button>
             )}
             {activeTab === "publishing" && (
-              <button onClick={() => { setPublishResult(null); setShowPublishModal(true); }} className="flex items-center gap-1.5 bg-gray-900 hover:bg-gray-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">
+              <button onClick={() => { setPublishResult(null); setShowPublishModal(true); }} className="flex items-center gap-1.5 bg-mint hover:bg-[#a5f8d1] text-[#062015] px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">
                 ⚡ Publish now
               </button>
             )}
             {activeTab === "agent" && (
               <button
                 onClick={startNewChat}
-                className="text-xs text-gray-500 hover:text-gray-800 border border-gray-200 px-3 py-1.5 rounded-lg transition-colors"
+                className="text-xs text-muted hover:text-ink/90 border border-line px-3 py-1.5 rounded-lg transition-colors"
               >
                 + New chat
               </button>
@@ -1227,29 +1246,29 @@ function DashboardPage() {
         <div className={`flex-1 overflow-y-auto ${activeTab === "agent" ? "flex flex-col" : "px-6 py-6"}`}>
           {error && (
             <div className="px-6 pt-4">
-              <div className="bg-red-50 border border-red-100 rounded-lg px-4 py-3 text-sm text-red-600 mb-5">{error}</div>
+              <div className="bg-rose/10 border border-rose/25 rounded-lg px-4 py-3 text-sm text-rose mb-5">{error}</div>
             </div>
           )}
 
           {scanning && activeTab !== "agent" && (
-            <div className="bg-white border border-stone-200 rounded-xl p-8 text-center mb-5">
-              <div className="w-7 h-7 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="text-sm font-medium text-gray-700">Scanning AI engines…</p>
+            <div className="panel rounded-xl p-8 text-center mb-5">
+              <div className="w-7 h-7 border-2 border-mint border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <p className="text-sm font-medium text-ink/80">Scanning AI engines…</p>
               {scanProgress ? (
                 <div className="mt-2 w-48">
-                  <div className="flex justify-between text-xs text-gray-400 mb-1">
+                  <div className="flex justify-between text-xs text-faint mb-1">
                     <span>{scanProgress.done} of {scanProgress.total} done</span>
                     <span>{Math.round((scanProgress.done / scanProgress.total) * 100)}%</span>
                   </div>
-                  <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-white/[0.05] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-[#c8372d] rounded-full transition-all duration-300"
+                      className="h-full bg-mint-deep rounded-full transition-all duration-300"
                       style={{ width: `${Math.round((scanProgress.done / scanProgress.total) * 100)}%` }}
                     />
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-gray-400 mt-1">Starting up…</p>
+                <p className="text-xs text-faint mt-1">Starting up…</p>
               )}
             </div>
           )}
@@ -1258,31 +1277,31 @@ function DashboardPage() {
           {activeTab === "overview" && (
             <>
               {!scanned && !scanning && loadingResults ? (
-                <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" /></div>
+                <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-line-2 border-t-mint rounded-full animate-spin" /></div>
               ) : !scanned && !scanning ? (
                 <EmptyState label="No scan data yet" sub={`${brand.trackedPrompts.length} prompts ready — click "+ Run scan" to start`} />
               ) : scanned && (
                 <>
                   <div className="mb-5">
-                    <h2 className="text-2xl font-bold text-gray-900">Overview</h2>
-                    {overallScore !== null && <p className="text-sm text-gray-400 mt-0.5">Visibility up to {overallScore}% composite</p>}
+                    <h2 className="text-2xl font-bold text-ink">Overview</h2>
+                    {overallScore !== null && <p className="text-sm text-faint mt-0.5">Visibility up to {overallScore}% composite</p>}
                   </div>
                   <div className="grid grid-cols-4 gap-3 mb-5">
-                    <div className="col-span-1 bg-white border border-stone-200 rounded-xl p-5 flex flex-col items-center justify-center">
-                      <div className="text-4xl font-bold text-gray-900 mb-1">{overallScore}%</div>
-                      <div className="text-[10px] text-gray-400 uppercase tracking-wider text-center">Composite visibility</div>
+                    <div className="col-span-1 rounded-xl bg-gradient-to-b from-mint/10 to-mint/[0.02] shadow-[inset_0_1px_0_rgba(140,245,195,0.2),inset_0_0_0_1px_rgba(140,245,195,0.22)] p-5 flex flex-col items-center justify-center">
+                      <div className="font-serif text-5xl font-[400] text-ink mb-1">{overallScore}%</div>
+                      <div className="text-[10px] text-mint/80 uppercase tracking-wider text-center">Composite visibility</div>
                       <MiniTrendChart runs={scanHistory} />
                     </div>
                     {scores.map((s) => (
-                      <div key={s.engine} className="bg-white border border-stone-200 rounded-xl p-4">
+                      <div key={s.engine} className="panel rounded-xl p-4">
                         <div className="flex items-center gap-2 mb-3">
                           <div className={`w-2 h-2 rounded-full ${ENGINE_COLORS[s.engine]}`} />
-                          <span className="text-xs font-medium text-gray-700">{ENGINE_LABELS[s.engine]}</span>
+                          <span className="text-xs font-medium text-muted">{ENGINE_LABELS[s.engine]}</span>
                         </div>
-                        <div className={`text-3xl font-bold mb-1 ${ENGINE_TEXT_COLORS[s.engine]}`}>{s.score}%</div>
-                        <div className="text-xs text-gray-400">{s.mentionCount}/{s.totalPrompts} prompts{s.avgRank ? ` · avg #${s.avgRank.toFixed(1)}` : ""}</div>
-                        <div className="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${ENGINE_COLORS[s.engine]}`} style={{ width: `${s.score}%` }} />
+                        <div className="font-serif text-4xl font-[400] text-ink mb-1">{s.score}%</div>
+                        <div className="text-xs text-faint">{s.mentionCount}/{s.totalPrompts} prompts{s.avgRank ? ` · avg #${s.avgRank.toFixed(1)}` : ""}</div>
+                        <div className="mt-3 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full opacity-80 ${ENGINE_COLORS[s.engine]}`} style={{ width: `${s.score}%` }} />
                         </div>
                       </div>
                     ))}
@@ -1293,17 +1312,21 @@ function DashboardPage() {
                       return brand.trackedPrompts.filter((p) => scannedIds.has(p.id)).map((p) => {
                         const promptResults = results.filter((r) => r.promptId === p.id);
                         return (
-                          <div key={p.id} className="bg-white border border-stone-200 rounded-xl p-4">
-                            <p className="text-sm font-medium text-gray-800 mb-3">{p.text}</p>
+                          <div key={p.id} className="panel rounded-xl p-4">
+                            <p className="text-sm font-medium text-ink/90 mb-3">{p.text}</p>
                             <div className="flex items-center gap-4 flex-wrap">
                               {promptResults.map((r) => (
                                 <div key={r.engine} className="flex items-center gap-1.5">
                                   <div className={`w-2 h-2 rounded-full ${ENGINE_COLORS[r.engine]}`} />
-                                  <span className="text-xs text-gray-500">{ENGINE_LABELS[r.engine]}</span>
+                                  <span className="text-xs text-muted">{ENGINE_LABELS[r.engine]}</span>
                                   {r.brandMentioned ? (
-                                    <span className="text-xs font-medium text-red-600">#{r.brandRank ?? "✓"}</span>
+                                    r.brandRank ? (
+                                      <span className="text-xs font-medium text-ink/80">#{r.brandRank}</span>
+                                    ) : (
+                                      <span className="text-xs font-medium text-mint">✓</span>
+                                    )
                                   ) : (
-                                    <span className="text-xs text-gray-400">absent</span>
+                                    <span className="text-xs text-rose/70">absent</span>
                                   )}
                                 </div>
                               ))}
@@ -1325,8 +1348,8 @@ function DashboardPage() {
                 <EmptyState label="No engine history yet" sub="Run a scan to see per-engine visibility trends over time" />
               ) : (
                 <>
-                  <h2 className="text-xl font-bold text-gray-900 mb-1">Engines</h2>
-                  <p className="text-sm text-gray-400 mb-5">Overall AI visibility over time — hover for details</p>
+                  <h2 className="text-xl font-bold text-ink mb-1">Engines</h2>
+                  <p className="text-sm text-faint mb-5">Overall AI visibility over time — hover for details</p>
 
                   {/* Chart */}
                   {(() => {
@@ -1335,11 +1358,11 @@ function DashboardPage() {
                     const iW = W - PAD.l - PAD.r, iH = H - PAD.t - PAD.b;
                     const xOf = (i: number) => PAD.l + (runs.length === 1 ? iW / 2 : (i / (runs.length - 1)) * iW);
                     const yOf = (v: number) => PAD.t + iH - (v / 100) * iH;
-                    const ENGINE_HEX: Record<string, string> = { chatgpt: "#10a37f", claude: "#d4673a", gemini: "#4285f4", perplexity: "#7c3aed", google: "#c8372d", grok: "#555" };
+                    const ENGINE_HEX: Record<string, string> = { chatgpt: "#10a37f", claude: "#d4673a", gemini: "#4285f4", perplexity: "#7c3aed", google: "#37c98d", grok: "#555" };
                     const hovered = hoveredScanIdx !== null ? runs[hoveredScanIdx] : null;
 
                     return (
-                      <div className="bg-white border border-stone-200 rounded-xl p-5 mb-5">
+                      <div className="panel rounded-xl p-5 mb-5">
                         <div className="relative">
                           <svg
                             viewBox={`0 0 ${W} ${H}`}
@@ -1350,8 +1373,8 @@ function DashboardPage() {
                             {/* Grid lines */}
                             {[0, 25, 50, 75, 100].map((pct) => (
                               <g key={pct}>
-                                <line x1={PAD.l} y1={yOf(pct)} x2={W - PAD.r} y2={yOf(pct)} stroke="#f0ece8" strokeWidth="1" />
-                                <text x={PAD.l - 4} y={yOf(pct) + 4} textAnchor="end" fontSize="9" fill="#bbb">{pct}%</text>
+                                <line x1={PAD.l} y1={yOf(pct)} x2={W - PAD.r} y2={yOf(pct)} stroke="rgba(234,246,238,0.07)" strokeWidth="1" />
+                                <text x={PAD.l - 4} y={yOf(pct) + 4} textAnchor="end" fontSize="9" fill="#6f8a7b">{pct}%</text>
                               </g>
                             ))}
 
@@ -1364,7 +1387,7 @@ function DashboardPage() {
                                   `L ${xOf(runs.length - 1)} ${H - PAD.b}`,
                                   `L ${xOf(0)} ${H - PAD.b} Z`,
                                 ].join(" ")}
-                                fill="rgba(200,55,45,0.06)"
+                                fill="rgba(140,245,195,0.07)"
                               />
                             )}
 
@@ -1372,10 +1395,11 @@ function DashboardPage() {
                             <polyline
                               points={runs.map((r, i) => `${xOf(i)},${yOf(r.overall_score)}`).join(" ")}
                               fill="none"
-                              stroke="#c8372d"
+                              stroke="#8cf5c3"
                               strokeWidth="2"
                               strokeLinecap="round"
                               strokeLinejoin="round"
+                              style={{ filter: "drop-shadow(0 0 6px rgba(140,245,195,0.45))" }}
                             />
 
                             {/* Hover crosshair */}
@@ -1385,14 +1409,14 @@ function DashboardPage() {
 
                             {/* Dots */}
                             {runs.map((r, i) => (
-                              <circle key={i} cx={xOf(i)} cy={yOf(r.overall_score)} r={hoveredScanIdx === i ? 4 : 3} fill="#c8372d" />
+                              <circle key={i} cx={xOf(i)} cy={yOf(r.overall_score)} r={hoveredScanIdx === i ? 4 : 3} fill="#37c98d" />
                             ))}
 
                             {/* X-axis labels */}
                             {runs.map((r, i) => {
                               if (runs.length > 6 && i % 2 !== 0) return null;
                               return (
-                                <text key={i} x={xOf(i)} y={H - 4} textAnchor="middle" fontSize="9" fill="#bbb">
+                                <text key={i} x={xOf(i)} y={H - 4} textAnchor="middle" fontSize="9" fill="#6f8a7b">
                                   {new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                                 </text>
                               );
@@ -1407,21 +1431,21 @@ function DashboardPage() {
                           {/* Tooltip */}
                           {hovered && hoveredScanIdx !== null && (
                             <div
-                              className="absolute z-10 bg-white border border-stone-200 rounded-xl shadow-lg px-3.5 py-3 text-xs pointer-events-none"
+                              className="absolute z-10 panel rounded-xl shadow-lg px-3.5 py-3 text-xs pointer-events-none"
                               style={{ top: 8, left: Math.min(Math.max((hoveredScanIdx / Math.max(runs.length - 1, 1)) * 100, 5), 70) + "%", transform: "translateX(-50%)", minWidth: 160 }}
                             >
-                              <p className="font-semibold text-gray-700 mb-2">
+                              <p className="font-semibold text-ink/80 mb-2">
                                 {new Date(hovered.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                               </p>
                               <div className="flex items-center gap-2 mb-2">
-                                <span className="text-gray-500">Overall</span>
-                                <span className="font-bold text-[#c8372d] ml-auto">{hovered.overall_score}%</span>
+                                <span className="text-muted">Overall</span>
+                                <span className="font-bold text-mint ml-auto">{hovered.overall_score}%</span>
                               </div>
                               {hovered.visibility_scores?.map((s) => (
                                 <div key={s.engine} className="flex items-center gap-2 mb-1">
                                   <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: ENGINE_HEX[s.engine] ?? "#888" }} />
-                                  <span className="text-gray-400">{ENGINE_LABELS[s.engine as AIEngine]}</span>
-                                  <span className="font-medium text-gray-600 ml-auto">{s.score}%</span>
+                                  <span className="text-faint">{ENGINE_LABELS[s.engine as AIEngine]}</span>
+                                  <span className="font-medium text-muted ml-auto">{s.score}%</span>
                                 </div>
                               ))}
                             </div>
@@ -1436,30 +1460,30 @@ function DashboardPage() {
                     {scanHistory.map((run) => {
                       const isScanning = run.overall_score === 0 && (Date.now() - new Date(run.created_at).getTime()) < 10 * 60 * 1000;
                       return (
-                      <div key={run.id} className="bg-white border border-stone-200 rounded-xl px-5 py-4 flex items-center gap-4">
+                      <div key={run.id} className="panel rounded-xl px-5 py-4 flex items-center gap-4">
                         {isScanning ? (
                           <div className="w-14 shrink-0 flex items-center">
-                            <span className="w-5 h-5 border-2 border-stone-300 border-t-[#c8372d] rounded-full animate-spin" />
+                            <span className="w-5 h-5 border-2 border-line-2 border-t-[#37c98d] rounded-full animate-spin" />
                           </div>
                         ) : (
-                          <div className="text-2xl font-black text-gray-900 w-14 shrink-0">{run.overall_score}%</div>
+                          <div className="font-serif text-2xl font-[400] text-ink w-14 shrink-0">{run.overall_score}%</div>
                         )}
                         <div className="flex-1 min-w-0">
                           {isScanning ? (
-                            <p className="text-xs font-medium text-[#c8372d] mb-1">Scanning in progress…</p>
+                            <p className="text-xs font-medium text-mint mb-1">Scanning in progress…</p>
                           ) : (
                             <div className="flex flex-wrap gap-x-3 gap-y-0.5 mb-1">
                               {run.visibility_scores?.map((s) => (
-                                <span key={s.engine} className="text-xs text-gray-500">
-                                  {ENGINE_LABELS[s.engine as AIEngine]}: <span className="font-semibold text-gray-800">{s.score}%</span>
+                                <span key={s.engine} className="text-xs text-muted">
+                                  {ENGINE_LABELS[s.engine as AIEngine]}: <span className="font-semibold text-ink/90">{s.score}%</span>
                                 </span>
                               ))}
                             </div>
                           )}
-                          <p className="text-xs text-gray-400">{new Date(run.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
+                          <p className="text-xs text-faint">{new Date(run.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
                         </div>
                         <div className="flex gap-1 shrink-0">
-                          {run.engines.map((e) => <div key={e} className={`w-2 h-2 rounded-full ${ENGINE_COLORS[e as AIEngine] ?? "bg-gray-300"}`} />)}
+                          {run.engines.map((e) => <div key={e} className={`w-2 h-2 rounded-full ${ENGINE_COLORS[e as AIEngine] ?? "bg-white/[0.12]"}`} />)}
                         </div>
                       </div>
                     )})}
@@ -1473,7 +1497,7 @@ function DashboardPage() {
           {activeTab === "results" && (
             <>
               {!scanned && loadingResults ? (
-                <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" /></div>
+                <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-line-2 border-t-mint rounded-full animate-spin" /></div>
               ) : !scanned ? (
                 <EmptyState label="No prompt data" sub="Monitoring starts automatically — check back after your first daily scan" />
               ) : selectedPromptId ? (() => {
@@ -1553,7 +1577,7 @@ function DashboardPage() {
                 const activeDomain = selectedCitationDomain && citDomains[selectedCitationDomain] ? selectedCitationDomain : null;
                 const promptType = prompt.category || "other";
                 const typeLabel = promptType.includes("brand") ? "Branded" : promptType.includes("competitor") ? "Competitor" : promptType.includes("commercial") ? "Commercial" : "General";
-                const typeColor = promptType.includes("brand") ? "bg-purple-100 text-purple-700" : promptType.includes("competitor") ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700";
+                const typeColor = promptType.includes("brand") ? "bg-purple-100 text-purple-300" : promptType.includes("competitor") ? "bg-amber/15 text-amber" : "bg-blue-100 text-blue-300";
 
                 // Simulated area chart: flat at 0 then jump to current visibility (real data needs historical per-prompt API)
                 const chartPts = [0, 0, 0, 0, 0, visibility, visibility];
@@ -1574,23 +1598,23 @@ function DashboardPage() {
                 return (
                   <div>
                     {/* Back nav */}
-                    <button onClick={() => history.back()} className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 mb-5 transition-colors">
+                    <button onClick={() => history.back()} className="flex items-center gap-2 text-sm font-medium text-ink/80 hover:text-ink mb-5 transition-colors">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
                       Back to Prompts
                     </button>
 
                     {/* PROMPT card */}
-                    <div className="bg-white border border-stone-200 rounded-2xl p-6 mb-4">
+                    <div className="panel rounded-2xl p-6 mb-4">
                       <div className="flex gap-6">
                         <div className="flex-1 min-w-0">
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Prompt</p>
+                          <p className="text-[10px] font-bold text-faint uppercase tracking-widest mb-3">Prompt</p>
                           <div className="flex items-center gap-2 mb-3">
-                            <span className="flex items-center gap-1.5 text-xs font-medium bg-green-50 text-green-700 px-2.5 py-1 rounded-full border border-green-100">
-                              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />Active
+                            <span className="flex items-center gap-1.5 text-xs font-medium bg-mint/10 text-mint px-2.5 py-1 rounded-full border border-mint/20">
+                              <span className="w-1.5 h-1.5 rounded-full bg-mint/100" />Active
                             </span>
-                            <span className="flex items-center gap-1.5 text-xs text-gray-500">🌐 Global</span>
+                            <span className="flex items-center gap-1.5 text-xs text-muted">🌐 Global</span>
                           </div>
-                          <h2 className="text-xl font-bold text-gray-900 mb-3">{prompt.text}</h2>
+                          <h2 className="text-xl font-bold text-ink mb-3">{prompt.text}</h2>
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${typeColor}`}>{typeLabel}</span>
                             <div className="flex items-center gap-1">
@@ -1601,30 +1625,30 @@ function DashboardPage() {
                           </div>
                         </div>
                         <div className="shrink-0 grid grid-cols-3 gap-3">
-                          <div className="bg-stone-50 rounded-xl p-3 text-center min-w-[80px]">
-                            <p className="text-lg font-bold text-green-600">#{avgPos?.toFixed(1) ?? "—"}</p>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Avg. Position</p>
+                          <div className="bg-white/[0.03] rounded-xl p-3 text-center min-w-[80px]">
+                            <p className="text-lg font-bold text-mint">#{avgPos?.toFixed(1) ?? "—"}</p>
+                            <p className="text-[10px] text-faint mt-0.5">Avg. Position</p>
                           </div>
-                          <div className="bg-stone-50 rounded-xl p-3 text-center min-w-[80px]">
+                          <div className="bg-white/[0.03] rounded-xl p-3 text-center min-w-[80px]">
                             <div className="flex items-center justify-center gap-0.5 mb-0.5">
                               {[1,2,3,4].map((b) => (
-                                <div key={b} className={`w-1.5 rounded-sm ${b <= Math.ceil(visibility/25) ? "h-4 bg-green-500" : "h-4 bg-stone-200"}`} style={{height: `${8 + b * 3}px`}} />
+                                <div key={b} className={`w-1.5 rounded-sm ${b <= Math.ceil(visibility/25) ? "h-4 bg-mint/100" : "h-4 bg-white/[0.08]"}`} style={{height: `${8 + b * 3}px`}} />
                               ))}
                             </div>
-                            <p className="text-[10px] text-gray-400">Volume</p>
+                            <p className="text-[10px] text-faint">Volume</p>
                           </div>
-                          <div className="bg-stone-50 rounded-xl p-3 text-center min-w-[80px]">
+                          <div className="bg-white/[0.03] rounded-xl p-3 text-center min-w-[80px]">
                             <div className="relative w-12 h-12 mx-auto mb-1">
                               <svg viewBox="0 0 44 44" className="w-12 h-12 -rotate-90">
-                                <circle cx="22" cy="22" r="17" fill="none" stroke="#e5e7eb" strokeWidth="3.5"/>
-                                <circle cx="22" cy="22" r="17" fill="none" stroke="#22c55e" strokeWidth="3.5" strokeDasharray={`${visibility * 1.068} 106.8`} strokeLinecap="round"/>
+                                <circle cx="22" cy="22" r="17" fill="none" stroke="rgba(234,246,238,0.1)" strokeWidth="3.5"/>
+                                <circle cx="22" cy="22" r="17" fill="none" stroke="#37c98d" strokeWidth="3.5" strokeDasharray={`${visibility * 1.068} 106.8`} strokeLinecap="round"/>
                               </svg>
                               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <svg className="w-3 h-3 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                <svg className="w-3 h-3 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                               </div>
                             </div>
-                            <p className="text-[10px] font-semibold text-gray-700">Visibility</p>
-                            <p className="text-[10px] text-green-600 font-bold">{visibility}% <span className="text-gray-400 font-normal">in last 7d</span></p>
+                            <p className="text-[10px] font-semibold text-ink/80">Visibility</p>
+                            <p className="text-[10px] text-mint font-bold">{visibility}% <span className="text-faint font-normal">in last 7d</span></p>
                           </div>
                         </div>
                       </div>
@@ -1633,34 +1657,34 @@ function DashboardPage() {
                     {/* LLM Visibility Score + Top Brands */}
                     <div className="grid grid-cols-[1fr_420px] gap-4 mb-4">
                       {/* Area chart */}
-                      <div className="bg-white border border-stone-200 rounded-2xl p-6">
-                        <p className="text-sm font-semibold text-gray-900 mb-0.5">LLM Visibility Score <span className="text-gray-400 font-normal text-xs ml-1">ⓘ</span></p>
-                        <p className="text-xs text-gray-400 mb-4">Percentage of AI responses that mention your brand for this prompt</p>
+                      <div className="panel rounded-2xl p-6">
+                        <p className="text-sm font-semibold text-ink mb-0.5">LLM Visibility Score <span className="text-faint font-normal text-xs ml-1">ⓘ</span></p>
+                        <p className="text-xs text-faint mb-4">Percentage of AI responses that mention your brand for this prompt</p>
                         <div className="flex items-start justify-between mb-2">
                           <div>
-                            <span className="text-4xl font-bold text-gray-900">{visibility}%</span>
-                            <span className="ml-2 text-xs font-medium bg-stone-100 text-gray-500 px-2 py-0.5 rounded-full">vs previous day</span>
+                            <span className="font-serif text-4xl font-[400] text-ink">{visibility}%</span>
+                            <span className="ml-2 text-xs font-medium bg-white/[0.05] text-muted px-2 py-0.5 rounded-full">vs previous day</span>
                           </div>
                           <div className="text-right">
-                            <p className="text-xl font-bold text-gray-900">#{avgPos?.toFixed(1) ?? "—"}</p>
-                            <p className="text-xs text-gray-400">Your rank</p>
+                            <p className="font-serif text-xl font-[400] text-ink">#{avgPos?.toFixed(1) ?? "—"}</p>
+                            <p className="text-xs text-faint">Your rank</p>
                           </div>
                         </div>
                         <svg viewBox={`0 0 ${W2} ${H2}`} className="w-full" style={{ height: H2 }}>
                           <defs>
                             <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#ef4444" stopOpacity="0.15"/>
-                              <stop offset="100%" stopColor="#ef4444" stopOpacity="0.01"/>
+                              <stop offset="0%" stopColor="#8cf5c3" stopOpacity="0.15"/>
+                              <stop offset="100%" stopColor="#8cf5c3" stopOpacity="0.01"/>
                             </linearGradient>
                           </defs>
                           {[0, 25, 50, 75, 100].map((v) => (
                             <g key={v}>
-                              <line x1={pL} x2={W2 - pR} y1={ty2(v)} y2={ty2(v)} stroke="#f3f4f6" strokeWidth="1"/>
+                              <line x1={pL} x2={W2 - pR} y1={ty2(v)} y2={ty2(v)} stroke="rgba(234,246,238,0.06)" strokeWidth="1"/>
                               <text x={pL - 6} y={ty2(v) + 4} textAnchor="end" fontSize="9" fill="#9ca3af">{v}%</text>
                             </g>
                           ))}
                           <path d={fillPath} fill="url(#areaGrad)"/>
-                          <path d={areaPath} fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round"/>
+                          <path d={areaPath} fill="none" stroke="#8cf5c3" strokeWidth="2.5" strokeLinecap="round"/>
                           {chartDates.map((d, i) => (
                             <text key={i} x={tx2(i)} y={H2 - 8} textAnchor="middle" fontSize="9" fill="#9ca3af">{d}</text>
                           ))}
@@ -1668,33 +1692,33 @@ function DashboardPage() {
                       </div>
 
                       {/* Top Brands */}
-                      <div className="bg-white border border-stone-200 rounded-2xl p-5 overflow-hidden">
-                        <p className="text-sm font-semibold text-gray-900 mb-0.5">Top Brands <span className="text-gray-400 font-normal text-xs ml-1">ⓘ</span></p>
-                        <p className="text-xs text-gray-400 mb-3">Brands appearing in AI responses for this prompt</p>
-                        <div className="grid grid-cols-[auto_1fr_auto_auto] gap-x-2 px-2 py-1.5 border-b border-stone-100 bg-stone-50/60 rounded-lg mb-1">
-                          <span className="text-[10px] font-semibold text-gray-400 w-5">Rank</span>
-                          <span className="text-[10px] font-semibold text-gray-400"></span>
-                          <span className="text-[10px] font-semibold text-gray-400 text-right">Sources</span>
+                      <div className="panel rounded-2xl p-5 overflow-hidden">
+                        <p className="text-sm font-semibold text-ink mb-0.5">Top Brands <span className="text-faint font-normal text-xs ml-1">ⓘ</span></p>
+                        <p className="text-xs text-faint mb-3">Brands appearing in AI responses for this prompt</p>
+                        <div className="grid grid-cols-[auto_1fr_auto_auto] gap-x-2 px-2 py-1.5 border-b border-line bg-white/[0.02] rounded-lg mb-1">
+                          <span className="text-[10px] font-semibold text-faint w-5">Rank</span>
+                          <span className="text-[10px] font-semibold text-faint"></span>
+                          <span className="text-[10px] font-semibold text-faint text-right">Sources</span>
                           <span className="w-12" />
                         </div>
                         <div className="space-y-1 overflow-y-auto max-h-[320px]">
                           {topBrands.slice(0, 8).map((b, i) => {
                             return (
-                              <div key={b.name} className={`grid grid-cols-[auto_1fr_auto_auto] gap-x-2 px-2 py-2.5 rounded-xl items-center ${b.isOwn ? "bg-amber-50/60 border border-amber-100" : "hover:bg-stone-50"}`}>
-                                <span className="text-xs font-semibold text-gray-500 w-5">{i + 1}</span>
+                              <div key={b.name} className={`grid grid-cols-[auto_1fr_auto_auto] gap-x-2 px-2 py-2.5 rounded-xl items-center ${b.isOwn ? "bg-amber/10/60 border border-amber/25" : "hover:bg-white/[0.04]"}`}>
+                                <span className="text-xs font-semibold text-muted w-5">{i + 1}</span>
                                 <div className="min-w-0">
                                   <div className="flex items-center gap-2 mb-0.5">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={`https://logo.clearbit.com/${b.domain}`} alt="" width={22} height={22} className="rounded shrink-0" onError={(e) => { const el = e.target as HTMLImageElement; el.src = `https://www.google.com/s2/favicons?domain=${b.domain}&sz=32`; el.onerror = () => { el.style.display = "none"; }; }} />
-                                    <span className="text-xs font-semibold text-gray-800 truncate">{b.name}</span>
+                                    <span className="text-xs font-semibold text-ink/90 truncate">{b.name}</span>
                                   </div>
                                   <div className="flex items-center gap-2 ml-7">
-                                    <span className="text-[10px] text-gray-500">●{b.visibility}% Visibility</span>
+                                    <span className="text-[10px] text-muted">●{b.visibility}% Visibility</span>
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <p className={`text-xs font-bold ${i === 0 ? "text-green-600" : i < 3 ? "text-amber-500" : "text-gray-400"}`}>#{b.avgPos?.toFixed(1) ?? "—"}</p>
-                                  <p className="text-[9px] text-gray-400">Avg. Position</p>
+                                  <p className={`text-xs font-bold ${i === 0 ? "text-mint" : i < 3 ? "text-amber-500" : "text-faint"}`}>#{b.avgPos?.toFixed(1) ?? "—"}</p>
+                                  <p className="text-[9px] text-faint">Avg. Position</p>
                                 </div>
                                 <div className="flex gap-0.5 w-12 justify-end">
                                   {b.engines.slice(0, 2).map((e) => (
@@ -1710,22 +1734,22 @@ function DashboardPage() {
 
                     {/* Recent Responses table */}
                     {promptResults.length > 0 && (
-                      <div className="bg-white border border-stone-200 rounded-2xl p-5 mb-4">
-                        <p className="text-sm font-semibold text-gray-900 mb-0.5">Recent Responses for Your Prompt</p>
-                        <p className="text-xs text-gray-400 mb-4">Latest AI responses when this specific prompt was used</p>
+                      <div className="panel rounded-2xl p-5 mb-4">
+                        <p className="text-sm font-semibold text-ink mb-0.5">Recent Responses for Your Prompt</p>
+                        <p className="text-xs text-faint mb-4">Latest AI responses when this specific prompt was used</p>
                         <div className="overflow-x-auto">
                           <table className="w-full text-xs">
                             <thead>
-                              <tr className="border-b border-stone-100">
-                                <th className="text-left text-[10px] font-semibold text-gray-400 pb-2 pr-3 w-8">LLM</th>
-                                <th className="text-left text-[10px] font-semibold text-gray-400 pb-2 pr-3">Response</th>
-                                <th className="text-left text-[10px] font-semibold text-gray-400 pb-2 pr-3 w-16">Position</th>
-                                <th className="text-left text-[10px] font-semibold text-gray-400 pb-2 pr-3 w-20">Mentioned?</th>
-                                <th className="text-left text-[10px] font-semibold text-gray-400 pb-2 pr-3 w-24">Citations</th>
-                                <th className="text-left text-[10px] font-semibold text-gray-400 pb-2 w-20">Created</th>
+                              <tr className="border-b border-line">
+                                <th className="text-left text-[10px] font-semibold text-faint pb-2 pr-3 w-8">LLM</th>
+                                <th className="text-left text-[10px] font-semibold text-faint pb-2 pr-3">Response</th>
+                                <th className="text-left text-[10px] font-semibold text-faint pb-2 pr-3 w-16">Position</th>
+                                <th className="text-left text-[10px] font-semibold text-faint pb-2 pr-3 w-20">Mentioned?</th>
+                                <th className="text-left text-[10px] font-semibold text-faint pb-2 pr-3 w-24">Citations</th>
+                                <th className="text-left text-[10px] font-semibold text-faint pb-2 w-20">Created</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-stone-50">
+                            <tbody className="divide-y divide-line">
                               {promptResults.map((r, i) => {
                                 const ago = (() => {
                                   const diff = Date.now() - new Date(r.scannedAt).getTime();
@@ -1734,20 +1758,20 @@ function DashboardPage() {
                                   return d > 0 ? `${d}d ago` : h > 0 ? `${h}h ago` : "just now";
                                 })();
                                 return (
-                                  <tr key={i} className="hover:bg-stone-50 cursor-pointer" onClick={() => setSelectedResponseResult(r)}>
+                                  <tr key={i} className="hover:bg-white/[0.04] cursor-pointer" onClick={() => setSelectedResponseResult(r)}>
                                     <td className="py-3 pr-3">
                                       <EngineIcon engine={r.engine} size={24} />
                                     </td>
                                     <td className="py-3 pr-3 max-w-xs">
-                                      <span className="text-gray-700 line-clamp-2 leading-snug">{r.response.slice(0, 140)}{r.response.length > 140 ? "…" : ""}</span>
+                                      <span className="text-ink/80 line-clamp-2 leading-snug">{r.response.slice(0, 140)}{r.response.length > 140 ? "…" : ""}</span>
                                     </td>
                                     <td className="py-3 pr-3">
-                                      <span className={`font-bold ${r.brandRank ? "text-green-600" : "text-gray-400"}`}>{r.brandRank ? `#${r.brandRank}` : "—"}</span>
+                                      <span className={`font-bold ${r.brandRank ? "text-mint" : "text-faint"}`}>{r.brandRank ? `#${r.brandRank}` : "—"}</span>
                                     </td>
                                     <td className="py-3 pr-3">
                                       {r.brandMentioned
-                                        ? <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 border border-green-100 px-2 py-0.5 rounded-full text-[10px] font-semibold">✓ Yes</span>
-                                        : <span className="inline-flex items-center gap-1 bg-red-50 text-red-600 border border-red-100 px-2 py-0.5 rounded-full text-[10px] font-semibold">✗ No</span>
+                                        ? <span className="inline-flex items-center gap-1 bg-mint/10 text-mint border border-mint/20 px-2 py-0.5 rounded-full text-[10px] font-semibold">✓ Yes</span>
+                                        : <span className="inline-flex items-center gap-1 bg-rose/10 text-rose border border-rose/25 px-2 py-0.5 rounded-full text-[10px] font-semibold">✗ No</span>
                                       }
                                     </td>
                                     <td className="py-3 pr-3">
@@ -1759,11 +1783,11 @@ function DashboardPage() {
                                             return <img key={ci} src={`https://www.google.com/s2/favicons?domain=${d}&sz=16`} alt={d} width={14} height={14} className="rounded shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />;
                                           } catch { return null; }
                                         })}
-                                        {r.citations.length > 2 && <span className="text-[10px] text-gray-400 shrink-0">+{r.citations.length - 2}</span>}
-                                        {r.citations.length === 0 && <span className="text-gray-300">—</span>}
+                                        {r.citations.length > 2 && <span className="text-[10px] text-faint shrink-0">+{r.citations.length - 2}</span>}
+                                        {r.citations.length === 0 && <span className="text-faint/70">—</span>}
                                       </div>
                                     </td>
-                                    <td className="py-3 text-gray-400">{ago}</td>
+                                    <td className="py-3 text-faint">{ago}</td>
                                   </tr>
                                 );
                               })}
@@ -1782,10 +1806,10 @@ function DashboardPage() {
                               <EngineIcon engine={selectedResponseResult.engine} size={28} />
                               <span className="text-sm font-semibold text-white">{ENGINE_LABELS[selectedResponseResult.engine]}</span>
                             </div>
-                            <button onClick={() => setSelectedResponseResult(null)} className="text-gray-400 hover:text-white transition-colors text-lg leading-none">×</button>
+                            <button onClick={() => setSelectedResponseResult(null)} className="text-faint hover:text-white transition-colors text-lg leading-none">×</button>
                           </div>
                           <div className="bg-[#1a1a1a] rounded-xl px-4 py-3 mb-4">
-                            <p className="text-xs text-gray-400 mb-1">Prompt</p>
+                            <p className="text-xs text-faint mb-1">Prompt</p>
                             <p className="text-sm text-white">{selectedResponseResult.promptText}</p>
                           </div>
                           <div className="prose prose-invert prose-sm max-w-none text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">{selectedResponseResult.response}</div>
@@ -1795,13 +1819,13 @@ function DashboardPage() {
 
                     {/* Top Citations split view */}
                     {sortedCitDomains.length > 0 && (
-                      <div className="bg-white border border-stone-200 rounded-2xl p-5">
+                      <div className="panel rounded-2xl p-5">
                         <div className="flex items-start justify-between mb-1">
                           <div>
-                            <p className="text-sm font-semibold text-gray-900">Top Citations <span className="text-gray-400 font-normal text-xs ml-1">ⓘ</span></p>
-                            <p className="text-xs text-gray-400">Check the citation sources and engage</p>
+                            <p className="text-sm font-semibold text-ink">Top Citations <span className="text-faint font-normal text-xs ml-1">ⓘ</span></p>
+                            <p className="text-xs text-faint">Check the citation sources and engage</p>
                           </div>
-                          <button onClick={() => navTo("citations")} className="text-xs font-semibold border border-stone-200 px-3 py-1.5 rounded-lg text-gray-600 hover:bg-stone-50 transition-colors">View all</button>
+                          <button onClick={() => navTo("citations")} className="text-xs font-semibold border border-line px-3 py-1.5 rounded-lg text-muted hover:bg-white/[0.04] transition-colors">View all</button>
                         </div>
                         <div className="grid grid-cols-2 gap-4 mt-4">
                           {/* Left: domain list */}
@@ -1810,15 +1834,15 @@ function DashboardPage() {
                               <button
                                 key={domain}
                                 onClick={() => setSelectedCitationDomain(domain === activeDomain ? null : domain)}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-colors ${domain === activeDomain ? "border-stone-300 bg-stone-50" : "border-stone-100 hover:bg-stone-50"}`}
+                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-colors ${domain === activeDomain ? "border-line-2 bg-white/[0.03]" : "border-line hover:bg-white/[0.04]"}`}
                               >
-                                <span className="text-xs text-gray-400 font-medium w-5 shrink-0">#{i+1}</span>
+                                <span className="text-xs text-faint font-medium w-5 shrink-0">#{i+1}</span>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`} alt="" width={24} height={24} className="rounded shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />
-                                <span className="text-sm text-gray-800 font-medium truncate flex-1">{domain}</span>
+                                <span className="text-sm text-ink/90 font-medium truncate flex-1">{domain}</span>
                                 <div className="text-right shrink-0">
-                                  <p className="text-sm font-bold text-gray-900">{info.count}</p>
-                                  <p className="text-[10px] text-gray-400">Citations</p>
+                                  <p className="text-sm font-bold text-ink">{info.count}</p>
+                                  <p className="text-[10px] text-faint">Citations</p>
                                 </div>
                               </button>
                             ))}
@@ -1827,11 +1851,11 @@ function DashboardPage() {
                           {/* Right: URL detail panel */}
                           <div>
                             {!activeDomain ? (
-                              <div className="flex flex-col items-center justify-center h-full text-center py-8 border border-dashed border-stone-200 rounded-xl">
-                                <div className="w-12 h-4 bg-stone-100 rounded mb-2 mx-auto" />
-                                <div className="w-24 h-2 bg-stone-100 rounded mb-1 mx-auto" />
-                                <div className="w-16 h-2 bg-stone-100 rounded mb-4 mx-auto" />
-                                <p className="text-xs text-gray-400 leading-relaxed">Select a citation source from left panel<br/>to see the engage-able links.</p>
+                              <div className="flex flex-col items-center justify-center h-full text-center py-8 border border-dashed border-line rounded-xl">
+                                <div className="w-12 h-4 bg-white/[0.05] rounded mb-2 mx-auto" />
+                                <div className="w-24 h-2 bg-white/[0.05] rounded mb-1 mx-auto" />
+                                <div className="w-16 h-2 bg-white/[0.05] rounded mb-4 mx-auto" />
+                                <p className="text-xs text-faint leading-relaxed">Select a citation source from left panel<br/>to see the engage-able links.</p>
                               </div>
                             ) : (
                               <div className="space-y-2">
@@ -1840,27 +1864,27 @@ function DashboardPage() {
                                   const urlShort = item.url.replace(/^https?:\/\/(www\.)?/, "").slice(0, 60) + (item.url.length > 75 ? "…" : "");
                                   const urlDomain = new URL(item.url).hostname.replace(/^www\./, "");
                                   const impact = isReddit ? "High impact" : citDomains[activeDomain].count >= 3 ? "Medium impact" : "Low impact";
-                                  const impactColor = impact === "High impact" ? "bg-green-100 text-green-700" : impact === "Medium impact" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-600";
+                                  const impactColor = impact === "High impact" ? "bg-mint/15 text-mint" : impact === "Medium impact" ? "bg-amber/15 text-amber" : "bg-rose/15 text-rose";
                                   return (
-                                    <div key={i} className="border border-stone-100 rounded-xl p-3">
+                                    <div key={i} className="border border-line rounded-xl p-3">
                                       <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full mb-2 inline-block ${impactColor}`}>{impact}</span>
                                       <div className="flex items-start gap-2">
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src={`https://www.google.com/s2/favicons?domain=${urlDomain}&sz=16`} alt="" width={14} height={14} className="rounded mt-0.5 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />
                                         <div className="flex-1 min-w-0">
-                                          <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-700 hover:text-blue-600 font-medium leading-snug flex items-center gap-1">
+                                          <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-xs text-ink/80 hover:text-blue-300 font-medium leading-snug flex items-center gap-1">
                                             <span className="truncate">{urlShort}</span>
-                                            <svg className="w-3 h-3 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                            <svg className="w-3 h-3 shrink-0 text-faint" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                                           </a>
-                                          <p className="text-[10px] text-gray-400">{urlDomain}</p>
+                                          <p className="text-[10px] text-faint">{urlDomain}</p>
                                         </div>
                                         <div className="text-right shrink-0">
-                                          <p className="text-xs font-bold text-gray-900">{citDomains[activeDomain].count}</p>
-                                          <p className="text-[9px] text-gray-400">Citations</p>
+                                          <p className="text-xs font-bold text-ink">{citDomains[activeDomain].count}</p>
+                                          <p className="text-[9px] text-faint">Citations</p>
                                         </div>
                                       </div>
                                       <div className="flex items-center gap-1.5 mt-2">
-                                        <span className="text-[10px] text-gray-400">Cited by</span>
+                                        <span className="text-[10px] text-faint">Cited by</span>
                                         <EngineIcon engine={item.engine} size={16} />
                                         {isReddit && (
                                           <button onClick={() => { setEngageItem({ url: item.url, promptText: prompt.text, engine: item.engine }); setEngageDraft(""); navTo("citations"); }} className="ml-auto text-[10px] font-semibold bg-[#FF4500] text-white px-2 py-0.5 rounded-full hover:bg-[#e03d00] transition-colors">Engage</button>
@@ -1890,8 +1914,8 @@ function DashboardPage() {
 
                   return (
                     <>
-                      <h2 className="text-xl font-bold text-gray-900 mb-0.5">Prompts</h2>
-                      <p className="text-sm text-gray-400 mb-5">Manage your search prompts &amp; track visibility gaps</p>
+                      <h2 className="text-xl font-bold text-ink mb-0.5">Prompts</h2>
+                      <p className="text-sm text-faint mb-5">Manage your search prompts &amp; track visibility gaps</p>
 
                       {/* Stat cards */}
                       <div className="grid grid-cols-4 gap-3 mb-5">
@@ -1902,37 +1926,37 @@ function DashboardPage() {
                       </div>
 
                       {/* Usage bar */}
-                      <div className="bg-white border border-stone-200 rounded-2xl px-5 py-4 mb-5">
-                        <p className="text-sm font-semibold text-gray-800 mb-2">{used} of {limit} prompts used</p>
-                        <div className="h-2 bg-stone-100 rounded-full overflow-hidden flex gap-0.5 mb-2">
+                      <div className="panel rounded-2xl px-5 py-4 mb-5">
+                        <p className="text-sm font-semibold text-ink/90 mb-2">{used} of {limit} prompts used</p>
+                        <div className="h-2 bg-white/[0.05] rounded-full overflow-hidden flex gap-0.5 mb-2">
                           <div className="h-full bg-blue-400 rounded-full transition-all" style={{ width: `${(commercialCount / limit) * 100}%` }} />
                           <div className="h-full bg-amber-300 rounded-full transition-all" style={{ width: `${(competitorCount / limit) * 100}%` }} />
-                          <div className="h-full bg-purple-500 rounded-full transition-all" style={{ width: `${(brandedCount / limit) * 100}%` }} />
+                          <div className="h-full bg-purple-400/100 rounded-full transition-all" style={{ width: `${(brandedCount / limit) * 100}%` }} />
                         </div>
                         <div className="flex gap-4">
-                          {[["bg-blue-400","Commercial",commercialCount],["bg-amber-300","Competitor",competitorCount],["bg-purple-500","Branded",brandedCount]].map(([color, label, count]) => (
+                          {[["bg-blue-400","Commercial",commercialCount],["bg-amber-300","Competitor",competitorCount],["bg-purple-400/100","Branded",brandedCount]].map(([color, label, count]) => (
                             <div key={label as string} className="flex items-center gap-1.5">
                               <div className={`w-2 h-2 rounded-full ${color}`} />
-                              <span className="text-xs text-gray-500">{label as string}</span>
-                              {(count as number) > 0 && <span className="text-xs text-gray-400">({count as number})</span>}
+                              <span className="text-xs text-muted">{label as string}</span>
+                              {(count as number) > 0 && <span className="text-xs text-faint">({count as number})</span>}
                             </div>
                           ))}
                         </div>
                       </div>
 
                       {/* Search */}
-                      <div className="flex items-center gap-2 bg-white border border-stone-200 rounded-xl px-3 py-2 mb-4">
-                        <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                        <input value={promptSearch} onChange={(e) => setPromptSearch(e.target.value)} placeholder="Search prompts" className="text-sm flex-1 outline-none bg-transparent text-gray-800 placeholder:text-gray-400" />
+                      <div className="flex items-center gap-2 panel rounded-xl px-3 py-2 mb-4">
+                        <svg className="w-4 h-4 text-faint shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <input value={promptSearch} onChange={(e) => setPromptSearch(e.target.value)} placeholder="Search prompts" className="text-sm flex-1 outline-none bg-transparent text-ink/90 placeholder:text-faint" />
                       </div>
 
                       {/* Table */}
-                      <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden">
-                        <div className="grid grid-cols-[1fr_130px_120px_40px_32px] gap-x-4 px-5 py-3 border-b border-stone-100 bg-stone-50/60">
-                          <span className="text-[11px] font-semibold text-gray-500">Prompts</span>
-                          <span className="text-[11px] font-semibold text-gray-500">Engines</span>
-                          <span className="text-[11px] font-semibold text-gray-500">Competing with</span>
-                          <span className="text-[11px] font-semibold text-gray-500 text-center">Type</span>
+                      <div className="panel rounded-2xl overflow-hidden">
+                        <div className="grid grid-cols-[1fr_130px_120px_40px_32px] gap-x-4 px-5 py-3 border-b border-line bg-white/[0.02]">
+                          <span className="text-[11px] font-semibold text-muted">Prompts</span>
+                          <span className="text-[11px] font-semibold text-muted">Engines</span>
+                          <span className="text-[11px] font-semibold text-muted">Competing with</span>
+                          <span className="text-[11px] font-semibold text-muted text-center">Type</span>
                           <span />
                         </div>
 
@@ -1945,24 +1969,24 @@ function DashboardPage() {
                           pr.forEach((r) => r.competitorMentions.forEach((c) => { cmpMap[c.name] = (cmpMap[c.name] ?? 0) + 1; }));
                           const topCompetitor = Object.entries(cmpMap).sort((a,b) => b[1]-a[1])[0]?.[0] ?? null;
                           const pType = p.category || "";
-                          const typeDot = pType.toLowerCase().includes("brand") ? "bg-purple-500" : pType.toLowerCase().includes("competitor") ? "bg-amber-400" : "bg-blue-400";
+                          const typeDot = pType.toLowerCase().includes("brand") ? "bg-purple-400/100" : pType.toLowerCase().includes("competitor") ? "bg-amber-400" : "bg-blue-400";
                           const engineDotColor: Record<string, string> = { chatgpt: "#22c55e", gemini: "#3b82f6", google: "#ef4444" };
 
                           return (
                             <div
                               key={p.id}
-                              className="group grid grid-cols-[1fr_130px_120px_40px_32px] gap-x-4 px-5 py-4 border-b border-stone-100 last:border-0 hover:bg-stone-50/70 transition-colors items-center"
+                              className="group grid grid-cols-[1fr_130px_120px_40px_32px] gap-x-4 px-5 py-4 border-b border-line last:border-0 hover:bg-white/[0.04]/70 transition-colors items-center"
                             >
                               {/* Prompt with visibility ring — clickable */}
                               <button onClick={() => { setSelectedPromptId(p.id); setSelectedCitationDomain(null); history.pushState(null, ""); }} className="flex items-center gap-3 min-w-0 text-left">
                                 <div className="relative w-11 h-11 shrink-0">
                                   <svg viewBox="0 0 44 44" className="w-11 h-11 -rotate-90">
-                                    <circle cx="22" cy="22" r="18" fill="none" stroke="#e5e7eb" strokeWidth="3"/>
+                                    <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(234,246,238,0.1)" strokeWidth="3"/>
                                     <circle cx="22" cy="22" r="18" fill="none" stroke={vis >= 80 ? "#22c55e" : vis >= 50 ? "#f59e0b" : "#ef4444"} strokeWidth="3" strokeDasharray={`${vis * 1.131} 113.1`} strokeLinecap="round"/>
                                   </svg>
-                                  <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-gray-700">{vis}%</span>
+                                  <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-ink/80">{vis}%</span>
                                 </div>
-                                <span className="text-sm text-gray-800 font-medium leading-snug line-clamp-2">{p.text}</span>
+                                <span className="text-sm text-ink/90 font-medium leading-snug line-clamp-2">{p.text}</span>
                               </button>
                               {/* Engine mention dots */}
                               <div className="flex items-center gap-2">
@@ -1973,7 +1997,7 @@ function DashboardPage() {
                                   return (
                                     <div key={eng} className="flex items-center gap-1" title={`${eng}: ${!hasData ? "no data" : mentioned ? "mentioned" : "not mentioned"}`}>
                                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: hasData && mentioned ? engineDotColor[eng] ?? "#9ca3af" : "#e5e7eb" }} />
-                                      <span className="text-[10px] text-gray-400 capitalize">{eng === "chatgpt" ? "GPT" : eng === "google" ? "Google" : "Gemini"}</span>
+                                      <span className="text-[10px] text-faint capitalize">{eng === "chatgpt" ? "GPT" : eng === "google" ? "Google" : "Gemini"}</span>
                                     </div>
                                   );
                                 })}
@@ -1985,14 +2009,14 @@ function DashboardPage() {
                                       const params = new URLSearchParams({ gapPrompt: p.text, brand: brand.name, niche: brand.niche, brandId: brand.id ?? "", engines: encodeURIComponent(JSON.stringify(gapItem?.engines ?? [])), ...(gapItem?.topCompetitor ? { competitor: gapItem.topCompetitor } : {}) });
                                       window.open(`/article?${params}`, "_blank");
                                     }}
-                                    className="text-[10px] font-medium text-gray-400 hover:text-gray-700 border border-gray-200 hover:border-gray-400 px-1.5 py-0.5 rounded transition-colors"
+                                    className="text-[10px] font-medium text-faint hover:text-ink/80 border border-line hover:border-line-2 px-1.5 py-0.5 rounded transition-colors"
                                   >
                                     + Article
                                   </button>
                                 )}
                               </div>
                               {/* Competing with */}
-                              <div className="text-xs text-gray-500 truncate">{topCompetitor ?? "—"}</div>
+                              <div className="text-xs text-muted truncate">{topCompetitor ?? "—"}</div>
                               {/* Type dot */}
                               <div className="flex justify-center">
                                 <div className={`w-2.5 h-2.5 rounded-full ${typeDot}`} />
@@ -2011,7 +2035,7 @@ function DashboardPage() {
                                       setDeletingPromptId(null);
                                     }
                                   }}
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-400"
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-rose/10 text-faint/70 hover:text-rose/80"
                                   title="Delete prompt"
                                 >
                                   {deletingPromptId === p.id
@@ -2025,7 +2049,7 @@ function DashboardPage() {
                         })}
 
                         {filtered.length === 0 && (
-                          <p className="text-sm text-gray-400 text-center py-10">No prompts match your search</p>
+                          <p className="text-sm text-faint text-center py-10">No prompts match your search</p>
                         )}
                       </div>
 
@@ -2055,7 +2079,7 @@ function DashboardPage() {
                             }
                           }}
                           placeholder="Add a new prompt…"
-                          className="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-stone-300"
+                          className="flex-1 bg-white/[0.04] shadow-[inset_0_0_0_1px_rgba(234,246,238,0.1)] rounded-xl px-4 py-2.5 text-sm text-ink/90 placeholder:text-faint outline-none focus:ring-2 focus:ring-mint/40"
                         />
                         <button
                           disabled={!newPromptText.trim() || addingPrompt}
@@ -2077,7 +2101,7 @@ function DashboardPage() {
                               setAddingPrompt(false);
                             }
                           }}
-                          className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold bg-gray-900 text-white rounded-xl hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                          className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold bg-mint text-[#062015] rounded-xl hover:bg-[#a5f8d1] transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                         >
                           {addingPrompt ? <span className="w-3.5 h-3.5 border border-white border-t-transparent rounded-full animate-spin" /> : <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg>}
                           Add
@@ -2095,14 +2119,14 @@ function DashboardPage() {
             <>
               {/* 3-step onboarding dialog */}
               {showCitationOnboarding && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-                  <div className="bg-[#faf7f2] rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                  <div className="bg-[#0b1c13] rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden">
                     {/* Header bar */}
                     <div className="flex items-center justify-between px-8 pt-7 pb-0">
-                      <h2 className="text-lg font-bold text-gray-900">Get Cited in AI Responses — In 3 Steps</h2>
+                      <h2 className="text-lg font-bold text-ink">Get Cited in AI Responses — In 3 Steps</h2>
                       <div className="flex gap-1.5">
                         {[0,1,2].map((i) => (
-                          <div key={i} className={`w-2.5 h-2.5 rounded-full transition-colors ${i === citationOnboardingStep ? "bg-[#c8372d]" : "bg-gray-300"}`} />
+                          <div key={i} className={`w-2.5 h-2.5 rounded-full transition-colors ${i === citationOnboardingStep ? "bg-mint-deep" : "bg-white/[0.12]"}`} />
                         ))}
                       </div>
                     </div>
@@ -2113,24 +2137,24 @@ function DashboardPage() {
                       <div className="flex-1 min-w-0">
                         {citationOnboardingStep === 0 && (
                           <>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-4">AI Scans the <span className="text-[#c8372d]">Web</span></h3>
-                            <p className="text-gray-600 mb-3">AI answers pull from public discussions and citation sources.</p>
-                            <p className="text-gray-600 mb-3">If your brand isn't mentioned there, you don't appear.</p>
-                            <p className="font-semibold text-gray-800">Check the citation sources &amp; engage.</p>
+                            <h3 className="text-2xl font-bold text-ink mb-4">AI Scans the <span className="text-mint">Web</span></h3>
+                            <p className="text-muted mb-3">AI answers pull from public discussions and citation sources.</p>
+                            <p className="text-muted mb-3">If your brand isn't mentioned there, you don't appear.</p>
+                            <p className="font-semibold text-ink/90">Check the citation sources &amp; engage.</p>
                           </>
                         )}
                         {citationOnboardingStep === 1 && (
                           <>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-4">Engage on <span className="text-[#c8372d]">Citation Sources</span></h3>
-                            <p className="text-gray-600 mb-3">Post valuable comments on Reddit and other cited sources using your connected account.</p>
-                            <p className="font-semibold text-gray-800">This is how your brand enters AI responses.</p>
+                            <h3 className="text-2xl font-bold text-ink mb-4">Engage on <span className="text-mint">Citation Sources</span></h3>
+                            <p className="text-muted mb-3">Post valuable comments on Reddit and other cited sources using your connected account.</p>
+                            <p className="font-semibold text-ink/90">This is how your brand enters AI responses.</p>
                           </>
                         )}
                         {citationOnboardingStep === 2 && (
                           <>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-4">Get Cited in <span className="text-[#c8372d]">AI Responses</span></h3>
-                            <p className="text-gray-600 mb-3">Your engaged content gets ranked, surfaced, and cited — bringing your brand directly into AI responses.</p>
-                            <p className="font-semibold text-gray-800">Visibility that compounds.</p>
+                            <h3 className="text-2xl font-bold text-ink mb-4">Get Cited in <span className="text-mint">AI Responses</span></h3>
+                            <p className="text-muted mb-3">Your engaged content gets ranked, surfaced, and cited — bringing your brand directly into AI responses.</p>
+                            <p className="font-semibold text-ink/90">Visibility that compounds.</p>
                           </>
                         )}
                       </div>
@@ -2138,87 +2162,87 @@ function DashboardPage() {
                       {/* Right: illustration card */}
                       <div className="w-80 shrink-0">
                         {citationOnboardingStep === 0 && (
-                          <div className="bg-white rounded-2xl p-5 shadow-sm border border-stone-100">
-                            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">AI response</p>
-                            <div className="bg-[#f5f0e8] rounded-xl px-4 py-3 mb-3">
-                              <p className="text-sm font-semibold text-gray-800">No brand presence</p>
+                          <div className="panel rounded-2xl p-5">
+                            <p className="text-[10px] font-semibold text-faint uppercase tracking-widest mb-3">AI response</p>
+                            <div className="bg-black/25 rounded-xl px-4 py-3 mb-3">
+                              <p className="text-sm font-semibold text-ink/90">No brand presence</p>
                             </div>
                             <div className="flex items-center gap-2 mb-4">
-                              <span className="text-[10px] text-gray-500">Citations</span>
+                              <span className="text-[10px] text-muted">Citations</span>
                               <div className="flex gap-1">
-                                <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-[10px] font-bold text-orange-700">C</div>
-                                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-[10px] font-bold text-green-700">W</div>
+                                <div className="w-6 h-6 rounded-full bg-orange-400/15 flex items-center justify-center text-[10px] font-bold text-orange-300">C</div>
+                                <div className="w-6 h-6 rounded-full bg-mint/15 flex items-center justify-center text-[10px] font-bold text-mint">W</div>
                                 <div className="w-6 h-6 rounded-full bg-[#FF4500] flex items-center justify-center">
                                   <svg viewBox="0 0 20 20" className="w-3.5 h-3.5 fill-white"><path d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.07 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.19.19 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.51-1.53zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.65a3.55 3.55 0 01-2.85.86 3.55 3.55 0 01-2.85-.86.19.19 0 01.27-.27 3.16 3.16 0 002.58.65 3.16 3.16 0 002.58-.65.19.19 0 01.27.27zm-.17-1.65a1 1 0 111-1 1 1 0 01-1 1z"/></svg>
                                 </div>
                               </div>
                             </div>
-                            <div className="bg-[#fff5f2] border border-orange-100 rounded-lg px-3 py-2 flex items-center gap-2">
+                            <div className="bg-[#FF4500]/10 border border-orange-400/25 rounded-lg px-3 py-2 flex items-center gap-2">
                               <div className="w-6 h-6 rounded-full bg-[#FF4500] flex items-center justify-center shrink-0">
                                 <svg viewBox="0 0 20 20" className="w-3.5 h-3.5 fill-white"><path d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.07 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.19.19 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.51-1.53zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.65a3.55 3.55 0 01-2.85.86 3.55 3.55 0 01-2.85-.86.19.19 0 01.27-.27 3.16 3.16 0 002.58.65 3.16 3.16 0 002.58-.65.19.19 0 01.27.27zm-.17-1.65a1 1 0 111-1 1 1 0 01-1 1z"/></svg>
                               </div>
-                              <span className="text-xs text-gray-500 flex-1">reddit.com/r/…</span>
-                              <span className="text-xs font-medium text-[#c8372d] flex items-center gap-0.5">⚡ Engage</span>
+                              <span className="text-xs text-muted flex-1">reddit.com/r/…</span>
+                              <span className="text-xs font-medium text-mint flex items-center gap-0.5">⚡ Engage</span>
                             </div>
                           </div>
                         )}
 
                         {citationOnboardingStep === 1 && (
-                          <div className="bg-white rounded-2xl p-5 shadow-sm border border-stone-100">
-                            <div className="bg-[#f5f0e8] rounded-xl p-3 mb-3">
+                          <div className="panel rounded-2xl p-5">
+                            <div className="bg-black/25 rounded-xl p-3 mb-3">
                               <div className="flex items-center gap-2 mb-2">
                                 <div className="w-7 h-7 rounded-full bg-[#FF4500] flex items-center justify-center">
                                   <svg viewBox="0 0 20 20" className="w-4 h-4 fill-white"><path d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.07 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.19.19 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.51-1.53zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.65a3.55 3.55 0 01-2.85.86 3.55 3.55 0 01-2.85-.86.19.19 0 01.27-.27 3.16 3.16 0 002.58.65 3.16 3.16 0 002.58-.65.19.19 0 01.27.27zm-.17-1.65a1 1 0 111-1 1 1 0 01-1 1z"/></svg>
                                 </div>
                                 <div>
-                                  <p className="text-[11px] font-semibold text-gray-800">r/subreddit · 3 days ago</p>
-                                  <p className="text-[10px] text-gray-500">Kaytosmith</p>
+                                  <p className="text-[11px] font-semibold text-ink/90">r/subreddit · 3 days ago</p>
+                                  <p className="text-[10px] text-muted">Kaytosmith</p>
                                 </div>
                               </div>
-                              <p className="text-sm font-semibold text-gray-800">Looking for alternatives to…</p>
-                              <div className="h-1.5 bg-gray-200 rounded mt-1.5 mb-0.5 w-full" />
-                              <div className="h-1.5 bg-gray-200 rounded w-3/4" />
+                              <p className="text-sm font-semibold text-ink/90">Looking for alternatives to…</p>
+                              <div className="h-1.5 bg-white/[0.08] rounded mt-1.5 mb-0.5 w-full" />
+                              <div className="h-1.5 bg-white/[0.08] rounded w-3/4" />
                             </div>
-                            <div className="border border-[#c8372d]/30 rounded-xl p-3 mb-3">
+                            <div className="border border-[#37c98d]/30 rounded-xl p-3 mb-3">
                               <div className="flex items-center gap-1.5 mb-2">
                                 <div className="w-5 h-5 rounded-full bg-blue-400" />
-                                <span className="text-[11px] font-medium text-gray-700">Your account · <span className="text-[#c8372d]">Post Immediately</span></span>
+                                <span className="text-[11px] font-medium text-ink/80">Your account · <span className="text-mint">Post Immediately</span></span>
                               </div>
-                              <div className="bg-stone-50 rounded-lg px-2.5 py-2 text-xs text-gray-700 border border-stone-200 mb-2">
-                                <span className="text-[#c8372d] font-medium">[{brand.name}]</span> is a good alternative that I&apos;ve been using
+                              <div className="bg-white/[0.03] rounded-lg px-2.5 py-2 text-xs text-ink/80 border border-line mb-2">
+                                <span className="text-mint font-medium">[{brand.name}]</span> is a good alternative that I&apos;ve been using
                               </div>
-                              <button className="w-full text-xs font-semibold bg-[#c8372d] text-white rounded-lg py-1.5">Submit Comment</button>
+                              <button className="w-full text-xs font-semibold bg-mint-deep text-[#062015] rounded-lg py-1.5">Submit Comment</button>
                             </div>
                           </div>
                         )}
 
                         {citationOnboardingStep === 2 && (
-                          <div className="bg-white rounded-2xl p-5 shadow-sm border border-stone-100">
-                            <div className="bg-[#f5f0e8] rounded-xl p-3 mb-3">
+                          <div className="panel rounded-2xl p-5">
+                            <div className="bg-black/25 rounded-xl p-3 mb-3">
                               <div className="flex items-center gap-2 mb-1">
                                 <div className="w-6 h-6 rounded-full bg-blue-400" />
-                                <span className="text-[11px] font-medium text-gray-700">Username · 8mo ago</span>
+                                <span className="text-[11px] font-medium text-ink/80">Username · 8mo ago</span>
                               </div>
-                              <p className="text-xs text-gray-700 mb-2"><span className="text-[#c8372d] font-medium">[{brand.name}]</span> is a good alternative that I&apos;ve been using</p>
+                              <p className="text-xs text-ink/80 mb-2"><span className="text-mint font-medium">[{brand.name}]</span> is a good alternative that I&apos;ve been using</p>
                               <div className="flex gap-2">
-                                <span className="text-[10px] font-semibold bg-blue-500 text-white px-2 py-0.5 rounded-full">↑ 100 Upvotes</span>
-                                <span className="text-[10px] font-semibold bg-[#c8372d] text-white px-2 py-0.5 rounded-full">2.3k Views</span>
+                                <span className="text-[10px] font-semibold bg-blue-400/100 text-white px-2 py-0.5 rounded-full">↑ 100 Upvotes</span>
+                                <span className="text-[10px] font-semibold bg-mint-deep text-[#062015] px-2 py-0.5 rounded-full">2.3k Views</span>
                               </div>
-                              <span className="text-[10px] font-semibold text-gray-600 mt-1 block">■ Ranked</span>
+                              <span className="text-[10px] font-semibold text-muted mt-1 block">■ Ranked</span>
                             </div>
                             <div className="flex items-center gap-2 mb-2">
-                              <div className="w-px h-8 bg-gray-300 mx-auto" />
+                              <div className="w-px h-8 bg-white/[0.12] mx-auto" />
                             </div>
                             <div className="flex items-center gap-2 mb-2">
                               <div className="w-8 h-8 rounded-full bg-[#FF4500] flex items-center justify-center">
                                 <svg viewBox="0 0 20 20" className="w-4 h-4 fill-white"><path d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.07 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.19.19 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.51-1.53zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.65a3.55 3.55 0 01-2.85.86 3.55 3.55 0 01-2.85-.86.19.19 0 01.27-.27 3.16 3.16 0 002.58.65 3.16 3.16 0 002.58-.65.19.19 0 01.27.27zm-.17-1.65a1 1 0 111-1 1 1 0 01-1 1z"/></svg>
                               </div>
-                              <span className="text-xs font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">10x AI Visibility</span>
+                              <span className="text-xs font-semibold bg-mint/15 text-mint px-2 py-0.5 rounded-full">10x AI Visibility</span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-[9px] font-bold text-orange-600">C</div>
-                              <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-[9px] font-bold text-green-600">G</div>
-                              <div className="flex-1 ml-2 bg-[#f5f0e8] rounded-lg px-3 py-1.5">
+                              <div className="w-6 h-6 rounded-full bg-orange-400/15 flex items-center justify-center text-[9px] font-bold text-orange-600">C</div>
+                              <div className="w-6 h-6 rounded-full bg-mint/15 flex items-center justify-center text-[9px] font-bold text-mint">G</div>
+                              <div className="flex-1 ml-2 bg-black/25 rounded-lg px-3 py-1.5">
                                 <p className="text-xs font-semibold text-[#b5820a]">[{brand.name}]</p>
                               </div>
                             </div>
@@ -2228,21 +2252,21 @@ function DashboardPage() {
                     </div>
 
                     {/* Footer */}
-                    <div className="flex items-center justify-between px-8 pb-7 border-t border-stone-200 pt-5">
+                    <div className="flex items-center justify-between px-8 pb-7 border-t border-line pt-5">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={dontShowCitationsOnboarding}
                           onChange={(e) => setDontShowCitationsOnboarding(e.target.checked)}
-                          className="w-3.5 h-3.5 rounded border-stone-300"
+                          className="w-3.5 h-3.5 rounded border-line-2"
                         />
-                        <span className="text-xs text-gray-500">Don&apos;t show it again</span>
+                        <span className="text-xs text-muted">Don&apos;t show it again</span>
                       </label>
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() => setCitationOnboardingStep((s) => Math.max(0, s - 1))}
                           disabled={citationOnboardingStep === 0}
-                          className="text-sm text-gray-400 disabled:opacity-30 hover:text-gray-600 transition-colors"
+                          className="text-sm text-faint disabled:opacity-30 hover:text-muted transition-colors"
                         >
                           Previous
                         </button>
@@ -2255,7 +2279,7 @@ function DashboardPage() {
                               setShowCitationOnboarding(false);
                             }
                           }}
-                          className="text-sm font-semibold bg-[#c8372d] text-white px-5 py-2 rounded-lg hover:bg-[#b02e25] transition-colors"
+                          className="text-sm font-semibold bg-mint-deep text-[#062015] px-5 py-2 rounded-lg hover:bg-mint-deep/80 transition-colors"
                         >
                           {citationOnboardingStep === 2 ? "Get Started" : "Next"}
                         </button>
@@ -2266,36 +2290,36 @@ function DashboardPage() {
               )}
 
               {!scanned && loadingResults ? (
-                <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" /></div>
+                <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-line-2 border-t-mint rounded-full animate-spin" /></div>
               ) : !scanned ? (
                 <EmptyState label="No citation data" sub="Monitoring starts automatically — check back after your first daily scan" />
               ) : citationDomains.length === 0 ? (
                 <EmptyState label="No citations detected" sub="Citations appear when AI engines reference sources in their responses" />
               ) : (
                 <>
-                  <h2 className="text-xl font-bold text-gray-900 mb-0.5">Citations</h2>
-                  <p className="text-sm text-gray-400 mb-5">Discover the sources AI uses in its responses</p>
+                  <h2 className="text-xl font-bold text-ink mb-0.5">Citations</h2>
+                  <p className="text-sm text-faint mb-5">Discover the sources AI uses in its responses</p>
 
                   {/* Engagement Platforms */}
                   <div className="mb-6">
                     <div className="flex items-center gap-1.5 mb-3">
-                      <p className="text-sm font-semibold text-gray-800">Engagement Platforms</p>
-                      <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01"/></svg>
+                      <p className="text-sm font-semibold text-ink/90">Engagement Platforms</p>
+                      <svg className="w-3.5 h-3.5 text-faint" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01"/></svg>
                     </div>
-                    <p className="text-xs text-gray-400 mb-3">Engage on these platforms to increase your AI visibility</p>
+                    <p className="text-xs text-faint mb-3">Engage on these platforms to increase your AI visibility</p>
                     <div className="grid grid-cols-4 gap-3">
                       {/* Reddit — live */}
-                      <div className="bg-white border-2 border-orange-200 rounded-xl p-4 flex flex-col">
+                      <div className="bg-surface border-2 border-orange-200 rounded-xl p-4 flex flex-col">
                         <div className="flex items-center gap-2 mb-3">
                           <div className="w-9 h-9 rounded-xl bg-[#FF4500] flex items-center justify-center shrink-0 shadow-sm">
                             <svg viewBox="0 0 20 20" className="w-5 h-5 fill-white"><path d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.07 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.19.19 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.51-1.53zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.65a3.55 3.55 0 01-2.85.86 3.55 3.55 0 01-2.85-.86.19.19 0 01.27-.27 3.16 3.16 0 002.58.65 3.16 3.16 0 002.58-.65.19.19 0 01.27.27zm-.17-1.65a1 1 0 111-1 1 1 0 01-1 1z"/></svg>
                           </div>
                           <div className="min-w-0">
-                            <span className="text-sm font-semibold text-gray-900">Reddit</span>
+                            <span className="text-sm font-semibold text-ink">Reddit</span>
                           </div>
                           <span className="ml-auto text-[10px] font-bold bg-teal-50 text-teal-700 px-2 py-0.5 rounded-full border border-teal-100 whitespace-nowrap">High impact</span>
                         </div>
-                        <p className="text-[11px] text-gray-500 mb-3">Engage on Reddit threads to get cited in AI responses and boost your visibility.</p>
+                        <p className="text-[11px] text-muted mb-3">Engage on Reddit threads to get cited in AI responses and boost your visibility.</p>
                         <button
                           onClick={() => {
                             const redditEntry = citationDomains.find(([d]) => d.includes("reddit.com"));
@@ -2316,17 +2340,17 @@ function DashboardPage() {
 
                       {/* LinkedIn — appears only when a LinkedIn citation is detected */}
                       {citationDomains.some(([d]) => d.includes("linkedin.com")) && (
-                        <div className="bg-white border-2 border-blue-200 rounded-xl p-4 flex flex-col">
+                        <div className="bg-surface border-2 border-blue-400/25 rounded-xl p-4 flex flex-col">
                           <div className="flex items-center gap-2 mb-3">
                             <div className="w-9 h-9 rounded-xl bg-[#0A66C2] flex items-center justify-center shrink-0 shadow-sm">
                               <span className="text-white font-bold text-sm leading-none">in</span>
                             </div>
                             <div className="min-w-0">
-                              <span className="text-sm font-semibold text-gray-900">LinkedIn</span>
+                              <span className="text-sm font-semibold text-ink">LinkedIn</span>
                             </div>
                             <span className="ml-auto text-[10px] font-bold bg-teal-50 text-teal-700 px-2 py-0.5 rounded-full border border-teal-100 whitespace-nowrap">High impact</span>
                           </div>
-                          <p className="text-[11px] text-gray-500 mb-3">Engage on LinkedIn posts to get cited in AI responses and boost your visibility.</p>
+                          <p className="text-[11px] text-muted mb-3">Engage on LinkedIn posts to get cited in AI responses and boost your visibility.</p>
                           <button
                             onClick={() => {
                               const linkedinEntry = citationDomains.find(([d]) => d.includes("linkedin.com"));
@@ -2379,23 +2403,23 @@ function DashboardPage() {
                     return (
                       <div className="grid grid-cols-[1fr_300px] gap-4 mb-5">
                         {/* Line / Bar chart */}
-                        <div className="bg-white border border-stone-200 rounded-xl p-5">
+                        <div className="panel rounded-xl p-5">
                           <div className="flex items-start justify-between mb-1">
                             <div>
-                              <p className="text-sm font-semibold text-gray-900">Top Citations <span className="text-gray-400 font-normal text-xs ml-1">ⓘ</span></p>
-                              <p className="text-xs text-gray-400">Daily citation count for top 10 domains</p>
+                              <p className="text-sm font-semibold text-ink">Top Citations <span className="text-faint font-normal text-xs ml-1">ⓘ</span></p>
+                              <p className="text-xs text-faint">Daily citation count for top 10 domains</p>
                             </div>
-                            <div className="flex items-center gap-1 border border-stone-200 rounded-lg p-0.5">
-                              <button onClick={() => setCitationChartMode("bar")} className={`p-1.5 rounded-md transition-colors ${citationChartMode === "bar" ? "bg-stone-100 text-gray-700" : "text-gray-400 hover:text-gray-600"}`} title="Bar chart">
+                            <div className="flex items-center gap-1 border border-line rounded-lg p-0.5">
+                              <button onClick={() => setCitationChartMode("bar")} className={`p-1.5 rounded-md transition-colors ${citationChartMode === "bar" ? "bg-white/[0.05] text-ink/80" : "text-faint hover:text-muted"}`} title="Bar chart">
                                 <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 16 16"><rect x="1" y="8" width="3" height="7"/><rect x="6" y="4" width="3" height="11"/><rect x="11" y="1" width="3" height="14"/></svg>
                               </button>
-                              <button onClick={() => setCitationChartMode("line")} className={`p-1.5 rounded-md transition-colors ${citationChartMode === "line" ? "bg-stone-100 text-gray-700" : "text-gray-400 hover:text-gray-600"}`} title="Line chart">
+                              <button onClick={() => setCitationChartMode("line")} className={`p-1.5 rounded-md transition-colors ${citationChartMode === "line" ? "bg-white/[0.05] text-ink/80" : "text-faint hover:text-muted"}`} title="Line chart">
                                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth="2"><polyline points="1,12 5,7 9,9 13,3"/></svg>
                               </button>
                             </div>
                           </div>
                           {citationHistory.length === 0 ? (
-                            <div className="flex items-center justify-center h-36 text-xs text-gray-400 mt-3">Chart data loads after first few daily scans</div>
+                            <div className="flex items-center justify-center h-36 text-xs text-faint mt-3">Chart data loads after first few daily scans</div>
                           ) : (
                             <div className="relative mt-3">
                               <svg
@@ -2415,7 +2439,7 @@ function DashboardPage() {
                                 {/* Y gridlines + labels */}
                                 {yTicks.map((v) => (
                                   <g key={v}>
-                                    <line x1={padL} x2={W - padR} y1={toY(v)} y2={toY(v)} stroke="#f3f4f6" strokeWidth="1"/>
+                                    <line x1={padL} x2={W - padR} y1={toY(v)} y2={toY(v)} stroke="rgba(234,246,238,0.06)" strokeWidth="1"/>
                                     <text x={padL - 4} y={toY(v) + 3} textAnchor="end" fontSize="8" fill="#9ca3af">{v}</text>
                                   </g>
                                 ))}
@@ -2467,21 +2491,21 @@ function DashboardPage() {
                               {/* Hover tooltip */}
                               {hoverData && citationChartHover && (
                                 <div
-                                  className="absolute z-10 bg-white border border-stone-200 rounded-xl shadow-lg p-3 pointer-events-none"
+                                  className="absolute z-10 panel rounded-xl shadow-lg p-3 pointer-events-none"
                                   style={{
                                     left: citationChartHover.x / W * 100 > 60 ? "auto" : `calc(${(citationChartHover.x / W) * 100}% + 8px)`,
                                     right: citationChartHover.x / W * 100 > 60 ? `calc(${100 - (citationChartHover.x / W) * 100}% + 8px)` : "auto",
                                     top: 0,
                                   }}
                                 >
-                                  <p className="text-xs font-semibold text-gray-700 mb-2">{new Date(allDates[citationChartHover.idx]).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</p>
+                                  <p className="text-xs font-semibold text-ink/80 mb-2">{new Date(allDates[citationChartHover.idx]).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</p>
                                   <div className="space-y-1.5 min-w-[160px]">
                                     {hoverData.filter(d => d.count > 0).map((d, i) => (
                                       <div key={i} className="flex items-center gap-2">
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src={`https://www.google.com/s2/favicons?domain=${d.domain}&sz=16`} alt="" width={14} height={14} className="rounded shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />
-                                        <span className="text-xs text-gray-600 flex-1 truncate">{d.domain}</span>
-                                        <span className="text-xs font-semibold text-gray-900">{d.count}</span>
+                                        <span className="text-xs text-muted flex-1 truncate">{d.domain}</span>
+                                        <span className="text-xs font-semibold text-ink">{d.count}</span>
                                       </div>
                                     ))}
                                   </div>
@@ -2489,27 +2513,27 @@ function DashboardPage() {
                               )}
                             </div>
                           )}
-                          {allDates.length === 1 && <p className="text-[10px] text-gray-400 mt-1">More data after your first week of daily scans</p>}
+                          {allDates.length === 1 && <p className="text-[10px] text-faint mt-1">More data after your first week of daily scans</p>}
                         </div>
 
                         {/* Top Cited Domains card */}
-                        <div className="bg-white border border-stone-200 rounded-xl p-5">
+                        <div className="panel rounded-xl p-5">
                           <div className="flex items-center justify-between mb-1">
-                            <p className="text-sm font-semibold text-gray-900">Top Cited Domains <span className="text-gray-400 font-normal text-xs ml-1">ⓘ</span></p>
+                            <p className="text-sm font-semibold text-ink">Top Cited Domains <span className="text-faint font-normal text-xs ml-1">ⓘ</span></p>
                           </div>
-                          <p className="text-base font-bold text-gray-900 mb-4">{citationDomains.length} Domains</p>
+                          <p className="text-base font-bold text-ink mb-4">{citationDomains.length} Domains</p>
                           <div className="space-y-1">
                             {citationDomains.slice(0, 7).map(([domain, info], i) => {
                               const pct = results.length ? Math.round((info.count / results.length) * 100) : 0;
                               return (
-                                <div key={domain} className="flex items-center gap-3 py-2 border-b border-stone-50 last:border-0">
-                                  <span className="text-xs text-gray-400 w-5 shrink-0 font-medium">#{i+1}</span>
+                                <div key={domain} className="flex items-center gap-3 py-2 border-b border-line last:border-0">
+                                  <span className="text-xs text-faint w-5 shrink-0 font-medium">#{i+1}</span>
                                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`} alt="" width={28} height={28} className="rounded-md shrink-0 border border-stone-100" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />
-                                  <span className="text-xs text-gray-700 truncate flex-1 font-medium">{domain}</span>
+                                  <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`} alt="" width={28} height={28} className="rounded-md shrink-0 border border-line" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />
+                                  <span className="text-xs text-ink/80 truncate flex-1 font-medium">{domain}</span>
                                   <div className="text-right shrink-0">
-                                    <p className="text-sm font-bold text-gray-900">{pct}%</p>
-                                    <p className="text-[10px] text-gray-400">{info.count} citations</p>
+                                    <p className="text-sm font-bold text-ink">{pct}%</p>
+                                    <p className="text-[10px] text-faint">{info.count} citations</p>
                                   </div>
                                 </div>
                               );
@@ -2539,43 +2563,43 @@ function DashboardPage() {
                     return (
                       <>
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="flex items-center gap-2 flex-1 bg-white border border-stone-200 rounded-lg px-3 py-2">
-                            <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                          <div className="flex items-center gap-2 flex-1 panel rounded-lg px-3 py-2">
+                            <svg className="w-4 h-4 text-faint shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                             <input
                               value={citationSearch}
                               onChange={(e) => setCitationSearch(e.target.value)}
                               placeholder="Search citations"
-                              className="text-sm flex-1 outline-none bg-transparent text-gray-800 placeholder:text-gray-400"
+                              className="text-sm flex-1 outline-none bg-transparent text-ink/90 placeholder:text-faint"
                             />
                           </div>
                           <select
                             value={citationPromptFilter}
                             onChange={(e) => setCitationPromptFilter(e.target.value)}
-                            className="text-xs border border-stone-200 rounded-lg px-3 py-2 bg-white text-gray-700 outline-none"
+                            className="text-xs border border-line rounded-lg px-3 py-2 bg-white/[0.04] text-ink/80 outline-none"
                           >
                             {allPrompts.map((p) => <option key={p} value={p}>{p === "All" ? "All prompts" : p.length > 30 ? p.slice(0,30)+"…" : p}</option>)}
                           </select>
                           <select
                             value={citationTypeFilter}
                             onChange={(e) => setCitationTypeFilter(e.target.value)}
-                            className="text-xs border border-stone-200 rounded-lg px-3 py-2 bg-white text-gray-700 outline-none"
+                            className="text-xs border border-line rounded-lg px-3 py-2 bg-white/[0.04] text-ink/80 outline-none"
                           >
                             {allTypes.map((t) => <option key={t} value={t}>{t === "All" ? "All domain types" : t}</option>)}
                           </select>
                         </div>
 
                         {/* Domain table */}
-                        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
+                        <div className="panel rounded-xl overflow-hidden">
                           {/* Table header */}
-                          <div className="grid grid-cols-[64px_1fr_80px_120px] gap-x-4 px-5 py-3 border-b border-stone-100 bg-stone-50/60">
-                            <span className="text-[11px] font-semibold text-gray-500">Rank</span>
-                            <span className="text-[11px] font-semibold text-gray-500">Domain</span>
-                            <span className="text-[11px] font-semibold text-gray-500 text-right flex items-center justify-end gap-0.5">Citations <svg className="w-3 h-3 opacity-40" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth="2"><path d="M8 3v10M5 10l3 3 3-3"/></svg></span>
-                            <span className="text-[11px] font-semibold text-gray-500 text-right">Details</span>
+                          <div className="grid grid-cols-[64px_1fr_80px_120px] gap-x-4 px-5 py-3 border-b border-line bg-white/[0.02]">
+                            <span className="text-[11px] font-semibold text-muted">Rank</span>
+                            <span className="text-[11px] font-semibold text-muted">Domain</span>
+                            <span className="text-[11px] font-semibold text-muted text-right flex items-center justify-end gap-0.5">Citations <svg className="w-3 h-3 opacity-40" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth="2"><path d="M8 3v10M5 10l3 3 3-3"/></svg></span>
+                            <span className="text-[11px] font-semibold text-muted text-right">Details</span>
                           </div>
 
                           {orderedDomains.length === 0 && (
-                            <p className="px-5 py-8 text-sm text-gray-400 text-center">No citations match your filters</p>
+                            <p className="px-5 py-8 text-sm text-faint text-center">No citations match your filters</p>
                           )}
 
                           {orderedDomains.map(([domain, info], displayIdx) => {
@@ -2587,7 +2611,7 @@ function DashboardPage() {
                             return (
                               <div
                                 key={domain}
-                                className={`border-b border-stone-100 last:border-0 ${isReddit ? "border-l-[3px] border-l-blue-400" : ""}`}
+                                className={`border-b border-line last:border-0 ${isReddit ? "border-l-[3px] border-l-blue-400" : ""}`}
                               >
                                 {/* Domain row */}
                                 <button
@@ -2596,50 +2620,50 @@ function DashboardPage() {
                                     next.has(domain) ? next.delete(domain) : next.add(domain);
                                     return next;
                                   })}
-                                  className={`w-full grid grid-cols-[64px_1fr_80px_120px] gap-x-4 px-5 py-4 hover:bg-stone-50/70 transition-colors text-left items-center ${isReddit ? "bg-blue-50/20" : ""}`}
+                                  className={`w-full grid grid-cols-[64px_1fr_80px_120px] gap-x-4 px-5 py-4 hover:bg-white/[0.04]/70 transition-colors text-left items-center ${isReddit ? "bg-blue-400/10/20" : ""}`}
                                 >
                                   <div className="flex items-center gap-2 min-w-0">
-                                    <span className="text-xs text-gray-500 font-medium shrink-0">#{originalRank}</span>
+                                    <span className="text-xs text-muted font-medium shrink-0">#{originalRank}</span>
                                   </div>
                                   <div className="flex items-center gap-2.5 min-w-0">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`} alt="" width={20} height={20} className="rounded shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />
-                                    <span className="text-sm text-gray-800 font-medium truncate">{domain}</span>
+                                    <span className="text-sm text-ink/90 font-medium truncate">{domain}</span>
                                   </div>
-                                  <span className="text-sm font-semibold text-gray-900 text-right">{info.count}</span>
+                                  <span className="text-sm font-semibold text-ink text-right">{info.count}</span>
                                   <div className="flex items-center justify-end gap-2">
                                     {isReddit ? (
-                                      <span className="text-xs text-[#c8372d] font-medium">Engagement opportunities</span>
+                                      <span className="text-xs text-mint font-medium">Engagement opportunities</span>
                                     ) : (
-                                      <a href={`https://${domain}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-[#c8372d] hover:underline">Learn more ↗</a>
+                                      <a href={`https://${domain}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-mint hover:underline">Learn more ↗</a>
                                     )}
-                                    <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0 ${isExpanded ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
+                                    <svg className={`w-4 h-4 text-faint transition-transform duration-200 shrink-0 ${isExpanded ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
                                   </div>
                                 </button>
 
                                 {/* Expanded URL rows */}
                                 {isExpanded && (
-                                  <div className="bg-stone-50/60 border-t border-stone-100">
+                                  <div className="bg-white/[0.02] border-t border-line">
                                     {instances.length === 0 ? (
-                                      <p className="px-6 py-3 text-xs text-gray-400">No individual URLs available</p>
+                                      <p className="px-6 py-3 text-xs text-faint">No individual URLs available</p>
                                     ) : (
                                       instances.map((item, i) => {
                                         const itemIsReddit = item.url.includes("reddit.com");
                                         const urlDisplay = item.url.replace(/^https?:\/\/(www\.)?/, "").replace(/\?.*$/, "");
                                         const promptSnippet = item.promptText.length > 45 ? item.promptText.slice(0, 45) + "…" : item.promptText;
                                         return (
-                                          <div key={i} className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-x-3 px-6 py-2.5 border-b border-stone-100/60 last:border-0 items-center">
-                                            <a href={item.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-blue-600 hover:underline truncate" title={item.url}>{urlDisplay}</a>
-                                            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${SOURCE_TYPE_COLORS[getSourceType(domain)] ?? "bg-gray-100 text-gray-600"}`}>{getSourceType(domain)}</span>
+                                          <div key={i} className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-x-3 px-6 py-2.5 border-b border-line/60 last:border-0 items-center">
+                                            <a href={item.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-blue-300 hover:underline truncate" title={item.url}>{urlDisplay}</a>
+                                            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${SOURCE_TYPE_COLORS[getSourceType(domain)] ?? "bg-white/[0.06] text-muted"}`}>{getSourceType(domain)}</span>
                                             <div className="flex items-center gap-1 shrink-0">
-                                              <span className={`w-1.5 h-1.5 rounded-full ${ENGINE_COLORS[item.engine as AIEngine] ?? "bg-gray-300"}`} />
-                                              <span className="text-xs text-gray-500">{ENGINE_LABELS[item.engine as AIEngine] ?? item.engine}</span>
+                                              <span className={`w-1.5 h-1.5 rounded-full ${ENGINE_COLORS[item.engine as AIEngine] ?? "bg-white/[0.12]"}`} />
+                                              <span className="text-xs text-muted">{ENGINE_LABELS[item.engine as AIEngine] ?? item.engine}</span>
                                             </div>
-                                            <span className="text-xs text-gray-400 shrink-0 max-w-[140px] truncate hidden lg:block" title={item.promptText}>{promptSnippet}</span>
+                                            <span className="text-xs text-faint shrink-0 max-w-[140px] truncate hidden lg:block" title={item.promptText}>{promptSnippet}</span>
                                             {itemIsReddit ? (
                                               <button onClick={() => { setEngageItem({ url: item.url, promptText: item.promptText, engine: item.engine }); setEngageDraft(""); }} className="shrink-0 text-xs font-medium px-3 py-1 rounded-lg bg-[#FF4500] text-white hover:bg-[#e03d00] transition-colors">Engage</button>
                                             ) : (
-                                              <a href={item.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="shrink-0 text-xs font-medium px-3 py-1 rounded-lg border border-stone-200 text-gray-500 hover:bg-stone-100 transition-colors">View →</a>
+                                              <a href={item.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="shrink-0 text-xs font-medium px-3 py-1 rounded-lg border border-line text-muted hover:bg-white/[0.05] transition-colors">View →</a>
                                             )}
                                           </div>
                                         );
@@ -2663,15 +2687,15 @@ function DashboardPage() {
           {activeTab === "competitors" && (
             <>
               {!scanned && loadingResults ? (
-                <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" /></div>
+                <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-line-2 border-t-mint rounded-full animate-spin" /></div>
               ) : (
                 <div className="space-y-4">
                   {/* Manage competitors card */}
-                  <div className="bg-white border border-stone-200 rounded-xl p-5">
+                  <div className="panel rounded-xl p-5">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h2 className="text-base font-semibold text-gray-900">Tracked Competitors</h2>
-                        <p className="text-xs text-gray-400 mt-0.5">Added to every scan — AI engines are checked for mentions of these brands</p>
+                        <h2 className="text-base font-semibold text-ink">Tracked Competitors</h2>
+                        <p className="text-xs text-faint mt-0.5">Added to every scan — AI engines are checked for mentions of these brands</p>
                       </div>
                       {!editingCompetitors && (
                         <button
@@ -2687,7 +2711,7 @@ function DashboardPage() {
                               .catch(() => {})
                               .finally(() => setLoadingSuggestions(false));
                           }}
-                          className="text-xs font-medium text-gray-600 hover:text-gray-900 border border-stone-200 rounded-lg px-3 py-1.5 hover:bg-stone-50 transition-colors"
+                          className="text-xs font-medium text-muted hover:text-ink border border-line rounded-lg px-3 py-1.5 hover:bg-white/[0.04] transition-colors"
                         >
                           Edit
                         </button>
@@ -2697,9 +2721,9 @@ function DashboardPage() {
                       <div>
                         <div className="flex flex-wrap gap-2 mb-3">
                           {competitorDraft.map((c) => (
-                            <span key={c} className="flex items-center gap-1.5 text-xs bg-stone-100 text-gray-700 px-2.5 py-1 rounded-full">
+                            <span key={c} className="flex items-center gap-1.5 text-xs bg-white/[0.05] text-ink/80 px-2.5 py-1 rounded-full">
                               {c}
-                              <button onClick={() => setCompetitorDraft(competitorDraft.filter((x) => x !== c))} className="text-gray-400 hover:text-red-500 leading-none">×</button>
+                              <button onClick={() => setCompetitorDraft(competitorDraft.filter((x) => x !== c))} className="text-faint hover:text-rose leading-none">×</button>
                             </span>
                           ))}
                         </div>
@@ -2716,7 +2740,7 @@ function DashboardPage() {
                               }
                             }}
                             placeholder="Add competitor name…"
-                            className="flex-1 text-sm border border-stone-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                            className="flex-1 text-sm border border-line rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-mint/40"
                           />
                           <button
                             type="button"
@@ -2724,15 +2748,15 @@ function DashboardPage() {
                               const t = newCompetitorInput.trim();
                               if (t) { setCompetitorDraft((prev) => prev.includes(t) ? prev : [...prev, t]); setNewCompetitorInput(""); }
                             }}
-                            className="text-xs font-medium bg-gray-900 text-white rounded-lg px-3 py-1.5"
+                            className="text-xs font-medium bg-mint text-[#062015] rounded-lg px-3 py-1.5"
                           >Add</button>
                         </div>
                         {/* AI suggestions */}
                         <div className="mb-4">
-                          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                          <p className="text-[10px] font-semibold text-faint uppercase tracking-wider mb-2">
                             {loadingSuggestions ? "AI is detecting competitors…" : suggestedCompetitors.length > 0 ? "Suggested by AI — click to add" : ""}
                           </p>
-                          {loadingSuggestions && <span className="w-4 h-4 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin inline-block" />}
+                          {loadingSuggestions && <span className="w-4 h-4 border-2 border-line-2 border-t-mint rounded-full animate-spin inline-block" />}
                           {!loadingSuggestions && suggestedCompetitors.length > 0 && (
                             <div className="flex flex-wrap gap-2">
                               {suggestedCompetitors.filter((s) => !competitorDraft.includes(s)).map((s) => (
@@ -2740,7 +2764,7 @@ function DashboardPage() {
                                   key={s}
                                   type="button"
                                   onClick={() => setCompetitorDraft((prev) => [...prev, s])}
-                                  className="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-full hover:bg-blue-100 transition-colors"
+                                  className="text-xs bg-blue-400/10 text-blue-300 border border-blue-400/25 px-2.5 py-1 rounded-full hover:bg-blue-100 transition-colors"
                                 >
                                   + {s}
                                 </button>
@@ -2760,19 +2784,19 @@ function DashboardPage() {
                               setEditingCompetitors(false);
                               setSavingCompetitors(false);
                             }}
-                            className="text-xs font-medium bg-gray-900 text-white rounded-lg px-4 py-1.5 disabled:opacity-50"
+                            className="text-xs font-medium bg-mint text-[#062015] rounded-lg px-4 py-1.5 disabled:opacity-50"
                           >
                             {savingCompetitors ? "Saving…" : "Save"}
                           </button>
-                          <button type="button" onClick={() => setEditingCompetitors(false)} className="text-xs text-gray-500 hover:text-gray-700 px-3 py-1.5">Cancel</button>
+                          <button type="button" onClick={() => setEditingCompetitors(false)} className="text-xs text-muted hover:text-ink/80 px-3 py-1.5">Cancel</button>
                         </div>
                       </div>
                     ) : brand.competitors.length === 0 ? (
-                      <p className="text-sm text-gray-400">No competitors tracked yet. Click <strong>Edit</strong> to add some.</p>
+                      <p className="text-sm text-faint">No competitors tracked yet. Click <strong>Edit</strong> to add some.</p>
                     ) : (
                       <div className="flex flex-wrap gap-2">
                         {brand.competitors.map((c) => (
-                          <span key={c} className="text-xs bg-stone-100 text-gray-700 px-2.5 py-1 rounded-full">{c}</span>
+                          <span key={c} className="text-xs bg-white/[0.05] text-ink/80 px-2.5 py-1 rounded-full">{c}</span>
                         ))}
                       </div>
                     )}
@@ -2800,40 +2824,40 @@ function DashboardPage() {
                     const diff = prevScore !== null ? brandPct - prevScore : null;
 
                     return (
-                      <div className="bg-white border border-stone-200 rounded-xl p-6">
+                      <div className="panel rounded-xl p-6">
                         {/* Header */}
                         <div className="flex items-center gap-2 mb-0.5">
-                          <h3 className="text-base font-semibold text-gray-900">Share of Voice</h3>
-                          <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01"/></svg>
+                          <h3 className="text-base font-semibold text-ink">Share of Voice</h3>
+                          <svg className="w-4 h-4 text-faint" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01"/></svg>
                         </div>
-                        <p className="text-xs text-gray-400 mb-4">Your Brand AI mentions vs competitors</p>
+                        <p className="text-xs text-faint mb-4">Your Brand AI mentions vs competitors</p>
 
                         {/* Big number */}
                         <div className="flex items-center gap-3 mb-6">
-                          <span className="text-4xl font-bold text-gray-900">{brandPct}%</span>
+                          <span className="font-serif text-4xl font-[400] text-ink">{brandPct}%</span>
                           {diff !== null && (
-                            <span className={`flex items-center gap-1 text-sm font-semibold px-2.5 py-1 rounded-full ${diff >= 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                            <span className={`flex items-center gap-1 text-sm font-semibold px-2.5 py-1 rounded-full ${diff >= 0 ? "bg-mint/15 text-mint" : "bg-rose/15 text-rose"}`}>
                               {diff >= 0 ? "↑" : "↓"} {Math.abs(diff)}%
                             </span>
                           )}
-                          {diff !== null && <span className="text-xs text-gray-400">vs previous scan</span>}
+                          {diff !== null && <span className="text-xs text-faint">vs previous scan</span>}
                         </div>
 
                         {/* Bars */}
                         {brand.competitors.length === 0 ? (
-                          <p className="text-sm text-gray-400">Add competitors above, then re-scan to see share of voice data.</p>
+                          <p className="text-sm text-faint">Add competitors above, then re-scan to see share of voice data.</p>
                         ) : (
                           <>
                             <div className="space-y-2.5 mb-5">
                               {rows.map(({ name, isBrand, pct }) => (
                                 <div key={name} className="flex items-center gap-3">
                                   <div className="flex items-center gap-1.5 w-32 shrink-0">
-                                    <span className={`w-2 h-2 rounded-full shrink-0 ${isBrand ? "bg-red-500" : "bg-blue-500"}`} />
-                                    <span className={`text-xs truncate ${isBrand ? "font-semibold text-gray-900" : "text-gray-600"}`}>{name}</span>
+                                    <span className={`w-2 h-2 rounded-full shrink-0 ${isBrand ? "bg-rose/100" : "bg-blue-400/100"}`} />
+                                    <span className={`text-xs truncate ${isBrand ? "font-semibold text-ink" : "text-muted"}`}>{name}</span>
                                   </div>
-                                  <div className="flex-1 h-7 bg-stone-100 rounded-lg overflow-hidden relative">
+                                  <div className="flex-1 h-7 bg-white/[0.05] rounded-lg overflow-hidden relative">
                                     <div
-                                      className={`h-full rounded-lg flex items-center justify-end pr-2 transition-all duration-500 ${isBrand ? "bg-red-400" : "bg-blue-500"}`}
+                                      className={`h-full rounded-lg flex items-center justify-end pr-2 transition-all duration-500 ${isBrand ? "bg-red-400" : "bg-blue-400/100"}`}
                                       style={{ width: `${(pct / maxPct) * 100}%` }}
                                     >
                                       <span className="text-[11px] font-semibold text-white">{pct}%</span>
@@ -2841,7 +2865,7 @@ function DashboardPage() {
                                   </div>
                                   <img
                                     src={`https://www.google.com/s2/favicons?domain=${name.toLowerCase().replace(/\s+/g, "")}.com&sz=24`}
-                                    className="w-6 h-6 rounded-full shrink-0 bg-stone-100"
+                                    className="w-6 h-6 rounded-full shrink-0 bg-white/[0.05]"
                                     onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                                     alt=""
                                   />
@@ -2849,7 +2873,7 @@ function DashboardPage() {
                               ))}
                             </div>
                             {/* X-axis */}
-                            <div className="flex justify-between text-[10px] text-gray-400 border-t border-stone-100 pt-2">
+                            <div className="flex justify-between text-[10px] text-faint border-t border-line pt-2">
                               {[0, 25, 50, 75, 100].map((v) => <span key={v}>{v}%</span>)}
                             </div>
                           </>
@@ -2866,33 +2890,33 @@ function DashboardPage() {
           {activeTab === "gaps" && (
             <>
               {!scanned && loadingResults ? (
-                <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" /></div>
+                <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-line-2 border-t-mint rounded-full animate-spin" /></div>
               ) : !scanned ? (
                 <EmptyState label="No research data" sub="Run a scan to discover gaps where competitors appear but you don't" />
               ) : gaps.length === 0 ? (
-                <div className="bg-white border border-stone-200 rounded-xl p-8 text-center">
-                  <p className="text-sm text-gray-500">No gaps — your brand appeared in all scanned prompts.</p>
+                <div className="panel rounded-xl p-8 text-center">
+                  <p className="text-sm text-muted">No gaps — your brand appeared in all scanned prompts.</p>
                 </div>
               ) : (
                 <>
                   <div className="mb-5">
-                    <h2 className="text-xl font-bold text-gray-900">Research</h2>
-                    <p className="text-sm text-gray-400 mt-0.5">{gaps.length} queries where {brand.name} isn&apos;t mentioned</p>
+                    <h2 className="text-xl font-bold text-ink">Research</h2>
+                    <p className="text-sm text-faint mt-0.5">{gaps.length} queries where {brand.name} isn&apos;t mentioned</p>
                   </div>
                   <div className="space-y-3">
                     {gaps.map((gap, i) => (
-                      <div key={i} className="bg-white border border-stone-200 rounded-xl p-4">
-                        <p className="text-sm font-medium text-gray-800 mb-2">{gap.promptText}</p>
+                      <div key={i} className="panel rounded-xl p-4">
+                        <p className="text-sm font-medium text-ink/90 mb-2">{gap.promptText}</p>
                         <div className="flex items-center gap-2 mb-3 flex-wrap">
                           {gap.engines.map((e) => (
-                            <span key={e} className="text-xs bg-red-50 text-red-500 px-2 py-0.5 rounded-full">Not in {ENGINE_LABELS[e as AIEngine]}</span>
+                            <span key={e} className="text-xs bg-rose/10 text-rose px-2 py-0.5 rounded-full">Not in {ENGINE_LABELS[e as AIEngine]}</span>
                           ))}
                           {gap.topCompetitor && (
-                            <span className="text-xs text-gray-400">· <span className="font-medium text-gray-600">{gap.topCompetitor}</span> appears instead</span>
+                            <span className="text-xs text-faint">· <span className="font-medium text-muted">{gap.topCompetitor}</span> appears instead</span>
                           )}
                         </div>
                         <div className="flex items-center justify-between gap-3">
-                          <p className="text-xs text-gray-400 flex-1">Publishing an article that answers this query will teach AI engines to recommend {brand.name} for it.</p>
+                          <p className="text-xs text-faint flex-1">Publishing an article that answers this query will teach AI engines to recommend {brand.name} for it.</p>
                           {(() => {
                             const existing = savedArticles.find((a) => a.keyword?.toLowerCase() === gap.promptText.toLowerCase());
                             const params = new URLSearchParams({ gapPrompt: gap.promptText, brand: brand.name, niche: brand.niche, brandId: brand.id ?? "", engines: encodeURIComponent(JSON.stringify(gap.engines)), ...(gap.topCompetitor ? { competitor: gap.topCompetitor } : {}) });
@@ -2900,13 +2924,13 @@ function DashboardPage() {
                               const cacheKey = `article:${existing.keyword || existing.title}:${brand.name}`;
                               return (
                                 <div className="flex items-center gap-2 shrink-0">
-                                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded capitalize ${STATUS_COLORS[existing.status] ?? "bg-gray-100 text-gray-600"}`}>{existing.status}</span>
+                                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded capitalize ${STATUS_COLORS[existing.status] ?? "bg-white/[0.06] text-muted"}`}>{existing.status}</span>
                                   <button
                                     onClick={() => {
                                       if (existing.content) sessionStorage.setItem(cacheKey, JSON.stringify({ article: existing.content, title: existing.title, wordCount: existing.wordCount }));
                                       window.open(`/article?${params}`, "_blank");
                                     }}
-                                    className="text-xs font-medium border border-gray-200 text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                                    className="text-xs font-medium border border-line text-ink/80 px-3 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"
                                   >
                                     View article ↗
                                   </button>
@@ -2916,7 +2940,7 @@ function DashboardPage() {
                             return (
                               <button
                                 onClick={() => window.open(`/article?${params}`, "_blank")}
-                                className="shrink-0 text-xs font-medium bg-gray-900 text-white px-3 py-1.5 rounded-lg hover:bg-gray-700 transition-colors"
+                                className="shrink-0 text-xs font-medium bg-mint text-[#062015] px-3 py-1.5 rounded-lg hover:bg-[#a5f8d1] transition-colors"
                               >
                                 Write article →
                               </button>
@@ -2938,10 +2962,10 @@ function DashboardPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900">Articles</h2>
-                    <p className="text-sm text-gray-400 mt-0.5">{savedArticles.length} pieces{publishedCount > 0 ? ` · ${publishedCount} published` : ""}{draftCount > 0 ? ` · ${draftCount} in draft` : ""}</p>
+                    <h2 className="text-xl font-bold text-ink">Articles</h2>
+                    <p className="text-sm text-faint mt-0.5">{savedArticles.length} pieces{publishedCount > 0 ? ` · ${publishedCount} published` : ""}{draftCount > 0 ? ` · ${draftCount} in draft` : ""}</p>
                   </div>
-                  <button onClick={() => navTo("gaps")} className="text-xs text-gray-500 border border-gray-200 px-3 py-1.5 rounded-lg hover:border-gray-400 transition-colors">From research</button>
+                  <button onClick={() => navTo("gaps")} className="text-xs text-muted border border-line px-3 py-1.5 rounded-lg hover:border-line-2 transition-colors">From research</button>
                 </div>
 
                 {savedArticles.length > 0 && (
@@ -2959,7 +2983,7 @@ function DashboardPage() {
                       <button
                         key={f}
                         onClick={() => setArticleFilter(f)}
-                        className={`text-xs px-3 py-1.5 rounded-lg transition-colors capitalize ${articleFilter === f ? "bg-red-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:border-gray-400"}`}
+                        className={`text-xs px-3 py-1.5 rounded-lg transition-colors capitalize ${articleFilter === f ? "bg-mint text-[#062015]" : "panel text-muted hover:border-line-2"}`}
                       >
                         {f}
                       </button>
@@ -2968,41 +2992,41 @@ function DashboardPage() {
                 )}
 
                 {loadingArticles ? (
-                  <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" /></div>
+                  <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-line-2 border-t-mint rounded-full animate-spin" /></div>
                 ) : filteredArticles.length === 0 ? (
-                  <div className="bg-white border border-dashed border-stone-200 rounded-xl p-12 text-center">
-                    <p className="text-sm font-medium text-gray-500 mb-1">No articles yet</p>
-                    <p className="text-xs text-gray-400 mb-4">Articles you generate from research gaps appear here</p>
+                  <div className="bg-surface border border-dashed border-line rounded-xl p-12 text-center">
+                    <p className="text-sm font-medium text-muted mb-1">No articles yet</p>
+                    <p className="text-xs text-faint mb-4">Articles you generate from research gaps appear here</p>
                     <button
                       onClick={() => navTo("gaps")}
-                      className="text-xs font-medium bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                      className="text-xs font-medium bg-mint text-[#062015] px-4 py-2 rounded-lg hover:bg-[#a5f8d1] transition-colors"
                     >
                       Go to Research →
                     </button>
                   </div>
                 ) : (
-                  <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
+                  <div className="panel rounded-xl overflow-hidden">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-stone-100">
-                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Title</th>
-                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Status</th>
-                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">SEO</th>
-                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Updated</th>
+                        <tr className="border-b border-line">
+                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-faint uppercase tracking-widest">Title</th>
+                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-faint uppercase tracking-widest">Status</th>
+                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-faint uppercase tracking-widest">SEO</th>
+                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-faint uppercase tracking-widest">Updated</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-stone-50">
+                      <tbody className="divide-y divide-line">
                         {filteredArticles.map((a) => (
-                          <tr key={a.id} className={`hover:bg-stone-50/50 cursor-pointer ${selectedArticle?.id === a.id ? "bg-stone-50" : ""}`} onClick={() => { setSelectedArticle(a); setShowSchedulePicker(false); }}>
+                          <tr key={a.id} className={`hover:bg-white/[0.03] cursor-pointer ${selectedArticle?.id === a.id ? "bg-white/[0.03]" : ""}`} onClick={() => { setSelectedArticle(a); setShowSchedulePicker(false); }}>
                             <td className="px-5 py-3">
-                              <p className="text-sm font-medium text-gray-800 line-clamp-1">{a.title}</p>
-                              <p className="text-[10px] text-gray-400 mt-0.5 font-mono">{a.keyword}</p>
+                              <p className="text-sm font-medium text-ink/90 line-clamp-1">{a.title}</p>
+                              <p className="text-[10px] text-faint mt-0.5 font-mono">{a.keyword}</p>
                             </td>
                             <td className="px-5 py-3">
-                              <span className={`text-[10px] font-medium px-2 py-0.5 rounded capitalize ${STATUS_COLORS[a.status] ?? "bg-gray-100 text-gray-600"}`}>{a.status}</span>
+                              <span className={`text-[10px] font-medium px-2 py-0.5 rounded capitalize ${STATUS_COLORS[a.status] ?? "bg-white/[0.06] text-muted"}`}>{a.status}</span>
                             </td>
-                            <td className="px-5 py-3 text-sm font-medium text-gray-700">{a.seoScore > 0 ? a.seoScore : "—"}</td>
-                            <td className="px-5 py-3 text-xs text-gray-400">{new Date(a.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</td>
+                            <td className="px-5 py-3 text-sm font-medium text-ink/80">{a.seoScore > 0 ? a.seoScore : "—"}</td>
+                            <td className="px-5 py-3 text-xs text-faint">{new Date(a.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -3012,24 +3036,24 @@ function DashboardPage() {
               </div>
 
               {selectedArticle && (
-                <div className="w-72 shrink-0 bg-white border border-stone-200 rounded-xl p-5 flex flex-col gap-4 self-start sticky top-0">
+                <div className="w-72 shrink-0 panel rounded-xl p-5 flex flex-col gap-4 self-start sticky top-0">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Article</p>
-                    <button onClick={() => setSelectedArticle(null)} className="text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>
+                    <p className="text-xs font-semibold text-muted uppercase tracking-widest">Article</p>
+                    <button onClick={() => setSelectedArticle(null)} className="text-faint/70 hover:text-muted text-lg leading-none">×</button>
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 leading-snug mb-2">{selectedArticle.title}</h3>
+                    <h3 className="text-sm font-semibold text-ink leading-snug mb-2">{selectedArticle.title}</h3>
                     <div className="flex gap-1.5 flex-wrap">
-                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded capitalize ${STATUS_COLORS[selectedArticle.status] ?? "bg-gray-100 text-gray-600"}`}>{selectedArticle.status}</span>
-                      {selectedArticle.wordCount > 0 && <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{selectedArticle.wordCount} words</span>}
-                      {selectedArticle.seoScore > 0 && <span className="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded font-medium">SEO {selectedArticle.seoScore}</span>}
+                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded capitalize ${STATUS_COLORS[selectedArticle.status] ?? "bg-white/[0.06] text-muted"}`}>{selectedArticle.status}</span>
+                      {selectedArticle.wordCount > 0 && <span className="text-[10px] bg-white/[0.06] text-muted px-2 py-0.5 rounded">{selectedArticle.wordCount} words</span>}
+                      {selectedArticle.seoScore > 0 && <span className="text-[10px] bg-mint/10 text-mint px-2 py-0.5 rounded font-medium">SEO {selectedArticle.seoScore}</span>}
                     </div>
                   </div>
 
                   {selectedArticle.content && (
-                    <div className="bg-stone-50 rounded-lg p-3">
-                      <p className="text-xs text-gray-500 leading-relaxed line-clamp-5">{selectedArticle.content.replace(/^#+ .+\n+/m, "").replace(/[#*_`]/g, "").substring(0, 240)}…</p>
+                    <div className="bg-white/[0.03] rounded-lg p-3">
+                      <p className="text-xs text-muted leading-relaxed line-clamp-5">{selectedArticle.content.replace(/^#+ .+\n+/m, "").replace(/[#*_`]/g, "").substring(0, 240)}…</p>
                     </div>
                   )}
 
@@ -3041,7 +3065,7 @@ function DashboardPage() {
                         if (selectedArticle.content) sessionStorage.setItem(cacheKey, JSON.stringify({ article: selectedArticle.content, title: selectedArticle.title, wordCount: selectedArticle.wordCount }));
                         window.open(`/article?${params}`, "_blank");
                       }}
-                      className="w-full text-xs font-medium bg-gray-900 text-white rounded-lg py-2.5 hover:bg-gray-700 transition-colors"
+                      className="w-full text-xs font-medium bg-mint text-[#062015] rounded-lg py-2.5 hover:bg-[#a5f8d1] transition-colors"
                     >
                       Open full article ↗
                     </button>
@@ -3049,7 +3073,7 @@ function DashboardPage() {
                     {publishingChannels.length > 0 && selectedArticle.status !== "published" && (
                       <button
                         onClick={() => { setPublishArticleId(selectedArticle.id); setPublishResult(null); setShowPublishModal(true); }}
-                        className="w-full text-xs font-medium border border-gray-200 text-gray-700 rounded-lg py-2.5 hover:bg-gray-50 transition-colors"
+                        className="w-full text-xs font-medium border border-line text-ink/80 rounded-lg py-2.5 hover:bg-white/[0.04] transition-colors"
                       >
                         ⚡ Publish now
                       </button>
@@ -3063,14 +3087,14 @@ function DashboardPage() {
                             value={scheduleDate}
                             onChange={(e) => setScheduleDate(e.target.value)}
                             min={new Date().toISOString().slice(0, 16)}
-                            className="w-full border border-stone-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-red-400"
+                            className="w-full border border-line rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-mint/40"
                           />
                           <div className="flex gap-2">
-                            <button onClick={() => setShowSchedulePicker(false)} className="flex-1 text-xs border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition-colors text-gray-500">Cancel</button>
+                            <button onClick={() => setShowSchedulePicker(false)} className="flex-1 text-xs border border-line rounded-lg py-2 hover:bg-white/[0.04] transition-colors text-muted">Cancel</button>
                             <button
                               disabled={!scheduleDate}
                               onClick={() => scheduleArticle(selectedArticle.id, scheduleDate)}
-                              className="flex-1 text-xs font-medium bg-gray-900 text-white rounded-lg py-2 hover:bg-gray-700 disabled:opacity-40 transition-colors"
+                              className="flex-1 text-xs font-medium bg-mint text-[#062015] rounded-lg py-2 hover:bg-[#a5f8d1] disabled:opacity-40 transition-colors"
                             >
                               Confirm
                             </button>
@@ -3079,7 +3103,7 @@ function DashboardPage() {
                       ) : (
                         <button
                           onClick={() => { setScheduleDate(""); setShowSchedulePicker(true); }}
-                          className="w-full text-xs font-medium border border-gray-200 text-gray-700 rounded-lg py-2.5 hover:bg-gray-50 transition-colors"
+                          className="w-full text-xs font-medium border border-line text-ink/80 rounded-lg py-2.5 hover:bg-white/[0.04] transition-colors"
                         >
                           📅 Schedule
                         </button>
@@ -3089,7 +3113,7 @@ function DashboardPage() {
                     {selectedArticle.status !== "published" && !showSchedulePicker && (
                       <button
                         onClick={() => updateArticleStatus(selectedArticle.id, "published")}
-                        className="w-full text-xs font-medium border border-emerald-200 text-emerald-700 rounded-lg py-2.5 hover:bg-emerald-50 transition-colors"
+                        className="w-full text-xs font-medium border border-mint/30 text-mint rounded-lg py-2.5 hover:bg-mint/10 transition-colors"
                       >
                         ✓ Mark as published
                       </button>
@@ -3098,7 +3122,7 @@ function DashboardPage() {
                     {selectedArticle.status !== "draft" && selectedArticle.status !== "published" && !showSchedulePicker && (
                       <button
                         onClick={() => updateArticleStatus(selectedArticle.id, "draft")}
-                        className="w-full text-xs border border-gray-100 rounded-lg py-2 hover:bg-gray-50 transition-colors text-gray-400"
+                        className="w-full text-xs border border-line rounded-lg py-2 hover:bg-white/[0.04] transition-colors text-faint"
                       >
                         Back to draft
                       </button>
@@ -3107,7 +3131,7 @@ function DashboardPage() {
                     {!showSchedulePicker && (
                       <button
                         onClick={() => { if (confirm("Delete this article?")) deleteArticle(selectedArticle.id); }}
-                        className="w-full text-xs text-red-400 hover:text-red-600 py-1 transition-colors"
+                        className="w-full text-xs text-rose/80 hover:text-rose py-1 transition-colors"
                       >
                         Delete
                       </button>
@@ -3122,9 +3146,9 @@ function DashboardPage() {
           {activeTab === "agent" && (
             <div className="flex flex-1 min-h-0">
               {/* Chat history sidebar */}
-              <div className="w-52 border-r border-stone-200 bg-stone-50/60 flex flex-col shrink-0">
-                <div className="p-3 border-b border-stone-100">
-                  <button onClick={startNewChat} className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-white border border-stone-200 rounded-lg px-3 py-2 transition-colors">
+              <div className="w-52 border-r border-line bg-white/[0.02] flex flex-col shrink-0">
+                <div className="p-3 border-b border-line">
+                  <button onClick={startNewChat} className="w-full flex items-center gap-2 text-sm text-muted hover:text-ink hover:panel rounded-lg px-3 py-2 transition-colors">
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg>
                     New chat
                   </button>
@@ -3132,15 +3156,15 @@ function DashboardPage() {
                 <div className="flex-1 overflow-y-auto p-2">
                   {chatSessions.length > 0 && (
                     <>
-                      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-2 py-1.5">Recents</p>
+                      <p className="text-[10px] font-semibold text-faint uppercase tracking-wider px-2 py-1.5">Recents</p>
                       {chatSessions.map((session) => (
                         <button
                           key={session.id}
                           onClick={() => loadChatSession(session)}
                           className={`w-full text-left text-xs px-2.5 py-2 rounded-lg mb-0.5 transition-colors truncate ${
                             activeChatId === session.id
-                              ? "bg-white border border-stone-200 text-gray-900 font-medium"
-                              : "text-gray-600 hover:bg-white hover:text-gray-900"
+                              ? "panel text-ink font-medium"
+                              : "text-muted hover:bg-surface hover:text-ink"
                           }`}
                         >
                           {session.title}
@@ -3149,7 +3173,7 @@ function DashboardPage() {
                     </>
                   )}
                   {chatSessions.length === 0 && (
-                    <p className="text-[11px] text-gray-400 px-2 py-3">No previous chats yet</p>
+                    <p className="text-[11px] text-faint px-2 py-3">No previous chats yet</p>
                   )}
                 </div>
               </div>
@@ -3158,9 +3182,9 @@ function DashboardPage() {
               <div className="flex flex-col flex-1 min-h-0">
               <div className="px-6 pt-5 pb-2 shrink-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-red-600 text-lg">✳</span>
-                  <span className="font-semibold text-gray-900">GROG</span>
-                  <span className="text-xs text-gray-400">· live tracking data</span>
+                  <span className="text-mint text-lg">✳</span>
+                  <span className="font-semibold text-ink">GROG</span>
+                  <span className="text-xs text-faint">· live tracking data</span>
                 </div>
               </div>
 
@@ -3168,13 +3192,13 @@ function DashboardPage() {
                 {agentMessages.map((msg, i) => (
                   <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                     {msg.role === "assistant" && (
-                      <span className="text-red-600 mr-2 mt-0.5 shrink-0">✳</span>
+                      <span className="text-mint mr-2 mt-0.5 shrink-0">✳</span>
                     )}
                     <div
                       className={`max-w-lg text-sm leading-relaxed rounded-2xl px-4 py-3 ${
                         msg.role === "user"
-                          ? "bg-gray-900 text-white"
-                          : "bg-transparent text-gray-800"
+                          ? "bg-mint text-[#062015]"
+                          : "bg-transparent text-ink/90"
                       }`}
                     >
                       {msg.content.split("**").map((part, j) =>
@@ -3185,11 +3209,11 @@ function DashboardPage() {
                 ))}
                 {agentLoading && (
                   <div className="flex items-center gap-2">
-                    <span className="text-red-600">✳</span>
+                    <span className="text-mint">✳</span>
                     <div className="flex gap-1">
-                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot" style={{ animationDelay: "0ms" }} />
-                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot" style={{ animationDelay: "200ms" }} />
-                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot" style={{ animationDelay: "400ms" }} />
+                      <span className="w-1.5 h-1.5 bg-white/[0.2] rounded-full typing-dot" style={{ animationDelay: "0ms" }} />
+                      <span className="w-1.5 h-1.5 bg-white/[0.2] rounded-full typing-dot" style={{ animationDelay: "200ms" }} />
+                      <span className="w-1.5 h-1.5 bg-white/[0.2] rounded-full typing-dot" style={{ animationDelay: "400ms" }} />
                     </div>
                   </div>
                 )}
@@ -3197,24 +3221,24 @@ function DashboardPage() {
               </div>
 
               <div className="px-6 pb-5 shrink-0">
-                <div className="bg-white border border-stone-200 rounded-2xl shadow-sm">
+                <div className="panel rounded-2xl shadow-sm">
                   <textarea
                     value={agentInput}
                     onChange={(e) => setAgentInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendAgentMessage(); } }}
                     placeholder="Ask GROG about your AI visibility…"
                     rows={1}
-                    className="w-full px-4 pt-3 pb-1 text-sm text-gray-800 placeholder-gray-400 resize-none outline-none rounded-t-2xl"
+                    className="w-full px-4 pt-3 pb-1 text-sm text-ink/90 placeholder-gray-400 resize-none outline-none rounded-t-2xl"
                   />
                   <div className="flex items-center justify-between px-4 pb-3">
-                    <span className="text-xs text-gray-400">
-                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full inline-block mr-1" />
+                    <span className="text-xs text-faint">
+                      <span className="w-1.5 h-1.5 bg-white/[0.2] rounded-full inline-block mr-1" />
                       GROG · reads your live data
                     </span>
                     <button
                       onClick={sendAgentMessage}
                       disabled={!agentInput.trim() || agentLoading}
-                      className="w-7 h-7 bg-gray-900 disabled:opacity-30 text-white rounded-lg flex items-center justify-center transition-opacity"
+                      className="w-7 h-7 bg-mint disabled:opacity-30 text-[#062015] rounded-lg flex items-center justify-center transition-opacity"
                     >
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M12 19V5M5 12l7-7 7 7" />
@@ -3238,8 +3262,8 @@ function DashboardPage() {
               <>
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900">Publishing</h2>
-                    <p className="text-sm text-gray-400 mt-0.5">Distribution status across {activeChannels.length} channel{activeChannels.length !== 1 ? "s" : ""}</p>
+                    <h2 className="text-xl font-bold text-ink">Publishing</h2>
+                    <p className="text-sm text-faint mt-0.5">Distribution status across {activeChannels.length} channel{activeChannels.length !== 1 ? "s" : ""}</p>
                   </div>
                 </div>
 
@@ -3250,31 +3274,31 @@ function DashboardPage() {
                   <StatCard label="Failed" value={publishingLog.filter(e => e.status === "failed").length} sub="delivery errors" />
                 </div>
 
-                <div className="bg-white border border-stone-200 rounded-xl p-5 mb-4">
+                <div className="panel rounded-xl p-5 mb-4">
                   <div className="flex items-center justify-between mb-4">
-                    <p className="text-sm font-semibold text-gray-900">Channels · {publishingChannels.length} connected</p>
-                    <button onClick={() => setShowAddChannel(true)} className="text-xs text-gray-500 border border-gray-200 px-3 py-1.5 rounded-lg hover:border-gray-400 transition-colors">+ Add channel</button>
+                    <p className="text-sm font-semibold text-ink">Channels · {publishingChannels.length} connected</p>
+                    <button onClick={() => setShowAddChannel(true)} className="text-xs text-muted border border-line px-3 py-1.5 rounded-lg hover:border-line-2 transition-colors">+ Add channel</button>
                   </div>
                   {publishingChannels.length === 0 ? (
                     <div className="text-center py-8">
-                      <p className="text-sm text-gray-400 mb-3">No channels yet</p>
-                      <button onClick={() => setShowAddChannel(true)} className="text-xs font-medium bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">Add your first channel →</button>
+                      <p className="text-sm text-faint mb-3">No channels yet</p>
+                      <button onClick={() => setShowAddChannel(true)} className="text-xs font-medium bg-mint text-[#062015] px-4 py-2 rounded-lg hover:bg-[#a5f8d1] transition-colors">Add your first channel →</button>
                     </div>
                   ) : (
                     <div className="grid grid-cols-3 gap-3">
                       {publishingChannels.map((ch) => (
-                        <div key={ch.id} className="border border-stone-200 rounded-xl p-4">
+                        <div key={ch.id} className="border border-line rounded-xl p-4">
                           <div className="flex items-center gap-2 mb-3">
                             <span className="text-base">{CHANNEL_ICONS[ch.type] ?? "🔗"}</span>
-                            <span className="text-sm font-semibold text-gray-900">{ch.name}</span>
-                            <button onClick={() => toggleChannel(ch.id, ch.status)} className="ml-auto text-[10px] text-gray-400 hover:text-gray-600">
+                            <span className="text-sm font-semibold text-ink">{ch.name}</span>
+                            <button onClick={() => toggleChannel(ch.id, ch.status)} className="ml-auto text-[10px] text-faint hover:text-muted">
                               {ch.status === "active" ? "Pause" : "Resume"}
                             </button>
                           </div>
-                          <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${ch.status === "active" ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-700"}`}>{ch.status === "active" ? "Active" : "Paused"}</span>
-                          <p className="text-[10px] text-gray-400 mt-2 truncate">{ch.url}</p>
-                          <p className="text-[10px] text-gray-400">Last: {ch.last_published_at ? timeAgo(ch.last_published_at) + " ago" : "—"}</p>
-                          <button onClick={() => deleteChannel(ch.id)} className="mt-2 text-[10px] text-red-400 hover:text-red-600">Remove</button>
+                          <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${ch.status === "active" ? "bg-mint/10 text-mint" : "bg-white/[0.06] text-ink/80"}`}>{ch.status === "active" ? "Active" : "Paused"}</span>
+                          <p className="text-[10px] text-faint mt-2 truncate">{ch.url}</p>
+                          <p className="text-[10px] text-faint">Last: {ch.last_published_at ? timeAgo(ch.last_published_at) + " ago" : "—"}</p>
+                          <button onClick={() => deleteChannel(ch.id)} className="mt-2 text-[10px] text-rose/80 hover:text-rose">Remove</button>
                         </div>
                       ))}
                     </div>
@@ -3282,40 +3306,40 @@ function DashboardPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white border border-stone-200 rounded-xl p-5">
+                  <div className="panel rounded-xl p-5">
                     <div className="flex items-center gap-2 mb-4">
-                      <p className="text-sm font-semibold text-gray-900">Activity log</p>
-                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                      <span className="text-xs text-gray-400">real-time</span>
+                      <p className="text-sm font-semibold text-ink">Activity log</p>
+                      <span className="w-1.5 h-1.5 bg-mint/100 rounded-full" />
+                      <span className="text-xs text-faint">real-time</span>
                     </div>
                     {publishingLog.length === 0 ? (
-                      <p className="text-xs text-gray-400 py-4 text-center">No activity yet — publish an article to see the log</p>
+                      <p className="text-xs text-faint py-4 text-center">No activity yet — publish an article to see the log</p>
                     ) : (
                       <div className="space-y-3">
                         {publishingLog.slice(0, 10).map((entry) => (
                           <div key={entry.id} className="flex items-start gap-3">
-                            <span className="text-[10px] text-gray-400 w-6 shrink-0 mt-0.5">{timeAgo(entry.created_at)}</span>
-                            <span className="text-xs font-medium text-blue-600 w-20 shrink-0 truncate">{entry.publishing_channels?.name ?? "—"}</span>
-                            <span className="text-xs text-gray-600 flex-1 truncate">{entry.article_title ?? "—"}</span>
-                            <span className={`text-[10px] font-medium shrink-0 ${entry.status === "published" ? "text-green-600" : entry.status === "failed" ? "text-red-500" : "text-gray-500"}`}>{entry.status}</span>
+                            <span className="text-[10px] text-faint w-6 shrink-0 mt-0.5">{timeAgo(entry.created_at)}</span>
+                            <span className="text-xs font-medium text-blue-300 w-20 shrink-0 truncate">{entry.publishing_channels?.name ?? "—"}</span>
+                            <span className="text-xs text-muted flex-1 truncate">{entry.article_title ?? "—"}</span>
+                            <span className={`text-[10px] font-medium shrink-0 ${entry.status === "published" ? "text-mint" : entry.status === "failed" ? "text-rose" : "text-muted"}`}>{entry.status}</span>
                           </div>
                         ))}
                       </div>
                     )}
                   </div>
 
-                  <div className="bg-white border border-stone-200 rounded-xl p-5">
-                    <p className="text-sm font-semibold text-gray-900 mb-4">Upcoming · scheduled articles</p>
+                  <div className="panel rounded-xl p-5">
+                    <p className="text-sm font-semibold text-ink mb-4">Upcoming · scheduled articles</p>
                     {upcoming.length === 0 ? (
-                      <p className="text-xs text-gray-400 py-4 text-center">No scheduled articles — set an article&apos;s status to &quot;scheduled&quot; to see it here</p>
+                      <p className="text-xs text-faint py-4 text-center">No scheduled articles — set an article&apos;s status to &quot;scheduled&quot; to see it here</p>
                     ) : (
                       <div className="space-y-3">
                         {upcoming.map((item) => {
                           const ch = publishingChannels.find((c) => c.id === item.brandId);
                           return (
                             <div key={item.id} className="flex items-start gap-3">
-                              <span className="text-xs text-gray-500 flex-1 truncate">{item.title}</span>
-                              {ch && <span className="text-xs font-medium text-blue-600 shrink-0">{ch.name}</span>}
+                              <span className="text-xs text-muted flex-1 truncate">{item.title}</span>
+                              {ch && <span className="text-xs font-medium text-blue-300 shrink-0">{ch.name}</span>}
                             </div>
                           );
                         })}
@@ -3331,10 +3355,10 @@ function DashboardPage() {
             <>
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Brands</h2>
-                  <p className="text-sm text-gray-400 mt-0.5">Your brand profile plus every competitor we track for AI visibility</p>
+                  <h2 className="text-xl font-bold text-ink">Brands</h2>
+                  <p className="text-sm text-faint mt-0.5">Your brand profile plus every competitor we track for AI visibility</p>
                 </div>
-                <button className="text-xs font-medium bg-gray-900 text-white px-3 py-1.5 rounded-lg hover:bg-gray-700 transition-colors">+ New brand</button>
+                <button className="text-xs font-medium bg-mint text-[#062015] px-3 py-1.5 rounded-lg hover:bg-[#a5f8d1] transition-colors">+ New brand</button>
               </div>
 
               <div className="grid grid-cols-3 gap-3 mb-5">
@@ -3343,52 +3367,52 @@ function DashboardPage() {
                 <StatCard label="Aliases" value="—" sub="naming variants" />
               </div>
 
-              <div className="bg-white border border-stone-200 rounded-xl p-5 mb-4">
+              <div className="panel rounded-xl p-5 mb-4">
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-sm font-semibold text-gray-900">Own brand</p>
-                  <button onClick={() => router.push("/setup")} className="text-xs text-gray-400 hover:text-gray-600 border border-gray-200 px-2.5 py-1 rounded-lg transition-colors">Edit</button>
+                  <p className="text-sm font-semibold text-ink">Own brand</p>
+                  <button onClick={() => router.push("/setup")} className="text-xs text-faint hover:text-muted border border-line px-2.5 py-1 rounded-lg transition-colors">Edit</button>
                 </div>
-                <div className="flex items-center gap-4 p-4 border border-stone-100 rounded-xl">
-                  <div className="w-12 h-12 rounded-xl bg-gray-900 text-white flex items-center justify-center text-xl font-bold shrink-0">{brandInitial}</div>
+                <div className="flex items-center gap-4 p-4 border border-line rounded-xl">
+                  <div className="w-12 h-12 rounded-xl bg-mint text-[#062015] flex items-center justify-center text-xl font-bold shrink-0">{brandInitial}</div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900">{brand.name}</p>
-                    <p className="text-sm text-red-600">{brand.domain}</p>
+                    <p className="font-semibold text-ink">{brand.name}</p>
+                    <p className="text-sm text-mint">{brand.domain}</p>
                   </div>
-                  <div className="text-xs text-gray-400 text-right">
+                  <div className="text-xs text-faint text-right">
                     <p>{brand.niche}</p>
                   </div>
                 </div>
               </div>
 
               {brand.competitors.length > 0 && (
-                <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
-                  <div className="px-5 py-4 border-b border-stone-100">
-                    <p className="text-sm font-semibold text-gray-900">Tracked brands · {brand.competitors.length} competitors</p>
+                <div className="panel rounded-xl overflow-hidden">
+                  <div className="px-5 py-4 border-b border-line">
+                    <p className="text-sm font-semibold text-ink">Tracked brands · {brand.competitors.length} competitors</p>
                   </div>
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-stone-100">
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Brand</th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Type</th>
-                        <th className="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Share of Voice</th>
+                      <tr className="border-b border-line">
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold text-faint uppercase tracking-widest">Brand</th>
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold text-faint uppercase tracking-widest">Type</th>
+                        <th className="px-5 py-3 text-right text-[10px] font-semibold text-faint uppercase tracking-widest">Share of Voice</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-stone-50">
+                    <tbody className="divide-y divide-line">
                       {brand.competitors.map((name) => {
                         const mentions = results.filter((r) => r.competitorMentions.some((c) => c.name === name)).length;
                         const pct = results.length > 0 ? Math.round((mentions / results.length) * 100) : null;
                         return (
-                          <tr key={name} className="hover:bg-stone-50/50">
+                          <tr key={name} className="hover:bg-white/[0.03]">
                             <td className="px-5 py-3">
                               <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-600">{name[0]?.toUpperCase()}</div>
-                                <span className="text-sm font-medium text-gray-800">{name}</span>
+                                <div className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center text-sm font-bold text-muted">{name[0]?.toUpperCase()}</div>
+                                <span className="text-sm font-medium text-ink/90">{name}</span>
                               </div>
                             </td>
                             <td className="px-5 py-3">
-                              <span className="text-[10px] font-medium bg-gray-100 text-gray-600 px-2 py-0.5 rounded">Competitor</span>
+                              <span className="text-[10px] font-medium bg-white/[0.06] text-muted px-2 py-0.5 rounded">Competitor</span>
                             </td>
-                            <td className="px-5 py-3 text-sm font-medium text-gray-700 text-right">{pct !== null ? `${pct}%` : "—"}</td>
+                            <td className="px-5 py-3 text-sm font-medium text-ink/80 text-right">{pct !== null ? `${pct}%` : "—"}</td>
                           </tr>
                         );
                       })}
@@ -3404,10 +3428,10 @@ function DashboardPage() {
             <>
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Alerts</h2>
-                  <p className="text-sm text-gray-400 mt-0.5">Webhook, Slack, Discord and email destinations plus a live delivery log</p>
+                  <h2 className="text-xl font-bold text-ink">Alerts</h2>
+                  <p className="text-sm text-faint mt-0.5">Webhook, Slack, Discord and email destinations plus a live delivery log</p>
                 </div>
-                <button onClick={() => setShowAddAlert(true)} className="text-xs font-medium bg-gray-900 text-white px-3 py-1.5 rounded-lg hover:bg-gray-700 transition-colors">+ New destination</button>
+                <button onClick={() => setShowAddAlert(true)} className="text-xs font-medium bg-mint text-[#062015] px-3 py-1.5 rounded-lg hover:bg-[#a5f8d1] transition-colors">+ New destination</button>
               </div>
 
               <div className="grid grid-cols-4 gap-3 mb-5">
@@ -3418,37 +3442,37 @@ function DashboardPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
-                  <div className="px-5 py-4 border-b border-stone-100">
-                    <p className="text-sm font-semibold text-gray-900">Destinations · {alertDestinations.length}</p>
+                <div className="panel rounded-xl overflow-hidden">
+                  <div className="px-5 py-4 border-b border-line">
+                    <p className="text-sm font-semibold text-ink">Destinations · {alertDestinations.length}</p>
                   </div>
                   {alertDestinations.length === 0 ? (
                     <div className="p-8 text-center">
-                      <p className="text-sm text-gray-400 mb-3">No destinations yet</p>
-                      <button onClick={() => setShowAddAlert(true)} className="text-xs font-medium bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">Add Slack or webhook →</button>
+                      <p className="text-sm text-faint mb-3">No destinations yet</p>
+                      <button onClick={() => setShowAddAlert(true)} className="text-xs font-medium bg-mint text-[#062015] px-4 py-2 rounded-lg hover:bg-[#a5f8d1] transition-colors">Add Slack or webhook →</button>
                     </div>
                   ) : (
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-stone-100">
-                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Destination</th>
-                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Kind</th>
-                          <th className="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Status</th>
+                        <tr className="border-b border-line">
+                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-faint uppercase tracking-widest">Destination</th>
+                          <th className="px-5 py-3 text-left text-[10px] font-semibold text-faint uppercase tracking-widest">Kind</th>
+                          <th className="px-5 py-3 text-right text-[10px] font-semibold text-faint uppercase tracking-widest">Status</th>
                           <th className="px-5 py-3" />
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-stone-50">
+                      <tbody className="divide-y divide-line">
                         {alertDestinations.map((dest) => (
-                          <tr key={dest.id} className="hover:bg-stone-50/50">
-                            <td className="px-5 py-3 text-sm font-medium text-gray-800">{dest.name}</td>
+                          <tr key={dest.id} className="hover:bg-white/[0.03]">
+                            <td className="px-5 py-3 text-sm font-medium text-ink/90">{dest.name}</td>
                             <td className="px-5 py-3">
-                              <span className="text-[10px] font-medium bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{dest.kind}</span>
+                              <span className="text-[10px] font-medium bg-white/[0.06] text-muted px-2 py-0.5 rounded">{dest.kind}</span>
                             </td>
                             <td className="px-5 py-3 text-right">
-                              <button onClick={() => toggleAlertDestination(dest.id, dest.status)} className={`text-[10px] font-medium px-2 py-0.5 rounded ${dest.status === "active" ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-700"}`}>{dest.status === "active" ? "Active" : "Paused"}</button>
+                              <button onClick={() => toggleAlertDestination(dest.id, dest.status)} className={`text-[10px] font-medium px-2 py-0.5 rounded ${dest.status === "active" ? "bg-mint/10 text-mint" : "bg-white/[0.06] text-ink/80"}`}>{dest.status === "active" ? "Active" : "Paused"}</button>
                             </td>
                             <td className="px-5 py-3 text-right">
-                              <button onClick={() => deleteAlertDestination(dest.id)} className="text-[10px] text-red-400 hover:text-red-600">Remove</button>
+                              <button onClick={() => deleteAlertDestination(dest.id)} className="text-[10px] text-rose/80 hover:text-rose">Remove</button>
                             </td>
                           </tr>
                         ))}
@@ -3457,20 +3481,20 @@ function DashboardPage() {
                   )}
                 </div>
 
-                <div className="bg-white border border-stone-200 rounded-xl p-5">
-                  <p className="text-sm font-semibold text-gray-900 mb-4">Recent deliveries</p>
+                <div className="panel rounded-xl p-5">
+                  <p className="text-sm font-semibold text-ink mb-4">Recent deliveries</p>
                   {alertDeliveries.length === 0 ? (
-                    <p className="text-xs text-gray-400 py-4 text-center">No deliveries yet — alerts fire when scans detect significant changes</p>
+                    <p className="text-xs text-faint py-4 text-center">No deliveries yet — alerts fire when scans detect significant changes</p>
                   ) : (
                     <div className="space-y-3">
                       {alertDeliveries.map((d) => (
                         <div key={d.id} className="flex items-start gap-3">
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-mono text-gray-600">{d.alert_destinations?.kind ?? "—"} · {d.event_type}</p>
-                            {d.error_detail && <p className="text-[10px] text-red-500 mt-0.5">{d.error_detail}</p>}
+                            <p className="text-xs font-mono text-muted">{d.alert_destinations?.kind ?? "—"} · {d.event_type}</p>
+                            {d.error_detail && <p className="text-[10px] text-rose mt-0.5">{d.error_detail}</p>}
                           </div>
-                          <span className="text-[10px] text-gray-400 shrink-0">{timeAgo(d.created_at)}</span>
-                          <span className={`text-[10px] font-medium shrink-0 ${d.status === "succeeded" ? "text-green-600" : "text-red-500"}`}>{d.status}</span>
+                          <span className="text-[10px] text-faint shrink-0">{timeAgo(d.created_at)}</span>
+                          <span className={`text-[10px] font-medium shrink-0 ${d.status === "succeeded" ? "text-mint" : "text-rose"}`}>{d.status}</span>
                         </div>
                       ))}
                     </div>
@@ -3484,12 +3508,12 @@ function DashboardPage() {
           {activeTab === "tasks" && (
             <div className="max-w-3xl mx-auto w-full">
               <div className="mb-5">
-                <h2 className="text-lg font-semibold text-gray-900">Tasks</h2>
-                <p className="text-sm text-gray-500 mt-0.5">Replies and upvote orders you've submitted from the Citations tab.</p>
+                <h2 className="text-lg font-semibold text-ink">Tasks</h2>
+                <p className="text-sm text-muted mt-0.5">Replies and upvote orders you've submitted from the Citations tab.</p>
               </div>
 
               {/* Subtabs */}
-              <div className="flex gap-1 mb-5 bg-stone-100 rounded-xl p-1 w-fit">
+              <div className="flex gap-1 mb-5 bg-white/[0.05] rounded-xl p-1 w-fit">
                 {(["pending", "completed"] as const).map((f) => {
                   const count = engageTasks.filter((t) => t.status === f).length;
                   return (
@@ -3498,16 +3522,16 @@ function DashboardPage() {
                       onClick={() => setTaskFilter(f)}
                       className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                         taskFilter === f
-                          ? "bg-white text-gray-900 shadow-sm"
-                          : "text-gray-500 hover:text-gray-700"
+                          ? "bg-surface text-ink shadow-sm"
+                          : "text-muted hover:text-ink/80"
                       }`}
                     >
                       {f === "pending" ? "Pending" : "Completed"}
                       {count > 0 && (
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
                           taskFilter === f
-                            ? f === "pending" ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"
-                            : "bg-stone-200 text-gray-500"
+                            ? f === "pending" ? "bg-amber/15 text-amber" : "bg-mint/15 text-mint"
+                            : "bg-white/[0.08] text-muted"
                         }`}>{count}</span>
                       )}
                     </button>
@@ -3517,26 +3541,26 @@ function DashboardPage() {
 
               {engageTasks.filter((t) => t.status === taskFilter).length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mb-3">
-                    <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                  <div className="w-12 h-12 rounded-full bg-white/[0.05] flex items-center justify-center mb-3">
+                    <svg className="w-6 h-6 text-faint" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                   </div>
                   {taskFilter === "pending" ? (
                     <>
-                      <p className="text-sm font-medium text-gray-700 mb-1">No pending tasks</p>
-                      <p className="text-xs text-gray-400 max-w-xs">Go to Citations, click Engage on a Reddit link, draft a reply and submit a task to track it here.</p>
+                      <p className="text-sm font-medium text-ink/80 mb-1">No pending tasks</p>
+                      <p className="text-xs text-faint max-w-xs">Go to Citations, click Engage on a Reddit link, draft a reply and submit a task to track it here.</p>
                       <button onClick={() => navTo("citations")} className="mt-4 text-xs font-medium text-[#FF4500] hover:underline">Go to Citations →</button>
                     </>
                   ) : (
                     <>
-                      <p className="text-sm font-medium text-gray-700 mb-1">No completed tasks yet</p>
-                      <p className="text-xs text-gray-400 max-w-xs">Completed tasks will appear here once an admin marks them done.</p>
+                      <p className="text-sm font-medium text-ink/80 mb-1">No completed tasks yet</p>
+                      <p className="text-xs text-faint max-w-xs">Completed tasks will appear here once an admin marks them done.</p>
                     </>
                   )}
                 </div>
               ) : (
                 <div className="space-y-3">
                   {engageTasks.filter((t) => t.status === taskFilter).map((task) => (
-                    <div key={task.id} className="bg-white border border-stone-200 rounded-xl p-4 hover:border-stone-300 transition-colors">
+                    <div key={task.id} className="panel rounded-xl p-4 hover:border-line-2 transition-colors">
                       <div className="flex items-start gap-3">
                         <div className="w-8 h-8 rounded-lg bg-[#FF4500] flex items-center justify-center shrink-0 mt-0.5">
                           <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none">
@@ -3546,20 +3570,20 @@ function DashboardPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${task.status === "completed" ? "bg-green-50 text-green-700 border-green-200" : "bg-amber-50 text-amber-700 border-amber-200"}`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${task.status === "completed" ? "bg-green-500" : "bg-amber-500 animate-pulse"}`} />
+                            <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${task.status === "completed" ? "bg-mint/10 text-mint border-mint/25" : "bg-amber/10 text-amber border-amber/25"}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${task.status === "completed" ? "bg-mint/100" : "bg-amber/100 animate-pulse"}`} />
                               {task.status === "completed" ? "Completed" : "Pending"}
                             </span>
-                            {task.engine && <span className="text-[10px] text-gray-400">{ENGINE_LABELS[task.engine as AIEngine] ?? task.engine}</span>}
-                            <span className="text-[10px] text-gray-400 ml-auto">{new Date(task.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                            {task.engine && <span className="text-[10px] text-faint">{ENGINE_LABELS[task.engine as AIEngine] ?? task.engine}</span>}
+                            <span className="text-[10px] text-faint ml-auto">{new Date(task.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
                           </div>
-                          <a href={task.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline truncate block max-w-full mb-2">
+                          <a href={task.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-300 hover:underline truncate block max-w-full mb-2">
                             {task.url.replace(/^https?:\/\/(www\.)?/, "")}
                           </a>
                           {task.replyText && (
-                            <p className="text-xs text-gray-600 bg-stone-50 rounded-lg px-3 py-2 border border-stone-100 line-clamp-2 mb-2">{task.replyText}</p>
+                            <p className="text-xs text-muted bg-white/[0.03] rounded-lg px-3 py-2 border border-line line-clamp-2 mb-2">{task.replyText}</p>
                           )}
-                          <div className="flex items-center gap-4 text-[10px] text-gray-400">
+                          <div className="flex items-center gap-4 text-[10px] text-faint">
                             {task.upvotesOrdered > 0 ? (
                               <>
                                 <span className="flex items-center gap-1">
@@ -3567,7 +3591,7 @@ function DashboardPage() {
                                   {task.upvotesOrdered} upvotes ordered
                                 </span>
                                 <span className="capitalize">{task.deliverySpeed} delivery</span>
-                                <span className="font-medium text-gray-600">${(task.upvotesOrdered * 0.10).toFixed(2)}</span>
+                                <span className="font-medium text-muted">${(task.upvotesOrdered * 0.10).toFixed(2)}</span>
                               </>
                             ) : (
                               <span>No upvotes ordered</span>
@@ -3589,17 +3613,17 @@ function DashboardPage() {
               {/* Left: user list */}
               <div className="w-64 shrink-0 flex flex-col gap-2">
                 <div className="mb-2">
-                  <h2 className="text-base font-semibold text-gray-900">Admin</h2>
-                  <p className="text-xs text-gray-400 mt-0.5">All user tasks</p>
+                  <h2 className="text-base font-semibold text-ink">Admin</h2>
+                  <p className="text-xs text-faint mt-0.5">All user tasks</p>
                 </div>
                 {adminLoading ? (
-                  <div className="flex items-center gap-2 py-6 text-xs text-gray-400"><span className="w-3 h-3 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" /> Loading…</div>
+                  <div className="flex items-center gap-2 py-6 text-xs text-faint"><span className="w-3 h-3 border-2 border-line-2 border-t-transparent rounded-full animate-spin" /> Loading…</div>
                 ) : (() => {
                   const byEmail: Record<string, AdminTask[]> = {};
                   adminTasks.forEach((t) => { if (!byEmail[t.userEmail]) byEmail[t.userEmail] = []; byEmail[t.userEmail].push(t); });
                   const emails = Object.keys(byEmail).sort();
                   return emails.length === 0 ? (
-                    <p className="text-xs text-gray-400 py-6 text-center">No tasks yet</p>
+                    <p className="text-xs text-faint py-6 text-center">No tasks yet</p>
                   ) : (
                     <div className="space-y-1">
                       {emails.map((email) => {
@@ -3610,12 +3634,12 @@ function DashboardPage() {
                           <button
                             key={email}
                             onClick={() => setAdminSelectedEmail(isSelected ? null : email)}
-                            className={`w-full text-left px-3 py-2.5 rounded-xl border transition-colors ${isSelected ? "bg-gray-900 border-gray-900 text-white" : "bg-white border-stone-200 text-gray-700 hover:border-stone-300"}`}
+                            className={`w-full text-left px-3 py-2.5 rounded-xl border transition-colors ${isSelected ? "bg-mint border-mint text-[#062015]" : "bg-surface border-line text-ink/80 hover:border-line-2"}`}
                           >
                             <p className="text-xs font-medium truncate">{email}</p>
                             <div className="flex items-center gap-2 mt-0.5">
-                              <span className={`text-[10px] ${isSelected ? "text-gray-300" : "text-gray-400"}`}>{userTasks.length} task{userTasks.length !== 1 ? "s" : ""}</span>
-                              {pendingCount > 0 && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">{pendingCount} pending</span>}
+                              <span className={`text-[10px] ${isSelected ? "text-faint/70" : "text-faint"}`}>{userTasks.length} task{userTasks.length !== 1 ? "s" : ""}</span>
+                              {pendingCount > 0 && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber/15 text-amber">{pendingCount} pending</span>}
                             </div>
                           </button>
                         );
@@ -3629,37 +3653,37 @@ function DashboardPage() {
               <div className="flex-1 min-w-0">
                 {!adminSelectedEmail ? (
                   <div className="flex flex-col items-center justify-center h-48 text-center">
-                    <p className="text-sm text-gray-400">Select a user to view their tasks</p>
+                    <p className="text-sm text-faint">Select a user to view their tasks</p>
                   </div>
                 ) : (() => {
                   const userTasks = adminTasks.filter(t => t.userEmail === adminSelectedEmail);
                   return (
                     <div>
-                      <p className="text-xs font-semibold text-gray-500 mb-3 truncate">{adminSelectedEmail} · {userTasks.length} task{userTasks.length !== 1 ? "s" : ""}</p>
+                      <p className="text-xs font-semibold text-muted mb-3 truncate">{adminSelectedEmail} · {userTasks.length} task{userTasks.length !== 1 ? "s" : ""}</p>
                       <div className="space-y-3">
                         {userTasks.map((task) => (
-                          <div key={task.id} className="bg-white border border-stone-200 rounded-xl p-4">
+                          <div key={task.id} className="panel rounded-xl p-4">
                             <div className="flex items-start gap-3">
                               <div className="w-7 h-7 rounded-lg bg-[#FF4500] flex items-center justify-center shrink-0 mt-0.5">
                                 <svg viewBox="0 0 20 20" className="w-3.5 h-3.5" fill="none"><circle cx="10" cy="10" r="10" fill="white" fillOpacity="0.2"/><path fill="white" d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.07 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.19.19 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.51-1.53zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.65a3.55 3.55 0 01-2.85.86 3.55 3.55 0 01-2.85-.86.19.19 0 01.27-.27 3.16 3.16 0 002.58.65 3.16 3.16 0 002.58-.65.19.19 0 01.27.27zm-.17-1.65a1 1 0 111-1 1 1 0 01-1 1z"/></svg>
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${task.status === "completed" ? "bg-green-50 text-green-700 border-green-200" : "bg-amber-50 text-amber-700 border-amber-200"}`}>
-                                    <span className={`w-1.5 h-1.5 rounded-full ${task.status === "completed" ? "bg-green-500" : "bg-amber-500 animate-pulse"}`} />
+                                  <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${task.status === "completed" ? "bg-mint/10 text-mint border-mint/25" : "bg-amber/10 text-amber border-amber/25"}`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full ${task.status === "completed" ? "bg-mint/100" : "bg-amber/100 animate-pulse"}`} />
                                     {task.status === "completed" ? "Completed" : "Pending"}
                                   </span>
-                                  {task.engine && <span className="text-[10px] text-gray-400">{ENGINE_LABELS[task.engine as AIEngine] ?? task.engine}</span>}
-                                  <span className="text-[10px] text-gray-400 ml-auto">{new Date(task.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                                  {task.engine && <span className="text-[10px] text-faint">{ENGINE_LABELS[task.engine as AIEngine] ?? task.engine}</span>}
+                                  <span className="text-[10px] text-faint ml-auto">{new Date(task.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
                                 </div>
-                                <a href={task.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline truncate block mb-1.5">
+                                <a href={task.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-300 hover:underline truncate block mb-1.5">
                                   {task.url.replace(/^https?:\/\/(www\.)?/, "")}
                                 </a>
                                 {task.replyText && (
-                                  <p className="text-xs text-gray-600 bg-stone-50 rounded-lg px-3 py-2 border border-stone-100 line-clamp-2 mb-2">{task.replyText}</p>
+                                  <p className="text-xs text-muted bg-white/[0.03] rounded-lg px-3 py-2 border border-line line-clamp-2 mb-2">{task.replyText}</p>
                                 )}
                                 <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-3 text-[10px] text-gray-400">
+                                  <div className="flex items-center gap-3 text-[10px] text-faint">
                                     {task.upvotesOrdered > 0 ? (
                                       <span className="flex items-center gap-1">
                                         <svg className="w-3 h-3 text-[#FF4500]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4l8 8H4z"/></svg>
@@ -3685,7 +3709,7 @@ function DashboardPage() {
                                     </button>
                                   )}
                                   {task.status === "completed" && task.completedAt && (
-                                    <span className="text-[10px] text-green-600">Done {new Date(task.completedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                                    <span className="text-[10px] text-mint">Done {new Date(task.completedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
                                   )}
                                 </div>
                               </div>
@@ -3704,14 +3728,14 @@ function DashboardPage() {
 
       {/* New Article Modal */}
       {showNewArticleModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowNewArticleModal(false)}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-4 border-b border-stone-100">
-              <h3 className="text-base font-bold text-gray-900">New article</h3>
-              <button onClick={() => setShowNewArticleModal(false)} className="text-gray-400 hover:text-gray-600 text-xl">×</button>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setShowNewArticleModal(false)}>
+          <div className="bg-surface rounded-2xl shadow-xl w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-line">
+              <h3 className="text-base font-bold text-ink">New article</h3>
+              <button onClick={() => setShowNewArticleModal(false)} className="text-faint hover:text-muted text-xl">×</button>
             </div>
             <div className="px-6 py-5">
-              <label className="block text-xs font-medium text-gray-500 mb-1.5">What do you want to write about?</label>
+              <label className="block text-xs font-medium text-muted mb-1.5">What do you want to write about?</label>
               <textarea
                 autoFocus
                 rows={3}
@@ -3725,12 +3749,12 @@ function DashboardPage() {
                   }
                 }}
                 placeholder={`e.g. "best ${brand.niche} tools for startups"`}
-                className="w-full border border-stone-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent resize-none"
+                className="w-full border border-line rounded-lg px-3 py-2.5 text-sm text-ink/90 outline-none focus:ring-2 focus:ring-mint/40 focus:border-transparent resize-none"
               />
-              <p className="text-[10px] text-gray-400 mt-1.5">Tip: phrase it like a question someone would ask an AI</p>
+              <p className="text-[10px] text-faint mt-1.5">Tip: phrase it like a question someone would ask an AI</p>
             </div>
             <div className="px-6 pb-5 flex gap-2">
-              <button onClick={() => setShowNewArticleModal(false)} className="flex-1 text-sm border border-gray-200 rounded-lg py-2.5 hover:bg-gray-50 transition-colors">Cancel</button>
+              <button onClick={() => setShowNewArticleModal(false)} className="flex-1 text-sm border border-line rounded-lg py-2.5 hover:bg-white/[0.04] transition-colors">Cancel</button>
               <button
                 disabled={!newArticleTopic.trim()}
                 onClick={() => {
@@ -3738,7 +3762,7 @@ function DashboardPage() {
                   const params = new URLSearchParams({ gapPrompt: newArticleTopic.trim(), brand: brand.name, niche: brand.niche, brandId: brand.id ?? "" });
                   window.open(`/article?${params}`, "_blank");
                 }}
-                className="flex-1 text-sm bg-gray-900 text-white rounded-lg py-2.5 hover:bg-gray-700 disabled:opacity-40 transition-colors font-medium"
+                className="flex-1 text-sm bg-mint text-[#062015] rounded-lg py-2.5 hover:bg-[#a5f8d1] disabled:opacity-40 transition-colors font-medium"
               >
                 Generate →
               </button>
@@ -3749,57 +3773,57 @@ function DashboardPage() {
 
       {/* Add Channel Modal */}
       {showAddChannel && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowAddChannel(false)}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setShowAddChannel(false)}>
+          <div className="bg-surface rounded-2xl shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-base font-semibold text-gray-900">Add publishing channel</h3>
-                <button onClick={() => setShowAddChannel(false)} className="text-gray-400 hover:text-gray-600 text-xl">×</button>
+                <h3 className="text-base font-semibold text-ink">Add publishing channel</h3>
+                <button onClick={() => setShowAddChannel(false)} className="text-faint hover:text-muted text-xl">×</button>
               </div>
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs font-medium text-gray-500 block mb-1">Channel type</label>
-                  <select value={newChannel.type} onChange={(e) => setNewChannel((p) => ({ ...p, type: e.target.value, url: "", apiKey: "" }))} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400">
+                  <label className="text-xs font-medium text-muted block mb-1">Channel type</label>
+                  <select value={newChannel.type} onChange={(e) => setNewChannel((p) => ({ ...p, type: e.target.value, url: "", apiKey: "" }))} className="w-full border border-line rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-mint/40">
                     <option value="webhook">Webhook — send JSON to any URL</option>
                     <option value="discord">Discord — post to a channel</option>
                     <option value="wordpress">WordPress — publish directly to your blog</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-500 block mb-1">Name</label>
-                  <input value={newChannel.name} onChange={(e) => setNewChannel((p) => ({ ...p, name: e.target.value }))} placeholder="e.g. Company blog" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400" />
+                  <label className="text-xs font-medium text-muted block mb-1">Name</label>
+                  <input value={newChannel.name} onChange={(e) => setNewChannel((p) => ({ ...p, name: e.target.value }))} placeholder="e.g. Company blog" className="w-full border border-line rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-mint/40" />
                 </div>
                 {newChannel.type === "webhook" && (
                   <div>
-                    <label className="text-xs font-medium text-gray-500 block mb-1">Webhook URL</label>
-                    <input value={newChannel.url} onChange={(e) => setNewChannel((p) => ({ ...p, url: e.target.value }))} placeholder="https://hooks.example.com/..." className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400" />
-                    <p className="text-[10px] text-gray-400 mt-1">RankOnGeo will POST the article as JSON to this URL. Use <span className="font-mono">webhook.site</span> to test.</p>
+                    <label className="text-xs font-medium text-muted block mb-1">Webhook URL</label>
+                    <input value={newChannel.url} onChange={(e) => setNewChannel((p) => ({ ...p, url: e.target.value }))} placeholder="https://hooks.example.com/..." className="w-full border border-line rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-mint/40" />
+                    <p className="text-[10px] text-faint mt-1">RankOnGeo will POST the article as JSON to this URL. Use <span className="font-mono">webhook.site</span> to test.</p>
                   </div>
                 )}
                 {newChannel.type === "discord" && (
                   <div>
-                    <label className="text-xs font-medium text-gray-500 block mb-1">Discord webhook URL</label>
-                    <input value={newChannel.url} onChange={(e) => setNewChannel((p) => ({ ...p, url: e.target.value }))} placeholder="https://discord.com/api/webhooks/..." className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400" />
-                    <p className="text-[10px] text-gray-400 mt-1">In Discord: channel Settings → Integrations → Webhooks → New Webhook → Copy URL</p>
+                    <label className="text-xs font-medium text-muted block mb-1">Discord webhook URL</label>
+                    <input value={newChannel.url} onChange={(e) => setNewChannel((p) => ({ ...p, url: e.target.value }))} placeholder="https://discord.com/api/webhooks/..." className="w-full border border-line rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-mint/40" />
+                    <p className="text-[10px] text-faint mt-1">In Discord: channel Settings → Integrations → Webhooks → New Webhook → Copy URL</p>
                   </div>
                 )}
                 {newChannel.type === "wordpress" && (
                   <>
                     <div>
-                      <label className="text-xs font-medium text-gray-500 block mb-1">WordPress site URL</label>
-                      <input value={newChannel.url} onChange={(e) => setNewChannel((p) => ({ ...p, url: e.target.value }))} placeholder="https://yourblog.com" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400" />
+                      <label className="text-xs font-medium text-muted block mb-1">WordPress site URL</label>
+                      <input value={newChannel.url} onChange={(e) => setNewChannel((p) => ({ ...p, url: e.target.value }))} placeholder="https://yourblog.com" className="w-full border border-line rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-mint/40" />
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500 block mb-1">Application password</label>
-                      <input type="password" value={newChannel.apiKey} onChange={(e) => setNewChannel((p) => ({ ...p, apiKey: e.target.value }))} placeholder="xxxx xxxx xxxx xxxx xxxx xxxx" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400" />
-                      <p className="text-[10px] text-gray-400 mt-1">WP Admin → Users → Edit your user → Application Passwords → Generate</p>
+                      <label className="text-xs font-medium text-muted block mb-1">Application password</label>
+                      <input type="password" value={newChannel.apiKey} onChange={(e) => setNewChannel((p) => ({ ...p, apiKey: e.target.value }))} placeholder="xxxx xxxx xxxx xxxx xxxx xxxx" className="w-full border border-line rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-mint/40" />
+                      <p className="text-[10px] text-faint mt-1">WP Admin → Users → Edit your user → Application Passwords → Generate</p>
                     </div>
                   </>
                 )}
               </div>
               <div className="flex gap-2 mt-5">
-                <button onClick={() => setShowAddChannel(false)} className="flex-1 text-sm border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition-colors">Cancel</button>
-                <button onClick={addChannel} disabled={addingChannel || !newChannel.name || !newChannel.url} className="flex-1 text-sm font-medium bg-gray-900 text-white rounded-lg py-2 hover:bg-gray-700 disabled:opacity-50 transition-colors">
+                <button onClick={() => setShowAddChannel(false)} className="flex-1 text-sm border border-line rounded-lg py-2 hover:bg-white/[0.04] transition-colors">Cancel</button>
+                <button onClick={addChannel} disabled={addingChannel || !newChannel.name || !newChannel.url} className="flex-1 text-sm font-medium bg-mint text-[#062015] rounded-lg py-2 hover:bg-[#a5f8d1] disabled:opacity-50 transition-colors">
                   {addingChannel ? "Adding…" : "Add channel"}
                 </button>
               </div>
@@ -3810,23 +3834,23 @@ function DashboardPage() {
 
       {/* Publish Now Modal */}
       {showPublishModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => { if (!publishing) { setShowPublishModal(false); setPublishResult(null); } }}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => { if (!publishing) { setShowPublishModal(false); setPublishResult(null); } }}>
+          <div className="bg-surface rounded-2xl shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-base font-semibold text-gray-900">Publish article</h3>
-                <button onClick={() => { setShowPublishModal(false); setPublishResult(null); }} className="text-gray-400 hover:text-gray-600 text-xl">×</button>
+                <h3 className="text-base font-semibold text-ink">Publish article</h3>
+                <button onClick={() => { setShowPublishModal(false); setPublishResult(null); }} className="text-faint hover:text-muted text-xl">×</button>
               </div>
               {publishResult ? (
-                <div className={`rounded-xl p-4 mb-5 ${publishResult.success ? "bg-green-50 border border-green-100" : "bg-red-50 border border-red-100"}`}>
-                  <p className={`text-sm font-medium ${publishResult.success ? "text-green-700" : "text-red-700"}`}>{publishResult.success ? "Published successfully!" : "Publish failed"}</p>
-                  {publishResult.error && <p className="text-xs text-red-600 mt-1">{publishResult.error}</p>}
+                <div className={`rounded-xl p-4 mb-5 ${publishResult.success ? "bg-mint/10 border border-mint/20" : "bg-rose/10 border border-rose/25"}`}>
+                  <p className={`text-sm font-medium ${publishResult.success ? "text-mint" : "text-rose"}`}>{publishResult.success ? "Published successfully!" : "Publish failed"}</p>
+                  {publishResult.error && <p className="text-xs text-rose mt-1">{publishResult.error}</p>}
                 </div>
               ) : (
                 <div className="space-y-3 mb-5">
                   <div>
-                    <label className="text-xs font-medium text-gray-500 block mb-1">Article</label>
-                    <select value={publishArticleId} onChange={(e) => setPublishArticleId(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400">
+                    <label className="text-xs font-medium text-muted block mb-1">Article</label>
+                    <select value={publishArticleId} onChange={(e) => setPublishArticleId(e.target.value)} className="w-full border border-line rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-mint/40">
                       <option value="">Select article…</option>
                       {savedArticles.filter(a => a.status !== "published").map((a) => (
                         <option key={a.id} value={a.id}>{a.title}</option>
@@ -3834,11 +3858,11 @@ function DashboardPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-gray-500 block mb-1">Channel</label>
+                    <label className="text-xs font-medium text-muted block mb-1">Channel</label>
                     {publishingChannels.length === 0 ? (
-                      <p className="text-xs text-gray-400">No channels — <button onClick={() => { setShowPublishModal(false); setShowAddChannel(true); }} className="text-red-600 underline">add one first</button></p>
+                      <p className="text-xs text-faint">No channels — <button onClick={() => { setShowPublishModal(false); setShowAddChannel(true); }} className="text-rose underline">add one first</button></p>
                     ) : (
-                      <select value={publishChannelId} onChange={(e) => setPublishChannelId(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400">
+                      <select value={publishChannelId} onChange={(e) => setPublishChannelId(e.target.value)} className="w-full border border-line rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-mint/40">
                         <option value="">Select channel…</option>
                         {publishingChannels.filter(c => c.status === "active").map((c) => (
                           <option key={c.id} value={c.id}>{c.name} ({c.type})</option>
@@ -3849,11 +3873,11 @@ function DashboardPage() {
                 </div>
               )}
               <div className="flex gap-2">
-                <button onClick={() => { setShowPublishModal(false); setPublishResult(null); }} className="flex-1 text-sm border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition-colors">
+                <button onClick={() => { setShowPublishModal(false); setPublishResult(null); }} className="flex-1 text-sm border border-line rounded-lg py-2 hover:bg-white/[0.04] transition-colors">
                   {publishResult ? "Close" : "Cancel"}
                 </button>
                 {!publishResult && (
-                  <button onClick={publishNow} disabled={publishing || !publishArticleId || !publishChannelId} className="flex-1 text-sm font-medium bg-gray-900 text-white rounded-lg py-2 hover:bg-gray-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2">
+                  <button onClick={publishNow} disabled={publishing || !publishArticleId || !publishChannelId} className="flex-1 text-sm font-medium bg-mint text-[#062015] rounded-lg py-2 hover:bg-[#a5f8d1] disabled:opacity-50 transition-colors flex items-center justify-center gap-2">
                     {publishing && <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />}
                     {publishing ? "Publishing…" : "⚡ Publish"}
                   </button>
@@ -3866,22 +3890,22 @@ function DashboardPage() {
 
       {/* Add Alert Destination Modal */}
       {showAddAlert && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowAddAlert(false)}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setShowAddAlert(false)}>
+          <div className="bg-surface rounded-2xl shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900">Add alert destination</h3>
-                  <p className="text-xs text-gray-400 mt-0.5">Get notified when your visibility changes, drops, or you gain new mentions</p>
+                  <h3 className="text-base font-semibold text-ink">Add alert destination</h3>
+                  <p className="text-xs text-faint mt-0.5">Get notified when your visibility changes, drops, or you gain new mentions</p>
                 </div>
-                <button onClick={() => setShowAddAlert(false)} className="text-gray-300 hover:text-gray-500 text-xl leading-none ml-4 shrink-0">×</button>
+                <button onClick={() => setShowAddAlert(false)} className="text-faint/70 hover:text-muted text-xl leading-none ml-4 shrink-0">×</button>
               </div>
 
               <div className="space-y-4">
                 {/* Kind selector — clickable cards */}
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Where to send alerts</p>
+                  <p className="text-xs font-semibold text-muted uppercase tracking-widest mb-2">Where to send alerts</p>
                   <div className="grid grid-cols-4 gap-2">
                     {([
                       { value: "discord", label: "Discord", icon: (
@@ -3904,8 +3928,8 @@ function DashboardPage() {
                           onClick={() => setNewAlert((p) => ({ ...p, kind: value }))}
                           className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 text-xs font-medium transition-all ${
                             active
-                              ? "border-gray-900 bg-gray-900 text-white"
-                              : "border-stone-200 text-gray-500 hover:border-gray-400 hover:text-gray-700"
+                              ? "border-mint bg-mint text-[#062015]"
+                              : "border-line text-muted hover:border-line-2 hover:text-ink/80"
                           }`}
                         >
                           {icon}
@@ -3920,7 +3944,7 @@ function DashboardPage() {
                 {newAlert.kind === "discord" && (
                   <div className="bg-[#5865f2]/5 border border-[#5865f2]/20 rounded-xl p-4">
                     <p className="text-xs font-semibold text-[#5865f2] mb-2">How to get a Discord webhook URL</p>
-                    <ol className="space-y-1.5 text-xs text-gray-600">
+                    <ol className="space-y-1.5 text-xs text-muted">
                       <li className="flex gap-2"><span className="text-[#5865f2] font-semibold shrink-0">1.</span>Open your Discord server → right-click the channel you want alerts in</li>
                       <li className="flex gap-2"><span className="text-[#5865f2] font-semibold shrink-0">2.</span>Click <span className="font-medium">Edit Channel</span> → <span className="font-medium">Integrations</span> → <span className="font-medium">Webhooks</span></li>
                       <li className="flex gap-2"><span className="text-[#5865f2] font-semibold shrink-0">3.</span>Click <span className="font-medium">New Webhook</span>, give it a name, then click <span className="font-medium">Copy Webhook URL</span></li>
@@ -3933,7 +3957,7 @@ function DashboardPage() {
                 {newAlert.kind === "slack" && (
                   <div className="bg-[#4a154b]/5 border border-[#4a154b]/15 rounded-xl p-4">
                     <p className="text-xs font-semibold text-[#4a154b] mb-2">How to get a Slack webhook URL</p>
-                    <ol className="space-y-1.5 text-xs text-gray-600">
+                    <ol className="space-y-1.5 text-xs text-muted">
                       <li className="flex gap-2"><span className="text-[#4a154b] font-semibold shrink-0">1.</span>Go to <span className="font-mono bg-[#4a154b]/10 px-1 rounded">api.slack.com/apps</span> → Create New App → From Scratch</li>
                       <li className="flex gap-2"><span className="text-[#4a154b] font-semibold shrink-0">2.</span>Enable <span className="font-medium">Incoming Webhooks</span> → Add New Webhook to Workspace</li>
                       <li className="flex gap-2"><span className="text-[#4a154b] font-semibold shrink-0">3.</span>Pick a channel, then copy the webhook URL that starts with <span className="font-mono bg-[#4a154b]/10 px-1 rounded">hooks.slack.com/…</span></li>
@@ -3943,43 +3967,43 @@ function DashboardPage() {
 
                 {/* Name field */}
                 <div>
-                  <label className="text-xs font-semibold text-gray-500 block mb-1.5">Nickname</label>
+                  <label className="text-xs font-semibold text-muted block mb-1.5">Nickname</label>
                   <input
                     value={newAlert.name}
                     onChange={(e) => setNewAlert((p) => ({ ...p, name: e.target.value }))}
                     placeholder={newAlert.kind === "discord" ? "e.g. #alerts channel" : newAlert.kind === "slack" ? "e.g. #eng-team" : newAlert.kind === "email" ? "e.g. Me" : "e.g. My webhook"}
-                    className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-red-300 focus:border-red-300 transition-colors"
+                    className="w-full border border-line rounded-xl px-4 py-2.5 text-sm text-ink placeholder:text-faint outline-none focus:ring-2 focus:ring-mint/40 focus:border-mint/50 transition-colors"
                   />
                 </div>
 
                 {/* URL / email field */}
                 {newAlert.kind !== "email" ? (
                   <div>
-                    <label className="text-xs font-semibold text-gray-500 block mb-1.5">Webhook URL</label>
+                    <label className="text-xs font-semibold text-muted block mb-1.5">Webhook URL</label>
                     <input
                       value={newAlert.url}
                       onChange={(e) => setNewAlert((p) => ({ ...p, url: e.target.value }))}
                       placeholder={newAlert.kind === "discord" ? "https://discord.com/api/webhooks/…" : newAlert.kind === "slack" ? "https://hooks.slack.com/services/…" : "https://…"}
-                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-gray-900 placeholder:text-gray-400 font-mono outline-none focus:ring-2 focus:ring-red-300 focus:border-red-300 transition-colors"
+                      className="w-full border border-line rounded-xl px-4 py-2.5 text-xs text-ink placeholder:text-faint font-mono outline-none focus:ring-2 focus:ring-mint/40 focus:border-mint/50 transition-colors"
                     />
                   </div>
                 ) : (
                   <div>
-                    <label className="text-xs font-semibold text-gray-500 block mb-1.5">Email address</label>
+                    <label className="text-xs font-semibold text-muted block mb-1.5">Email address</label>
                     <input
                       type="email"
                       value={newAlert.email}
                       onChange={(e) => setNewAlert((p) => ({ ...p, email: e.target.value }))}
                       placeholder="you@company.com"
-                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-red-300 focus:border-red-300 transition-colors"
+                      className="w-full border border-line rounded-xl px-4 py-2.5 text-sm text-ink placeholder:text-faint outline-none focus:ring-2 focus:ring-mint/40 focus:border-mint/50 transition-colors"
                     />
                   </div>
                 )}
               </div>
 
               <div className="flex gap-2 mt-5">
-                <button onClick={() => setShowAddAlert(false)} className="flex-1 text-sm border border-stone-200 rounded-xl py-2.5 hover:bg-stone-50 transition-colors text-gray-600">Cancel</button>
-                <button onClick={addAlertDestination} disabled={addingAlert || !newAlert.name} className="flex-1 text-sm font-semibold bg-gray-900 text-white rounded-xl py-2.5 hover:bg-gray-700 disabled:opacity-40 transition-colors">
+                <button onClick={() => setShowAddAlert(false)} className="flex-1 text-sm border border-line rounded-xl py-2.5 hover:bg-white/[0.04] transition-colors text-muted">Cancel</button>
+                <button onClick={addAlertDestination} disabled={addingAlert || !newAlert.name} className="flex-1 text-sm font-semibold bg-mint text-[#062015] rounded-xl py-2.5 hover:bg-[#a5f8d1] disabled:opacity-40 transition-colors">
                   {addingAlert ? "Adding…" : "Add destination"}
                 </button>
               </div>
@@ -3990,47 +4014,47 @@ function DashboardPage() {
 
       {/* Thread reply modal */}
       {activeThread && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setActiveThread(null)}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setActiveThread(null)}>
+          <div className="bg-surface rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1 pr-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-medium text-blue-600">r/{activeThread.subreddit}</span>
-                    <span className="text-xs text-gray-400">↑ {activeThread.score} · {activeThread.numComments} comments</span>
+                    <span className="text-xs font-medium text-blue-300">r/{activeThread.subreddit}</span>
+                    <span className="text-xs text-faint">↑ {activeThread.score} · {activeThread.numComments} comments</span>
                   </div>
-                  <h3 className="text-sm font-semibold text-gray-900">{activeThread.title}</h3>
+                  <h3 className="text-sm font-semibold text-ink">{activeThread.title}</h3>
                 </div>
-                <button onClick={() => setActiveThread(null)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
+                <button onClick={() => setActiveThread(null)} className="text-faint hover:text-muted text-xl leading-none">×</button>
               </div>
 
               {activeThread.body && (
-                <div className="bg-gray-50 rounded-lg px-4 py-3 mb-4">
-                  <p className="text-xs text-gray-600 leading-relaxed line-clamp-4">{activeThread.body}</p>
+                <div className="bg-white/[0.03] rounded-lg px-4 py-3 mb-4">
+                  <p className="text-xs text-muted leading-relaxed line-clamp-4">{activeThread.body}</p>
                 </div>
               )}
 
-              <div className="border-t border-gray-100 pt-4">
+              <div className="border-t border-line pt-4">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">AI draft reply</p>
-                  <button onClick={async () => { setDraftingReply(true); setDraftReply(""); const res = await fetch("/api/reddit/draft", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ threadId: activeThread.id, brandId: brand?.id }) }); const d = await res.json(); setDraftReply(d.reply ?? ""); setDraftingReply(false); }} className="text-xs text-blue-600 hover:underline">Regenerate</button>
+                  <p className="text-xs font-semibold text-ink/80 uppercase tracking-wide">AI draft reply</p>
+                  <button onClick={async () => { setDraftingReply(true); setDraftReply(""); const res = await fetch("/api/reddit/draft", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ threadId: activeThread.id, brandId: brand?.id }) }); const d = await res.json(); setDraftReply(d.reply ?? ""); setDraftingReply(false); }} className="text-xs text-blue-300 hover:underline">Regenerate</button>
                 </div>
 
                 {draftingReply ? (
                   <div className="flex items-center gap-2 py-6 justify-center">
                     <span className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                    <span className="text-xs text-gray-500">Drafting reply…</span>
+                    <span className="text-xs text-muted">Drafting reply…</span>
                   </div>
                 ) : draftReply ? (
                   <div>
-                    <textarea value={draftReply} onChange={(e) => setDraftReply(e.target.value)} rows={5} className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-blue-400 resize-none" />
+                    <textarea value={draftReply} onChange={(e) => setDraftReply(e.target.value)} rows={5} className="w-full border border-line rounded-lg px-3 py-2.5 text-sm text-ink/90 outline-none focus:ring-2 focus:ring-blue-400 resize-none" />
                     <div className="flex items-center gap-2 mt-2">
-                      <button onClick={() => navigator.clipboard.writeText(draftReply)} className="flex-1 text-sm font-medium border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition-colors">Copy</button>
+                      <button onClick={() => navigator.clipboard.writeText(draftReply)} className="flex-1 text-sm font-medium border border-line rounded-lg py-2 hover:bg-white/[0.04] transition-colors">Copy</button>
                       {redditConnected ? (
                         <button
                           onClick={postReply}
                           disabled={postingReply}
-                          className="flex-1 text-sm font-medium bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white rounded-lg py-2 transition-colors flex items-center justify-center gap-1.5"
+                          className="flex-1 text-sm font-medium bg-orange-400/100 hover:bg-orange-600 disabled:opacity-50 text-white rounded-lg py-2 transition-colors flex items-center justify-center gap-1.5"
                         >
                           {postingReply ? <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /> : null}
                           {postingReply ? "Posting…" : "Post on Reddit"}
@@ -4040,7 +4064,7 @@ function DashboardPage() {
                       )}
                     </div>
                     {!redditConnected && (
-                      <p className="text-[10px] text-gray-400 mt-2 text-center">
+                      <p className="text-[10px] text-faint mt-2 text-center">
                         <a href={`/api/reddit/auth?brandId=${brand.id}`} className="text-orange-500 hover:underline font-medium">Connect Reddit</a> to post without copy-pasting
                       </p>
                     )}
@@ -4060,9 +4084,9 @@ function DashboardPage() {
         return (
         <div className="fixed inset-0 z-50 flex">
           <div className="flex-1 bg-black/30 backdrop-blur-sm" onClick={() => { setEngageItem(null); setUpvoteEnabled(false); setUpvoteQty(10); setUpvoteSpeed("normal"); setTaskSubmitted(false); setEngageDraft(""); }} />
-          <div className="w-[420px] h-full bg-white shadow-2xl flex flex-col overflow-hidden border-l border-stone-200">
+          <div className="w-[420px] h-full bg-surface shadow-2xl flex flex-col overflow-hidden border-l border-line">
             {/* Header */}
-            <div className="px-5 py-4 border-b border-stone-100 flex items-center gap-3">
+            <div className="px-5 py-4 border-b border-line flex items-center gap-3">
               <div className={`w-8 h-8 rounded-lg ${platformMeta.bg} flex items-center justify-center shrink-0`}>
                 {engagePlatform === "linkedin" ? (
                   <span className="text-white font-bold text-xs leading-none">in</span>
@@ -4074,36 +4098,36 @@ function DashboardPage() {
                 )}
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-900">Engage on {platformMeta.label}</p>
-                <p className="text-xs text-gray-400">Draft a reply to influence this citation</p>
+                <p className="text-sm font-semibold text-ink">Engage on {platformMeta.label}</p>
+                <p className="text-xs text-faint">Draft a reply to influence this citation</p>
               </div>
-              <button onClick={() => { setEngageItem(null); setUpvoteEnabled(false); setUpvoteQty(10); setUpvoteSpeed("normal"); setTaskSubmitted(false); setEngageDraft(""); }} className="ml-auto text-gray-400 hover:text-gray-600">
+              <button onClick={() => { setEngageItem(null); setUpvoteEnabled(false); setUpvoteQty(10); setUpvoteSpeed("normal"); setTaskSubmitted(false); setEngageDraft(""); }} className="ml-auto text-faint hover:text-muted">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
 
             {/* Thread context */}
-            <div className="px-5 py-4 border-b border-stone-100 bg-stone-50/50">
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Thread</p>
+            <div className="px-5 py-4 border-b border-line bg-white/[0.03]/50">
+              <p className="text-[10px] font-semibold text-faint uppercase tracking-widest mb-2">Thread</p>
               <a
                 href={engageItem.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-start gap-2 group"
               >
-                <span className="text-xs text-blue-600 group-hover:underline break-all leading-relaxed">
+                <span className="text-xs text-blue-300 group-hover:underline break-all leading-relaxed">
                   {engageItem.url.replace(/^https?:\/\/(www\.)?/, "")}
                 </span>
-                <svg className="w-3 h-3 text-gray-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                <svg className="w-3 h-3 text-faint mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
               </a>
               <div className="flex items-center gap-2 mt-2">
-                <span className="text-[10px] text-gray-400">Cited by</span>
+                <span className="text-[10px] text-faint">Cited by</span>
                 <div className="flex items-center gap-1">
-                  <span className={`w-1.5 h-1.5 rounded-full ${ENGINE_COLORS[engageItem.engine as AIEngine] ?? "bg-gray-300"}`} />
-                  <span className="text-[10px] font-medium text-gray-600">{ENGINE_LABELS[engageItem.engine as AIEngine] ?? engageItem.engine}</span>
+                  <span className={`w-1.5 h-1.5 rounded-full ${ENGINE_COLORS[engageItem.engine as AIEngine] ?? "bg-white/[0.12]"}`} />
+                  <span className="text-[10px] font-medium text-muted">{ENGINE_LABELS[engageItem.engine as AIEngine] ?? engageItem.engine}</span>
                 </div>
-                <span className="text-[10px] text-gray-400">for prompt:</span>
-                <span className="text-[10px] text-gray-600 italic truncate max-w-[140px]">{engageItem.promptText.slice(0, 50)}{engageItem.promptText.length > 50 ? "…" : ""}</span>
+                <span className="text-[10px] text-faint">for prompt:</span>
+                <span className="text-[10px] text-muted italic truncate max-w-[140px]">{engageItem.promptText.slice(0, 50)}{engageItem.promptText.length > 50 ? "…" : ""}</span>
               </div>
             </div>
 
@@ -4111,12 +4135,12 @@ function DashboardPage() {
             <div className="flex-1 flex flex-col px-5 py-4 gap-3 overflow-y-auto">
               {taskSubmitted ? (
                 <div className="flex-1 flex flex-col items-center justify-center gap-4 py-8">
-                  <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center">
-                    <svg className="w-7 h-7 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  <div className="w-14 h-14 rounded-full bg-mint/10 flex items-center justify-center">
+                    <svg className="w-7 h-7 text-mint" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-semibold text-gray-900 mb-1">Task submitted!</p>
-                    <p className="text-xs text-gray-500">{upvoteEnabled ? "Your reply + upvote order is being processed." : "Your reply is being processed."}</p>
+                    <p className="text-sm font-semibold text-ink mb-1">Task submitted!</p>
+                    <p className="text-xs text-muted">{upvoteEnabled ? "Your reply + upvote order is being processed." : "Your reply is being processed."}</p>
                   </div>
                   <button onClick={() => { navTo("tasks"); setEngageItem(null); setTaskSubmitted(false); }} className={`text-xs font-medium ${platformMeta.text} hover:underline`}>
                     View in Tasks →
@@ -4125,7 +4149,7 @@ function DashboardPage() {
               ) : (
                 <>
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Reply draft</p>
+                    <p className="text-[10px] font-semibold text-faint uppercase tracking-widest">Reply draft</p>
                     <button
                       onClick={async () => {
                         setEngageGenerating(true);
@@ -4163,46 +4187,46 @@ function DashboardPage() {
                     onChange={(e) => setEngageDraft(e.target.value)}
                     placeholder="Write your reply here, or click AI suggest to generate one…"
                     rows={6}
-                    className="w-full text-sm text-gray-800 placeholder:text-gray-400 border border-stone-200 rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand/40 bg-white"
+                    className="w-full text-sm text-ink/90 placeholder:text-faint border border-line rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand/40 bg-white/[0.04]"
                   />
                   {engageDraft && (
-                    <p className="text-xs text-gray-400">{engageDraft.trim().split(/\s+/).length} words · edit freely before posting</p>
+                    <p className="text-xs text-faint">{engageDraft.trim().split(/\s+/).length} words · edit freely before posting</p>
                   )}
 
                   {/* Upvote ordering — Reddit only, no equivalent concept on other platforms */}
                   {engagePlatform === "reddit" && (
-                    <div className="border border-stone-200 rounded-xl overflow-hidden">
+                    <div className="border border-line rounded-xl overflow-hidden">
                       <button
                         onClick={() => setUpvoteEnabled((v) => !v)}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-stone-50 transition-colors"
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors"
                       >
-                        <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${upvoteEnabled ? "bg-[#FF4500] border-[#FF4500]" : "border-gray-300"}`}>
+                        <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${upvoteEnabled ? "bg-[#FF4500] border-[#FF4500]" : "border-line-2"}`}>
                           {upvoteEnabled && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                         </div>
                         <div className="text-left">
-                          <p className="text-xs font-semibold text-gray-800">Order upvotes to rank this reply</p>
-                          <p className="text-[10px] text-gray-400">Boost visibility so AI engines surface your comment</p>
+                          <p className="text-xs font-semibold text-ink/90">Order upvotes to rank this reply</p>
+                          <p className="text-[10px] text-faint">Boost visibility so AI engines surface your comment</p>
                         </div>
-                        <svg className={`w-4 h-4 text-gray-400 ml-auto shrink-0 transition-transform ${upvoteEnabled ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                        <svg className={`w-4 h-4 text-faint ml-auto shrink-0 transition-transform ${upvoteEnabled ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                       </button>
 
                       {upvoteEnabled && (
-                        <div className="px-4 pb-4 pt-1 border-t border-stone-100 space-y-3">
+                        <div className="px-4 pb-4 pt-1 border-t border-line space-y-3">
                           <div className="flex gap-3">
                             <div className="flex-1">
-                              <p className="text-[10px] font-semibold text-gray-500 mb-1.5">Quantity</p>
+                              <p className="text-[10px] font-semibold text-muted mb-1.5">Quantity</p>
                               <div className="flex items-center gap-2">
-                                <button onClick={() => setUpvoteQty((q) => Math.max(1, q - 5))} className="w-7 h-7 rounded-lg border border-stone-200 flex items-center justify-center text-gray-600 hover:bg-stone-50 font-medium text-sm">−</button>
-                                <span className="text-sm font-semibold text-gray-900 w-8 text-center">{upvoteQty}</span>
-                                <button onClick={() => setUpvoteQty((q) => q + 5)} className="w-7 h-7 rounded-lg border border-stone-200 flex items-center justify-center text-gray-600 hover:bg-stone-50 font-medium text-sm">+</button>
+                                <button onClick={() => setUpvoteQty((q) => Math.max(1, q - 5))} className="w-7 h-7 rounded-lg border border-line flex items-center justify-center text-muted hover:bg-white/[0.04] font-medium text-sm">−</button>
+                                <span className="text-sm font-semibold text-ink w-8 text-center">{upvoteQty}</span>
+                                <button onClick={() => setUpvoteQty((q) => q + 5)} className="w-7 h-7 rounded-lg border border-line flex items-center justify-center text-muted hover:bg-white/[0.04] font-medium text-sm">+</button>
                               </div>
                             </div>
                             <div className="flex-1">
-                              <p className="text-[10px] font-semibold text-gray-500 mb-1.5">Speed</p>
+                              <p className="text-[10px] font-semibold text-muted mb-1.5">Speed</p>
                               <select
                                 value={upvoteSpeed}
                                 onChange={(e) => setUpvoteSpeed(e.target.value as "slow" | "normal" | "fast")}
-                                className="w-full text-xs border border-stone-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-brand/30"
+                                className="w-full text-xs border border-line rounded-lg px-2 py-1.5 bg-white/[0.04] text-ink/80 focus:outline-none focus:ring-1 focus:ring-mint/30"
                               >
                                 <option value="slow">Slow (safer)</option>
                                 <option value="normal">Normal</option>
@@ -4210,11 +4234,11 @@ function DashboardPage() {
                               </select>
                             </div>
                           </div>
-                          <div className="flex items-center justify-between text-[10px] text-gray-400 bg-stone-50 rounded-lg px-3 py-2">
+                          <div className="flex items-center justify-between text-[10px] text-faint bg-white/[0.03] rounded-lg px-3 py-2">
                             <span>{upvoteQty} upvotes × $0.10</span>
-                            <span className="font-semibold text-gray-700">${(upvoteQty * 0.10).toFixed(2)}</span>
+                            <span className="font-semibold text-ink/80">${(upvoteQty * 0.10).toFixed(2)}</span>
                           </div>
-                          <p className="text-[10px] text-amber-600 bg-amber-50 rounded-lg px-3 py-2 leading-relaxed">Comments under 200 chars have ~35% removal rate. Keep replies natural and helpful.</p>
+                          <p className="text-[10px] text-amber bg-amber/10 rounded-lg px-3 py-2 leading-relaxed">Comments under 200 chars have ~35% removal rate. Keep replies natural and helpful.</p>
                         </div>
                       )}
                     </div>
@@ -4225,7 +4249,7 @@ function DashboardPage() {
 
             {/* Footer actions */}
             {!taskSubmitted && (
-              <div className="px-5 py-4 border-t border-stone-100 space-y-2">
+              <div className="px-5 py-4 border-t border-line space-y-2">
                 {upvoteEnabled ? (
                   <button
                     onClick={async () => {
@@ -4269,7 +4293,7 @@ function DashboardPage() {
                         }
                       }}
                       disabled={!engageDraft}
-                      className="flex-1 text-sm font-medium border border-stone-200 text-gray-700 py-2.5 rounded-lg hover:bg-stone-50 disabled:opacity-40 transition-colors"
+                      className="flex-1 text-sm font-medium border border-line text-ink/80 py-2.5 rounded-lg hover:bg-white/[0.04] disabled:opacity-40 transition-colors"
                     >
                       {engageCopied ? "Copied!" : "Copy text"}
                     </button>
@@ -4310,7 +4334,7 @@ function DashboardPage() {
                       setTaskSubmitting(false);
                     }}
                     disabled={taskSubmitting}
-                    className="w-full text-xs text-gray-400 hover:text-gray-600 py-1 transition-colors"
+                    className="w-full text-xs text-faint hover:text-muted py-1 transition-colors"
                   >
                     {taskSubmitting ? "Saving…" : engagePlatform === "reddit" ? "Track without upvotes" : "Track engagement"}
                   </button>

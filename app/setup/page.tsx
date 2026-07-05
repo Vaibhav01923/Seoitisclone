@@ -144,8 +144,8 @@ function SetupContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-100 px-6 py-4">
+    <div className="min-h-screen bg-white/[0.03]">
+      <header className="bg-surface border-b border-line px-6 py-4">
         <a href="/" className="font-bold text-xl tracking-tight">
           RankOn<span className="text-emerald-500">Geo</span>
         </a>
@@ -157,14 +157,14 @@ function SetupContent() {
           {(["url", "brand", "prompts"] as Step[]).map((s, i) => (
             <div key={s} className="flex items-center gap-2">
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${
-                step === s ? "bg-emerald-500 text-white" :
+                step === s ? "bg-mint text-[#062015]" :
                 (step === "brand" && s === "url") || (step === "prompts" && s !== "prompts")
                   ? "bg-emerald-100 text-emerald-600"
-                  : "bg-gray-100 text-gray-400"
+                  : "bg-white/[0.06] text-faint"
               }`}>
                 {i + 1}
               </div>
-              <span className={`text-sm ${step === s ? "text-gray-900 font-medium" : "text-gray-400"}`}>
+              <span className={`text-sm ${step === s ? "text-ink font-medium" : "text-faint"}`}>
                 {s === "url" ? "Your website" : s === "brand" ? "Brand info" : "Tracked prompts"}
               </span>
               {i < 2 && <span className="text-gray-200 ml-1">—</span>}
@@ -175,32 +175,32 @@ function SetupContent() {
         {/* Step 1: URL */}
         {step === "url" && (
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Enter your website</h1>
-            <p className="text-gray-500 text-sm mb-8">
+            <h1 className="text-2xl font-bold text-ink mb-2">Enter your website</h1>
+            <p className="text-muted text-sm mb-8">
               We&apos;ll crawl it to understand your brand and generate the right tracking prompts.
             </p>
             {loading && (
               <div className="flex flex-col items-center py-16 gap-4">
-                <span className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-sm text-gray-500">Analyzing your site…</p>
+                <span className="w-8 h-8 border-2 border-mint border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm text-muted">Analyzing your site…</p>
               </div>
             )}
             {!loading && <form onSubmit={handleAnalyze} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Website URL</label>
+                <label className="block text-sm font-medium text-ink/80 mb-1.5">Website URL</label>
                 <input
                   type="text"
                   value={domain}
                   onChange={(e) => setDomain(e.target.value)}
                   placeholder="yoursite.com"
-                  className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none text-gray-900 focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
+                  className="w-full border border-line rounded-lg px-4 py-3 text-sm outline-none text-ink focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
                 />
               </div>
-              {error && <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-3">{error}</p>}
+              {error && <p className="text-sm text-rose bg-rose/10 border border-rose/25 rounded-lg px-4 py-3">{error}</p>}
               <button
                 type="submit"
                 disabled={loading || !domain.trim()}
-                className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white py-3 rounded-lg text-sm font-medium transition-colors"
+                className="w-full bg-mint hover:bg-[#a5f8d1] disabled:opacity-50 text-[#062015] py-3 rounded-lg text-sm font-medium transition-colors"
               >
                 Analyze site
               </button>
@@ -211,36 +211,36 @@ function SetupContent() {
         {/* Step 2: Brand info */}
         {step === "brand" && brand && (
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Review your brand info</h1>
-            <p className="text-gray-500 text-sm mb-8">We extracted this from your site. Edit anything that looks off.</p>
+            <h1 className="text-2xl font-bold text-ink mb-2">Review your brand info</h1>
+            <p className="text-muted text-sm mb-8">We extracted this from your site. Edit anything that looks off.</p>
             <div className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Brand name</label>
+                <label className="block text-sm font-medium text-ink/80 mb-1.5">Brand name</label>
                 <input
                   value={editedName}
                   onChange={(e) => setEditedName(e.target.value)}
-                  className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none text-gray-900 focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
+                  className="w-full border border-line rounded-lg px-4 py-3 text-sm outline-none text-ink focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Niche</label>
+                <label className="block text-sm font-medium text-ink/80 mb-1.5">Niche</label>
                 <input
                   value={editedNiche}
                   onChange={(e) => setEditedNiche(e.target.value)}
-                  className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none text-gray-900 focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
+                  className="w-full border border-line rounded-lg px-4 py-3 text-sm outline-none text-ink focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
-                <p className="text-sm text-gray-600 bg-gray-50 rounded-lg px-4 py-3 border border-gray-100">{brand.description}</p>
+                <label className="block text-sm font-medium text-ink/80 mb-1.5">Description</label>
+                <p className="text-sm text-muted bg-white/[0.03] rounded-lg px-4 py-3 border border-line">{brand.description}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Target audience</label>
+                <label className="block text-sm font-medium text-ink/80 mb-1.5">Target audience</label>
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {editedAudience.map((a) => (
-                    <span key={a} className="flex items-center gap-1 text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">
+                    <span key={a} className="flex items-center gap-1 text-xs bg-mint/10 text-mint px-2.5 py-1 rounded-full">
                       {a}
-                      <button onClick={() => setEditedAudience(editedAudience.filter((x) => x !== a))} className="text-emerald-400 hover:text-emerald-700">×</button>
+                      <button onClick={() => setEditedAudience(editedAudience.filter((x) => x !== a))} className="text-mint/60 hover:text-mint">×</button>
                     </span>
                   ))}
                 </div>
@@ -250,29 +250,29 @@ function SetupContent() {
                     onChange={(e) => setNewAudienceInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addAudience(); } }}
                     placeholder="Add audience segment"
-                    className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
+                    className="flex-1 border border-line rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
                   />
-                  <button type="button" onClick={addAudience} className="px-3 py-2 text-sm font-semibold bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-colors">Add</button>
+                  <button type="button" onClick={addAudience} className="px-3 py-2 text-sm font-semibold bg-mint text-[#062015] rounded-lg hover:bg-[#a5f8d1] transition-colors">Add</button>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Competitors</label>
+                <label className="block text-sm font-medium text-ink/80 mb-1.5">Competitors</label>
                 <div className="flex gap-2 mb-3">
                   <input
                     value={newCompetitorInput}
                     onChange={(e) => setNewCompetitorInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addEditedCompetitor(); } }}
                     placeholder="Add competitor domain"
-                    className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
+                    className="flex-1 border border-line rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
                   />
-                  <button type="button" onClick={addEditedCompetitor} className="px-3 py-2 text-sm font-semibold bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-colors">Add</button>
+                  <button type="button" onClick={addEditedCompetitor} className="px-3 py-2 text-sm font-semibold bg-mint text-[#062015] rounded-lg hover:bg-[#a5f8d1] transition-colors">Add</button>
                 </div>
                 {(() => {
                   const allCompetitorOptions = Array.from(new Set([...suggestedCompetitors, ...editedCompetitors]));
                   if (allCompetitorOptions.length === 0) return null;
                   return (
                     <div>
-                      <p className="text-xs font-medium text-gray-500 mb-2">Detected automatically — click to remove any you don&apos;t want tracked</p>
+                      <p className="text-xs font-medium text-muted mb-2">Detected automatically — click to remove any you don&apos;t want tracked</p>
                       <div className="flex flex-wrap gap-2">
                         {allCompetitorOptions.map((c) => {
                           const added = editedCompetitors.includes(c);
@@ -288,8 +288,8 @@ function SetupContent() {
                               }
                               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
                                 added
-                                  ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                                  : "bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                                  ? "bg-mint/10 border-mint/30 text-mint"
+                                  : "bg-surface border-line text-muted hover:border-line-2 hover:bg-white/[0.04]"
                               }`}
                             >
                               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -300,7 +300,7 @@ function SetupContent() {
                                 onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                               />
                               {c}
-                              <span className={`ml-0.5 ${added ? "text-emerald-500" : "text-gray-400"}`}>{added ? "✓" : "+"}</span>
+                              <span className={`ml-0.5 ${added ? "text-emerald-500" : "text-faint"}`}>{added ? "✓" : "+"}</span>
                             </button>
                           );
                         })}
@@ -311,7 +311,7 @@ function SetupContent() {
               </div>
               <button
                 onClick={handleBrandNext}
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-lg text-sm font-medium transition-colors"
+                className="w-full bg-mint hover:bg-[#a5f8d1] text-[#062015] py-3 rounded-lg text-sm font-medium transition-colors"
               >
                 Continue to prompts
               </button>
@@ -322,8 +322,8 @@ function SetupContent() {
         {/* Step 3: Tracked prompts */}
         {step === "prompts" && (
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Review search queries</h1>
-            <p className="text-gray-500 text-sm mb-2">
+            <h1 className="text-2xl font-bold text-ink mb-2">Review search queries</h1>
+            <p className="text-muted text-sm mb-2">
               These are questions people ask AI about businesses like yours. We&apos;ll track your brand&apos;s visibility for each.
             </p>
             {(() => {
@@ -343,12 +343,12 @@ function SetupContent() {
                     key={p.id}
                     type="button"
                     onClick={() => togglePrompt(p.id)}
-                    className={`w-full flex items-center gap-3 bg-white border rounded-lg px-4 py-3 text-left transition-colors group ${
-                      selected ? "border-gray-200 hover:border-gray-300" : "border-gray-100 opacity-50 hover:opacity-70"
+                    className={`w-full flex items-center gap-3 bg-surface border rounded-lg px-4 py-3 text-left transition-colors group ${
+                      selected ? "border-line hover:border-line-2" : "border-line opacity-50 hover:opacity-70"
                     }`}
                   >
                     <span className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
-                      selected ? "bg-emerald-500 border-emerald-500" : "border-gray-300 bg-white"
+                      selected ? "bg-mint-deep border-mint-deep" : "border-line-2 bg-surface"
                     }`}>
                       {selected && (
                         <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
@@ -356,7 +356,7 @@ function SetupContent() {
                         </svg>
                       )}
                     </span>
-                    <span className={`flex-1 text-sm ${selected ? "text-gray-700" : "text-gray-400"}`}>{p.text}</span>
+                    <span className={`flex-1 text-sm ${selected ? "text-ink/80" : "text-faint"}`}>{p.text}</span>
                   </button>
                 );
               })}
@@ -368,16 +368,16 @@ function SetupContent() {
                 onChange={(e) => setNewPrompt(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addPrompt(); } }}
                 placeholder="Add custom prompt…"
-                className="flex-1 border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none text-gray-900 focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
+                className="flex-1 border border-line rounded-lg px-4 py-2.5 text-sm outline-none text-ink focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
               />
-              <button onClick={addPrompt} className="px-4 py-2.5 text-sm font-semibold bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-colors">
+              <button onClick={addPrompt} className="px-4 py-2.5 text-sm font-semibold bg-mint text-[#062015] rounded-lg hover:bg-[#a5f8d1] transition-colors">
                 Add
               </button>
             </div>
 
-            <div className="bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 mb-6">
-              <p className="text-xs font-semibold text-gray-500 mb-1.5">Prompt Tips</p>
-              <ul className="space-y-1 text-xs text-gray-400">
+            <div className="bg-white/[0.03] border border-line rounded-lg px-4 py-3 mb-6">
+              <p className="text-xs font-semibold text-muted mb-1.5">Prompt Tips</p>
+              <ul className="space-y-1 text-xs text-faint">
                 <li>· Focus on questions your customers actually ask</li>
                 <li>· Include your product category or service type</li>
                 <li>· Avoid overly specific or branded terms</li>
@@ -388,14 +388,14 @@ function SetupContent() {
               const customCount = prompts.filter((p) => p.category === "custom").length;
               const customLimit = PLAN_CUSTOM_LIMITS[userPlan] ?? 5;
               return customCount >= customLimit ? (
-                <p className="text-xs text-amber-600 font-medium mb-4">Custom limit reached · <a href="/pricing" className="underline">upgrade for more</a></p>
+                <p className="text-xs text-amber font-medium mb-4">Custom limit reached · <a href="/pricing" className="underline">upgrade for more</a></p>
               ) : null;
             })()}
 
             <button
               onClick={handleStart}
               disabled={saving || prompts.filter((p) => !deselectedIds.has(p.id)).length === 0}
-              className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white py-3 rounded-lg text-sm font-medium transition-colors"
+              className="w-full bg-mint hover:bg-[#a5f8d1] disabled:opacity-50 text-[#062015] py-3 rounded-lg text-sm font-medium transition-colors"
             >
               {saving ? "Saving…" : "Generate report"}
             </button>

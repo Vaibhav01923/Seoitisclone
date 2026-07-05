@@ -1,28 +1,63 @@
 @import "tailwindcss";
 
+/* ============================================================
+   RANKONGEO — night-meadow design system
+   Deep green-black night, bioluminescent mint, firefly amber.
+   ============================================================ */
+
 :root {
-  --background: #080808;
-  --foreground: #c8c8c8;
-  --brand: #c8372d;
-  --brand-dark: #b02f26;
-  --ink: #111111;
-  --surface: #111111;
-  --surface-2: #161616;
-  --surface-dark: #0d0d0d;
-  --border: rgba(255,255,255,0.07);
+  /* surfaces */
+  --background: #040d0a;
+  --surface: #0c1e15;
+  --surface-2: #12281c;
+  --overlay: #16301f;
+
+  /* text */
+  --foreground: #eaf6ee;
+  --ink: #eaf6ee;
+  --muted: #9db5a8;
+  --faint: #6f8a7b;
+
+  /* brand */
+  --mint: #8cf5c3;
+  --mint-deep: #37c98d;
+  --amber: #ffb469;
+  --amber-hot: #ff9a4d;
+  --rose: #ff7d6b;
+
+  /* legacy aliases (older components reference these) */
+  --brand: #37c98d;
+  --brand-dark: #2aa974;
+
+  /* hairlines */
+  --line: rgba(234, 246, 238, 0.1);
+  --line-2: rgba(234, 246, 238, 0.18);
 }
 
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-brand: var(--brand);
-  --color-brand-dark: var(--brand-dark);
-  --color-ink: var(--ink);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
-  --color-surface-dark: var(--surface-dark);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-overlay: var(--overlay);
+  --color-foreground: var(--foreground);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-mint: var(--mint);
+  --color-mint-deep: var(--mint-deep);
+  --color-amber: var(--amber);
+  --color-amber-hot: var(--amber-hot);
+  --color-rose: var(--rose);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --font-sans: var(--font-instrument-sans);
+  --font-serif: var(--font-fraunces);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -31,39 +66,148 @@ body {
   font-family: var(--font-sans, system-ui, sans-serif);
 }
 
-input, textarea, select {
-  color: #111111;
+::selection {
+  background: rgba(140, 245, 195, 0.25);
+  color: #fff;
 }
 
+/* form controls inherit the dark theme */
+input,
+textarea,
+select {
+  color: var(--foreground);
+}
+select option {
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+/* Firefox scrollbars on dark surfaces */
+* {
+  scrollbar-color: rgba(234, 246, 238, 0.18) transparent;
+  scrollbar-width: thin;
+}
+
+/* ---- shared motion vocabulary ------------------------------ */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(18px); filter: blur(5px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 @keyframes shimmer {
   0%, 100% { opacity: 0.3; }
-  50%       { opacity: 0.7; }
+  50%      { opacity: 0.7; }
 }
 
 @keyframes typingDot {
   0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
   30% { transform: translateY(-4px); opacity: 1; }
 }
-
-.typing-dot {
-  animation: typingDot 1.2s ease-out infinite;
-}
+.typing-dot { animation: typingDot 1.2s ease-out infinite; }
 
 @keyframes fadeSlideIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(26px); filter: blur(8px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.rise {
+  opacity: 0;
+  animation: riseIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--d, 0s);
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.7); }
+}
+.pulse-dot { animation: pulseDot 2.4s ease-in-out infinite; }
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+.floaty { animation: floaty 7s ease-in-out infinite; }
+
+@keyframes sway {
+  from { transform: rotate(-2.2deg); }
+  to   { transform: rotate(2.6deg); }
+}
+.sway {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: sway 7s ease-in-out infinite alternate;
+}
+.sway.s2 { animation-duration: 9s; animation-delay: -3s; }
+.sway.s3 { animation-duration: 11s; animation-delay: -5.5s; }
+
+@keyframes bloomTw {
+  from { opacity: 0.55; }
+  to   { opacity: 1; }
+}
+.bloom-tw { animation: bloomTw 4s ease-in-out infinite alternate; }
+
+@keyframes twinkleDot {
+  from { opacity: 0.25; }
+  to   { opacity: 1; }
+}
+.tw { animation: twinkleDot 3s ease-in-out infinite alternate; }
+
+@keyframes marq {
+  to { transform: translateX(-50%); }
+}
+.marq-track {
+  display: flex;
+  width: max-content;
+  animation: marq 36s linear infinite;
+}
+.marq-mask {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+}
+.marq-mask:hover .marq-track { animation-play-state: paused; }
+
+@keyframes auroraDrift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(-60px, 30px) scale(1.15); }
+}
+
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+.spin-slow { animation: spinSlow 9s linear infinite; }
+
+/* raised card surface — the landing page's "lit" panel treatment */
+.panel {
+  background: linear-gradient(180deg, rgba(234, 246, 238, 0.05), rgba(234, 246, 238, 0.016));
+  box-shadow:
+    inset 0 1px 0 rgba(234, 246, 238, 0.1),
+    inset 0 0 0 1px rgba(234, 246, 238, 0.08);
+}
+
+/* film grain for the marketing surfaces */
+.grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
   @keyframes fadeSlideIn {
     from { opacity: 0; }
     to   { opacity: 1; }
   }
+
+  .rise { opacity: 1; animation: none; }
 
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

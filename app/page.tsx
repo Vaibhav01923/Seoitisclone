@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { DomainForm } from "./_components/DomainForm";
 import { PricingSection } from "./_components/PricingSection";
 import { FAQSection } from "./_components/FAQSection";
-import { MobileNav } from "./_components/MobileNav";
+import { SiteNav } from "./_components/SiteNav";
 import { ScrollReveal } from "./_components/ScrollReveal";
 import { InteractiveDemoMockup } from "./_components/InteractiveDemoMockup";
+import { NightSky } from "./_components/NightSky";
+import { Meadow, FloraLeft, FloraRight, GlobeViz } from "./_components/Scenery";
 
 export const metadata: Metadata = {
   title: "RankOnGeo — Track Your Brand in AI Search",
@@ -12,234 +14,113 @@ export const metadata: Metadata = {
     "See how ChatGPT, Claude, Gemini, Perplexity, Grok and AI Overviews respond about your brand. Close the gap with research, articles, and publishing.",
 };
 
-function LogoIcon({ size = 28 }: { size?: number }) {
+function LogoMark({ size = 26 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 28 28" fill="none" aria-hidden="true">
-      <rect width="28" height="28" rx="7" fill="#c8372d" />
-      <path
-        d="M14 5C10.96 5 8.5 7.46 8.5 10.5c0 4.63 5.5 12.5 5.5 12.5s5.5-7.87 5.5-12.5C19.5 7.46 17.04 5 14 5z"
-        fill="white"
-      />
-      <circle cx="14" cy="10.5" r="2.2" fill="#c8372d" />
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <circle cx="16" cy="16" r="14" stroke="rgba(140,245,195,.35)" strokeWidth="1.2" />
+      <circle cx="16" cy="16" r="6" stroke="#8cf5c3" strokeWidth="2" />
+      <circle cx="16" cy="16" r="12.5" stroke="#8cf5c3" strokeWidth="1.4" strokeDasharray="4 5" transform="rotate(-20 16 16)" />
+      <circle cx="26.5" cy="9" r="2.2" fill="#ffb469" />
     </svg>
   );
 }
 
-function DashboardMockup() {
-  return (
-    <div className="relative mx-auto max-w-5xl overflow-x-auto" aria-hidden="true">
-      <div className="min-w-190">
-      {/* Browser chrome */}
-      <div className="bg-[#1a1a1a] rounded-t-xl px-4 py-3 flex items-center gap-2">
-        <div className="flex gap-1.5" aria-hidden="true">
-          <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
-          <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
-          <div className="w-3 h-3 rounded-full bg-[#28c840]" />
-        </div>
-        <div className="flex-1 bg-[#2a2a2a] rounded-md px-3 py-1 text-xs text-center text-[#888] font-mono">
-          app.rankongeo.com/overview
-        </div>
-        <div className="bg-brand text-white text-xs px-3 py-1 rounded-md font-medium">
-          Live demo · click around
-        </div>
-      </div>
+const ENGINE_NAMES = ["ChatGPT", "Claude", "Gemini", "Perplexity", "Grok", "Google AI Mode", "AI Overviews"];
 
-      {/* App shell */}
-      <div
-        className="bg-white border border-[#e5e0da] rounded-b-xl overflow-hidden flex shadow-2xl"
-        style={{ height: 560 }}
-        role="img"
-        aria-label="RankOnGeo dashboard preview"
-      >
-        {/* Sidebar */}
-        <div className="w-56 bg-[#f8f9fb] border-r border-[#eaecf0] flex flex-col shrink-0">
-          <div className="px-4 py-3 border-b border-[#eaecf0] flex items-center gap-2">
-            <LogoIcon size={22} />
-            <span className="font-bold text-sm tracking-tight">
-              RankOn<span className="text-brand">Geo</span>
-            </span>
-            <span className="ml-auto text-[10px] bg-[#eaecf0] text-[#888] px-1.5 py-0.5 rounded">v2.0</span>
-          </div>
-          <div className="px-3 py-2 border-b border-[#eaecf0]">
-            <div className="flex items-center gap-2 bg-white border border-[#e5e7eb] rounded-lg px-2.5 py-2">
-              <div className="w-6 h-6 bg-brand rounded flex items-center justify-center text-white text-[10px] font-bold">
-                A
-              </div>
-              <div>
-                <div className="text-xs font-semibold text-[#111]">Acme Corp</div>
-                <div className="text-[10px] text-[#888] uppercase tracking-wide">Owner</div>
-              </div>
-              <svg className="ml-auto w-3 h-3 text-[#aaa]" fill="none" viewBox="0 0 12 12">
-                <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-            </div>
-          </div>
-          <div className="flex-1 overflow-y-auto px-2 py-2 space-y-4 text-xs">
-            <div>
-              <div className="px-2 py-1 text-[10px] uppercase tracking-widest text-[#bbb] font-medium">Measure</div>
-              {(
-                [["Overview", true], ["Engines", false], ["Prompts", false], ["Citations", false], ["Competitors", false]] as [string, boolean][]
-              ).map(([label, active]) => (
-                <div
-                  key={label}
-                  className={`flex items-center gap-2 px-2 py-1.5 rounded-md ${
-                    active ? "bg-white border border-[#e5e7eb] text-[#111] font-medium shadow-sm" : "text-[#666]"
-                  }`}
-                >
-                  <div className={`w-1.5 h-1.5 rounded-full ${active ? "bg-brand" : "bg-transparent"}`} />
-                  {label}
-                </div>
-              ))}
-            </div>
-            <div>
-              <div className="px-2 py-1 text-[10px] uppercase tracking-widest text-[#bbb] font-medium">Create</div>
-              {["Research", "Keywords", "Articles"].map((label) => (
-                <div key={label} className="flex items-center gap-2 px-2 py-1.5 rounded-md text-[#666]">
-                  <div className="w-1.5 h-1.5 rounded-full bg-transparent" />
-                  {label}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="border-t border-[#eaecf0] px-3 py-2">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-brand rounded-full flex items-center justify-center text-white text-[10px] font-bold">
-                AC
-              </div>
-              <div>
-                <div className="text-[10px] font-medium text-[#111]">john@acmecorp.com</div>
-                <div className="text-[10px] text-[#888]">Workspace</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main content */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="border-b border-[#eaecf0] px-5 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-5 h-5 bg-brand rounded flex items-center justify-center text-white text-[9px] font-bold">A</div>
-              <span className="text-[#888]">acmecorp.com</span>
-              <span className="text-[#ccc]">/</span>
-              <span className="font-semibold text-[#111]">Overview</span>
-            </div>
-            <button className="bg-[#111] text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1">
-              <span>+</span> New prompt
-            </button>
-          </div>
-
-          <div className="px-5 py-4">
-            <h2 className="text-lg font-bold text-[#111] mb-0.5">Overview</h2>
-            <p className="text-xs text-[#888] mb-4">Visibility up 12.4 pts this window</p>
-
-            <div className="grid grid-cols-4 gap-3 mb-4">
-              {[
-                { label: "COMPOSITE VISIBILITY", value: "60.6%", sub: "+12.4 vs start" },
-                { label: "MENTIONS", value: "2,841", sub: "+78.0% mention rate" },
-                { label: "AVG POSITION", value: "2.1", sub: "lower is better" },
-                { label: "SENTIMENT SCORE", value: "84", sub: "positive" },
-              ].map((s) => (
-                <div key={s.label} className="border border-[#eaecf0] rounded-xl p-3 bg-white">
-                  <div className="text-[9px] uppercase tracking-widest text-[#aaa] font-medium mb-1">{s.label}</div>
-                  <div className="text-2xl font-bold text-[#111] mb-0.5">{s.value}</div>
-                  <div className="text-[10px] text-brand font-medium">{s.sub}</div>
-                  <div className="mt-2 h-6 flex items-end gap-0.5">
-                    {[20, 22, 24, 22, 25, 28, 26, 30, 32, 35, 38, 40].map((h, i) => (
-                      <div key={i} className="flex-1 bg-red-100 rounded-sm" style={{ height: `${h}%` }} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="border border-[#eaecf0] rounded-xl p-3 bg-white">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-xs font-semibold text-[#111]">Composite visibility</span>
-                  <span className="text-[10px] text-[#aaa]">· last 30 days</span>
-                  <div className="ml-auto flex items-center gap-3 text-[10px]">
-                    <span className="flex items-center gap-1"><span className="inline-block w-5 h-0.5 bg-brand" />You: 60.6%</span>
-                    <span className="flex items-center gap-1"><span className="inline-block w-5 h-0.5 bg-[#888]" />Obsidian</span>
-                  </div>
-                </div>
-                <svg viewBox="0 0 300 80" className="w-full" style={{ height: 80 }}>
-                  <polyline points="0,65 25,60 50,55 75,52 100,50 125,45 150,42 175,38 200,35 225,30 250,28 275,25 300,22" fill="none" stroke="#c8372d" strokeWidth="2" />
-                  <polyline points="0,70 25,68 50,65 75,62 100,60 125,58 150,57 175,55 200,54 225,53 250,52 275,52 300,52" fill="none" stroke="#888" strokeWidth="1.5" strokeDasharray="4,3" />
-                </svg>
-              </div>
-
-              <div className="border border-[#eaecf0] rounded-xl p-3 bg-white">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-[#111]">Rankings</span>
-                  <span className="text-[10px] text-[#aaa]">· brands by visibility</span>
-                </div>
-                <table className="w-full text-[10px]">
-                  <thead>
-                    <tr className="text-[#aaa] uppercase tracking-wide">
-                      <th className="text-left py-0.5 font-medium w-5">#</th>
-                      <th className="text-left py-0.5 font-medium">Brand</th>
-                      <th className="text-right py-0.5 font-medium">Vis.</th>
-                      <th className="text-right py-0.5 font-medium">SOV</th>
-                      <th className="text-right py-0.5 font-medium">Sent.</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      { rank: "01", name: "Acme Corp", you: true, vis: "60.6", sov: "31.0%", sent: 84, color: "#111" },
-                      { rank: "02", name: "Obsidian", you: false, vis: "54.2", sov: "21.0%", sent: 70, color: "#555" },
-                      { rank: "03", name: "Coda", you: false, vis: "47.5", sov: "16.0%", sent: 61, color: "#e85d04" },
-                      { rank: "04", name: "ClickUp", you: false, vis: "41.0", sov: "14.0%", sent: 56, color: "#c8372d" },
-                      { rank: "05", name: "Confluence", you: false, vis: "33.8", sov: "10.0%", sent: 48, color: "#2684ff" },
-                    ].map((r) => (
-                      <tr key={r.rank} className={r.you ? "bg-red-50" : ""}>
-                        <td className="py-0.5 text-[#aaa]">{r.rank}</td>
-                        <td className="py-0.5">
-                          <div className="flex items-center gap-1">
-                            <div className="w-4 h-4 rounded flex items-center justify-center text-white text-[8px] font-bold shrink-0" style={{ background: r.color }}>
-                              {r.name[0]}
-                            </div>
-                            <span className={r.you ? "font-semibold text-[#111]" : "text-[#555]"}>{r.name}</span>
-                            {r.you && <span className="bg-brand text-white text-[8px] px-1 rounded font-bold">YOU</span>}
-                          </div>
-                        </td>
-                        <td className="py-0.5 text-right font-medium text-[#111]">{r.vis}</td>
-                        <td className="py-0.5 text-right text-[#888]">{r.sov}</td>
-                        <td className="py-0.5 text-right">
-                          <span className={`font-bold ${r.sent >= 80 ? "text-green-600" : r.sent >= 60 ? "text-yellow-600" : "text-red-500"}`}>
-                            {r.sent}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      </div>
+function EngineMarquee() {
+  const set = (hidden: boolean) => (
+    <div className="flex items-center" aria-hidden={hidden || undefined}>
+      {ENGINE_NAMES.map((n) => (
+        <span key={n} className="whitespace-nowrap px-9 font-serif text-[22px] font-[350] italic text-muted">
+          {n} <span className="not-italic text-mint/60 text-[13px]">&nbsp;&nbsp;✦</span>
+        </span>
+      ))}
     </div>
+  );
+  return (
+    <section className="border-y border-line bg-gradient-to-b from-white/[0.015] to-transparent py-8">
+      <p className="mb-6 text-center text-[11.5px] font-medium uppercase tracking-[0.22em] text-faint">
+        Tracking every answer engine your customers use
+      </p>
+      <div className="marq-mask">
+        <div className="marq-track">
+          {set(false)}
+          {set(true)}
+        </div>
+      </div>
+    </section>
   );
 }
 
-function BentoGrid() {
+const LOOP_STEPS = [
+  { n: "1", title: "Measure", desc: "Composite visibility score across 7 engines, ~60 seconds after you enter your domain." },
+  { n: "2", title: "Research", desc: "Generative query mining surfaces every question where AI answers without you." },
+  { n: "3", title: "Write", desc: "Source-grounded articles engineered for citation — schema, FAQs and internal links included." },
+  { n: "4", title: "Publish", desc: "One click to WordPress, Shopify or Framer. Webhooks and REST API for everything else." },
+  { n: "5", title: "Re-measure", desc: "Daily refresh proves the lift — watch citations appear engine by engine." },
+];
+
+function LoopSection() {
+  return (
+    <section id="loop" className="px-6 py-28">
+      <div className="mx-auto max-w-6xl">
+        <ScrollReveal>
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <h2
+              className="font-serif text-4xl font-[350] tracking-tight text-ink sm:text-5xl"
+              style={{ textWrap: "balance" } as React.CSSProperties}
+            >
+              One loop, running <em className="italic text-mint">while you sleep</em>
+            </h2>
+            <p className="mt-4 text-muted">
+              Measure → Research → Write → Publish → Re-measure. Every stage feeds the next, fully automatic.
+            </p>
+          </div>
+        </ScrollReveal>
+        <ScrollReveal delay={80}>
+          <div className="mb-14 flex justify-center">
+            <span className="inline-flex items-center gap-2.5 rounded-full bg-amber/[0.06] px-5 py-2 text-[13px] text-amber shadow-[inset_0_0_0_1px_rgba(255,180,105,0.2)]">
+              <svg className="spin-slow h-[15px] w-[15px]" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 1.5v3h-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              The loop re-runs daily — no babysitting required
+            </span>
+          </div>
+        </ScrollReveal>
+        <div className="relative grid grid-cols-1 gap-9 md:grid-cols-5 md:gap-3">
+          <div
+            className="absolute left-[33px] top-[5%] bottom-[5%] w-px md:inset-x-[9%] md:top-[33px] md:bottom-auto md:h-px md:w-auto"
+            style={{
+              background: "repeating-linear-gradient(90deg, rgba(140,245,195,.35) 0 6px, transparent 6px 14px)",
+            }}
+            aria-hidden="true"
+          />
+          {LOOP_STEPS.map((s, i) => (
+            <ScrollReveal key={s.n} delay={i * 90}>
+              <div className="group relative grid grid-cols-[66px_1fr] items-start gap-5 text-left md:block md:px-2.5 md:text-center">
+                <div className="relative z-[1] flex h-[66px] w-[66px] items-center justify-center rounded-full font-serif text-2xl italic text-mint shadow-[inset_0_0_0_1px_rgba(140,245,195,0.25),0_0_30px_-8px_rgba(140,245,195,0.4)] transition-all duration-500 [background:radial-gradient(circle_at_35%_30%,rgba(140,245,195,.14),rgba(140,245,195,.03))] group-hover:-translate-y-1 group-hover:shadow-[inset_0_0_0_1px_rgba(140,245,195,0.5),0_0_40px_-6px_rgba(140,245,195,0.6)] md:mx-auto md:mb-5">
+                  {s.n}
+                </div>
+                <div>
+                  <h3 className="mb-2 text-[16.5px] font-semibold text-ink">{s.title}</h3>
+                  <p className="text-[13.5px] leading-relaxed text-muted">{s.desc}</p>
+                </div>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FeatureBento() {
   const ranks = [
     { rank: 1, domain: "acmecorp.com", you: true, pct: 74, delta: "+4.2" },
     { rank: 2, domain: "evernote.com", pct: 52, delta: "-1.1" },
     { rank: 3, domain: "obsidian.md", pct: 48, delta: "+0.3" },
     { rank: 4, domain: "roamresearch.com", pct: 31, delta: "-2.4" },
   ] as { rank: number; domain: string; you?: boolean; pct: number; delta: string }[];
-
-  const engines = [
-    { label: "ChatGPT", logo: "/openai.svg" },
-    { label: "Claude", logo: "/claude.svg" },
-    { label: "Gemini", logo: "/gemini.svg" },
-    { label: "Perplexity", logo: "/perplexity.svg" },
-    { label: "Grok", logo: "/grok.svg" },
-    { label: "AI Overviews" },
-    { label: "AI Mode" },
-  ];
 
   const gaps = [
     { q: "best note app for ADHD", score: 84 },
@@ -257,160 +138,158 @@ function BentoGrid() {
     { dest: "Webhook", detail: "REST · custom endpoint", status: "published" },
   ];
 
+  const panel =
+    "rounded-3xl bg-gradient-to-b from-white/[0.045] to-white/[0.012] p-6 shadow-[inset_0_1px_0_rgba(234,246,238,0.09),inset_0_0_0_1px_rgba(234,246,238,0.055)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[inset_0_1px_0_rgba(234,246,238,0.12),inset_0_0_0_1px_rgba(140,245,195,0.22),0_30px_70px_-20px_rgba(0,0,0,0.7)]";
+
   return (
-    <section id="platform" className="bg-[#0a0a0a] px-6 pb-24">
-      <div className="max-w-6xl mx-auto">
+    <section id="platform" className="px-6 pb-28">
+      <div className="mx-auto max-w-6xl">
         <ScrollReveal>
-          <div className="text-center pt-20 pb-12">
+          <div className="mx-auto max-w-2xl pb-14 pt-20 text-center">
             <h2
-              className="text-4xl font-black tracking-tight mb-4 text-white"
-              style={{ textWrap: "balance", letterSpacing: "-0.02em" } as React.CSSProperties}
+              className="mb-4 font-serif text-4xl font-[350] tracking-tight text-ink sm:text-5xl"
+              style={{ textWrap: "balance" } as React.CSSProperties}
             >
-              One pipeline. Four instruments.
+              Everything between <em className="italic text-mint">invisible</em> and{" "}
+              <em className="italic text-mint">cited</em>
             </h2>
-            <p className="text-[#555] max-w-lg mx-auto text-sm leading-relaxed">
-              Measure → Research → Write → Publish → Re-measure. Fully automatic.
+            <p className="mx-auto max-w-lg text-muted">
+              Monitoring tools tell you you&apos;re losing. RankOnGeo does something about it.
             </p>
           </div>
         </ScrollReveal>
 
-        <div className="space-y-4">
-          {/* Row 1: Visibility (2/3) + Engines (1/3) */}
+        <div className="space-y-5">
           <ScrollReveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="md:col-span-2 bg-[#111] border border-white/[0.06] rounded-2xl p-6">
-              <div className="mb-4">
-                <span className="text-[10px] text-white/30 uppercase tracking-widest tracking-[0.12em]">Visibility</span>
-              </div>
-              <h3 className="text-xl font-black text-white mb-5 leading-tight">
-                See exactly where AI ranks your brand.
-              </h3>
-              <div className="space-y-2">
-                {ranks.map((r) => (
-                  <div key={r.domain} className={`flex items-center gap-3 rounded-xl px-3 py-2 ${r.you ? "bg-brand/10 border border-brand/25" : "bg-white/[0.03]"}`}>
-                    <span className="text-[10px] text-white/25 w-3 shrink-0">{r.rank}</span>
-                    <span className={`text-xs flex-1 min-w-0 truncate ${r.you ? "font-semibold text-white" : "text-white/40"}`}>
-                      {r.domain}
-                      {r.you && <span className="ml-2 bg-brand text-white text-[8px] px-1.5 py-0.5 rounded font-bold">YOU</span>}
-                    </span>
-                    <div className="w-16 h-1 bg-white/8 rounded-full overflow-hidden shrink-0">
-                      <div className={`h-full rounded-full ${r.you ? "bg-brand" : "bg-white/20"}`} style={{ width: `${r.pct}%` }} />
-                    </div>
-                    <span className="text-[11px] font-medium text-white/60 w-8 text-right shrink-0">{r.pct}%</span>
-                    <span className={`text-[10px] w-8 text-right shrink-0 font-mono ${r.delta.startsWith("+") ? "text-emerald-400" : "text-red-400"}`}>{r.delta}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-1.5 mt-4 flex-wrap">
-                {["ChatGPT", "Claude", "Gemini", "Perplexity", "Grok", "AI Overviews"].map((e) => (
-                  <span key={e} className="text-[9px] bg-white/5 text-white/30 px-2 py-0.5 rounded-full">{e}</span>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6 flex flex-col">
-              <span className="text-[10px] text-white/30 uppercase tracking-widest mb-2">Coverage</span>
-              <div className="text-6xl font-black text-white leading-none">7</div>
-              <div className="text-sm text-white/40 mt-1 mb-6">AI engines tracked</div>
-              <div className="flex flex-wrap gap-x-4 gap-y-3 mt-auto">
-                {engines.map((e) =>
-                  "logo" in e ? (
-                    <img
-                      key={e.label}
-                      src={e.logo}
-                      alt={e.label}
-                      className="h-3.5 w-auto"
-                      style={{ filter: "brightness(0) invert(1)", opacity: 0.35 }}
-                    />
-                  ) : (
-                    <span key={e.label} className="text-[11px] font-medium text-white/30 leading-[14px]">
-                      {e.label}
-                    </span>
-                  )
-                )}
-              </div>
-            </div>
-          </div>
-
-          </ScrollReveal>
-          {/* Row 2: Stat + Research + Generate */}
-          <ScrollReveal delay={100}>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div
-              className="bg-brand rounded-2xl p-6 flex flex-col justify-between min-h-[220px]"
-              style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px)", backgroundSize: "20px 20px" }}
-            >
-              <span className="text-white/70 text-[10px] uppercase tracking-widest font-medium">Time to first data</span>
-              <div>
-                <div className="text-5xl font-black text-white leading-none mt-3">~60s</div>
-                <div className="text-sm text-white/65 mt-2 leading-snug">domain entry to first visibility score</div>
-              </div>
-              <div className="text-[10px] text-white/45 mt-2">Free · no card required</div>
-            </div>
-
-            <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6">
-              <div className="mb-4">
-                <span className="text-[10px] text-white/30 uppercase tracking-widest tracking-[0.12em]">Research</span>
-              </div>
-              <h3 className="text-lg font-black text-white mb-4 leading-tight">Mine the gaps AI is about to fill.</h3>
-              <div className="space-y-2">
-                {gaps.map((r) => (
-                  <div key={r.q} className="flex items-center gap-2 py-1 border-b border-white/[0.04]">
-                    <span className="flex-1 text-[11px] text-white/50 truncate">{r.q}</span>
-                    <span className="text-brand text-[11px] font-semibold shrink-0">{r.score}%</span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-3 text-[9px] text-white/20">AI overlap score · 247 gaps found</div>
-            </div>
-
-            <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6">
-              <div className="mb-4">
-                <span className="text-[10px] text-white/30 uppercase tracking-widest tracking-[0.12em]">Generate</span>
-              </div>
-              <h3 className="text-lg font-black text-white mb-4 leading-tight">Write what citation engines quote.</h3>
-              <div className="bg-black/50 rounded-xl p-3.5 border border-white/[0.04] font-mono text-[10px]">
-                <div className="text-white/30 mb-2 font-sans text-[9px] uppercase tracking-widest">Outline · 1,840 / 2,400 words</div>
-                {outline.map((s, i) => (
-                  <div key={s} className="flex gap-2 py-0.5">
-                    <span className="text-white/20">{i + 1}.</span>
-                    <span className="text-white/45">{s}</span>
-                  </div>
-                ))}
-                <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-white/[0.05]">
-                  <span className="text-brand animate-pulse motion-reduce:animate-none" aria-hidden="true">▋</span>
-                  <span className="text-white/25 font-sans">Writing claim-dense passage…</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          </ScrollReveal>
-          {/* Row 3: Publish — full width */}
-          <ScrollReveal delay={200}>
-          <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-8">
-              <div className="shrink-0 sm:w-52">
-                <div className="mb-2">
-                  <span className="text-[10px] text-white/30 uppercase tracking-widest tracking-[0.12em]">Publish</span>
-                </div>
-                <h3 className="text-xl font-black text-white leading-snug">
-                  Publish once.<br />Structured for citation.
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+              <div className={`${panel} md:col-span-2`}>
+                <h3 className="mb-5 font-serif text-2xl font-[400] leading-tight text-ink">
+                  See exactly where AI ranks your brand.
                 </h3>
+                <div className="space-y-2">
+                  {ranks.map((r) => (
+                    <div
+                      key={r.domain}
+                      className={`flex items-center gap-3 rounded-xl px-3 py-2 ${
+                        r.you ? "bg-mint/[0.07] shadow-[inset_0_0_0_1px_rgba(140,245,195,0.25)]" : "bg-white/[0.03]"
+                      }`}
+                    >
+                      <span className="w-3 shrink-0 text-[10px] text-faint">{r.rank}</span>
+                      <span className={`min-w-0 flex-1 truncate text-xs ${r.you ? "font-semibold text-ink" : "text-muted"}`}>
+                        {r.domain}
+                        {r.you && (
+                          <span className="ml-2 rounded bg-mint px-1.5 py-0.5 text-[8px] font-bold text-[#04241a]">YOU</span>
+                        )}
+                      </span>
+                      <div className="h-1 w-16 shrink-0 overflow-hidden rounded-full bg-white/[0.08]">
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${r.pct}%`,
+                            background: r.you ? "linear-gradient(90deg, rgba(55,201,141,.6), #8cf5c3)" : "rgba(234,246,238,.25)",
+                          }}
+                        />
+                      </div>
+                      <span className="w-8 shrink-0 text-right text-[11px] font-medium text-muted">{r.pct}%</span>
+                      <span className={`w-8 shrink-0 text-right text-[10px] ${r.delta.startsWith("+") ? "text-mint" : "text-rose"}`}>
+                        {r.delta}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 flex flex-wrap gap-1.5">
+                  {["ChatGPT", "Claude", "Gemini", "Perplexity", "Grok", "AI Overviews"].map((e) => (
+                    <span key={e} className="rounded-full bg-white/[0.04] px-2 py-0.5 text-[9px] text-faint">
+                      {e}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {destinations.map((r) => (
-                  <div key={r.dest} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
-                    <div className="text-xs font-semibold text-white/70 mb-0.5">{r.dest}</div>
-                    <div className="text-[9px] text-white/30 truncate mb-2">{r.detail}</div>
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
-                      r.status === "published" ? "bg-emerald-400/15 text-emerald-400" : "bg-yellow-400/15 text-yellow-400"
-                    }`}>{r.status}</span>
-                  </div>
-                ))}
+
+              <div className={`${panel} flex flex-col`}>
+                <div className="font-serif text-6xl font-[350] leading-none text-ink">7</div>
+                <div className="mb-6 mt-1 text-sm text-muted">AI engines tracked</div>
+                <div className="mt-auto flex flex-wrap gap-x-4 gap-y-2.5">
+                  {ENGINE_NAMES.map((e) => (
+                    <span key={e} className="text-[12px] font-medium text-faint">
+                      {e}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
+
+          <ScrollReveal delay={100}>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+              <div className="flex min-h-[220px] flex-col justify-between rounded-3xl bg-gradient-to-b from-[#123a2b] to-[#0a2018] p-6 shadow-[inset_0_1px_0_rgba(140,245,195,0.2),inset_0_0_0_1px_rgba(140,245,195,0.18),0_0_80px_-30px_rgba(80,230,170,0.4)]">
+                <span className="text-[13px] text-mint/80">Time to first data</span>
+                <div>
+                  <div className="mt-3 font-serif text-6xl font-[350] leading-none text-mint">~60s</div>
+                  <div className="mt-2 text-sm leading-snug text-muted">domain entry to first visibility score</div>
+                </div>
+                <div className="mt-2 text-[11px] text-faint">Free · no card required</div>
+              </div>
+
+              <div className={panel}>
+                <h3 className="mb-4 font-serif text-xl font-[400] leading-tight text-ink">Mine the gaps AI is about to fill.</h3>
+                <div className="space-y-2">
+                  {gaps.map((r) => (
+                    <div key={r.q} className="flex items-center gap-2 border-b border-line py-1 last:border-0">
+                      <span className="flex-1 truncate text-[11px] text-muted">{r.q}</span>
+                      <span className="shrink-0 text-[11px] font-semibold text-amber">{r.score}%</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 text-[10px] text-faint">AI overlap score · 247 gaps found</div>
+              </div>
+
+              <div className={panel}>
+                <h3 className="mb-4 font-serif text-xl font-[400] leading-tight text-ink">Write what citation engines quote.</h3>
+                <div className="rounded-xl bg-black/30 p-3.5 text-[10px] shadow-[inset_0_0_0_1px_rgba(234,246,238,0.05)]">
+                  <div className="mb-2 text-[9px] uppercase tracking-[0.14em] text-faint">Outline · 1,840 / 2,400 words</div>
+                  {outline.map((s, i) => (
+                    <div key={s} className="flex gap-2 py-0.5">
+                      <span className="text-faint/60">{i + 1}.</span>
+                      <span className="text-muted">{s}</span>
+                    </div>
+                  ))}
+                  <div className="mt-2 flex items-center gap-1.5 border-t border-line pt-2">
+                    <span className="animate-pulse text-mint motion-reduce:animate-none" aria-hidden="true">▋</span>
+                    <span className="text-faint">Writing claim-dense passage…</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal delay={200}>
+            <div className={panel}>
+              <div className="flex flex-col gap-8 sm:flex-row sm:items-center">
+                <div className="shrink-0 sm:w-56">
+                  <h3 className="font-serif text-2xl font-[400] leading-snug text-ink">
+                    Publish once.
+                    <br />
+                    Structured for citation.
+                  </h3>
+                </div>
+                <div className="grid flex-1 grid-cols-2 gap-3 sm:grid-cols-4">
+                  {destinations.map((r) => (
+                    <div key={r.dest} className="rounded-xl bg-white/[0.03] p-3 shadow-[inset_0_0_0_1px_rgba(234,246,238,0.06)]">
+                      <div className="mb-0.5 text-xs font-semibold text-ink/90">{r.dest}</div>
+                      <div className="mb-2 truncate text-[9px] text-faint">{r.detail}</div>
+                      <span
+                        className={`rounded-full px-1.5 py-0.5 text-[9px] font-medium ${
+                          r.status === "published" ? "bg-mint/10 text-mint" : "bg-amber/10 text-amber"
+                        }`}
+                      >
+                        {r.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </ScrollReveal>
         </div>
       </div>
@@ -418,195 +297,188 @@ function BentoGrid() {
   );
 }
 
+function GlobeSection() {
+  return (
+    <section
+      className="overflow-hidden px-6 py-28"
+      style={{
+        background:
+          "radial-gradient(60% 45% at 72% 50%, rgba(15,70,65,.25), transparent 70%), linear-gradient(180deg, #040d0a 0%, #041009 50%, #040d0a 100%)",
+      }}
+    >
+      <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-14 lg:grid-cols-2">
+        <ScrollReveal>
+          <div>
+            <h2
+              className="font-serif text-4xl font-[350] tracking-tight text-ink sm:text-5xl"
+              style={{ textWrap: "balance" } as React.CSSProperties}
+            >
+              Cited everywhere your customers <em className="italic text-mint">ask</em>
+            </h2>
+            <p className="mb-9 mt-5 max-w-md text-[16px] text-muted">
+              AI engines answer millions of buying questions every hour, in every market. RankOnGeo watches those
+              answers around the clock — and makes sure your brand is the one they reach for.
+            </p>
+            <div className="grid grid-cols-2 gap-3.5">
+              {[
+                { b: "7", s: "AI engines tracked, from ChatGPT to AI Overviews" },
+                { b: "~60s", s: "to your first visibility score. No credit card." },
+                { b: "Daily", s: "refresh cycles on Business & Scale plans" },
+                { b: "25", s: "competitor brands tracked side-by-side" },
+              ].map((st) => (
+                <div
+                  key={st.b}
+                  className="rounded-2xl bg-white/[0.035] px-5 py-5 shadow-[inset_0_0_0_1px_rgba(234,246,238,0.08)] transition-all duration-400 hover:-translate-y-0.5 hover:shadow-[inset_0_0_0_1px_rgba(140,245,195,0.25)]"
+                >
+                  <span className="block font-serif text-3xl font-[400] leading-tight text-ink">{st.b}</span>
+                  <span className="mt-1.5 block text-[13px] text-muted">{st.s}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </ScrollReveal>
+        <ScrollReveal delay={140}>
+          <div className="mx-auto w-full max-w-[480px]">
+            <GlobeViz />
+          </div>
+        </ScrollReveal>
+      </div>
+    </section>
+  );
+}
+
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#080808] text-[#c8c8c8]" style={{ fontFamily: "var(--font-geist-sans, system-ui, sans-serif)" }}>
+    <div id="top" className="min-h-screen bg-background font-sans text-foreground">
+      <div className="grain" aria-hidden="true" />
 
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-brand focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-medium"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:rounded-lg focus:bg-mint focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-[#04241a]"
       >
         Skip to content
       </a>
 
-      {/* NAV */}
-      <nav className="relative sticky top-0 z-50 bg-[#0d0d0d]/90 backdrop-blur-md border-b border-white/[0.06]" aria-label="Main navigation">
-        <div className="flex items-center justify-between px-8 py-4 max-w-7xl mx-auto">
-          <div className="flex items-center gap-2.5">
-            <LogoIcon />
-            <span className="text-xl font-bold tracking-tight text-white">RankOn<span className="text-brand">Geo</span></span>
-          </div>
-          <div className="hidden md:flex items-center gap-8 text-sm text-white/55">
-            <a href="#platform" className="py-2 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">Platform</a>
-            <a href="#" className="py-2 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">Tools</a>
-            <a href="#" className="py-2 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">Guides</a>
-            <a href="#" className="py-2 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">Blog</a>
-            <a href="#pricing" className="py-2 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">Pricing</a>
-          </div>
-          <div className="flex items-center gap-2">
-            <MobileNav />
-            <a
-              href="/dashboard"
-              className="bg-brand hover:bg-brand-dark text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0d0d]"
-            >
-              Dashboard <span aria-hidden="true">→</span>
-            </a>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
       <main id="main-content">
         {/* HERO */}
         <section
-          className="relative overflow-hidden"
+          className="relative overflow-hidden pb-10"
           style={{
-            background: "#080808",
-            backgroundImage: [
-              "radial-gradient(ellipse at 50% -5%, rgba(200,55,45,0.13) 0%, transparent 52%)",
-              "radial-gradient(circle, rgba(255,255,255,0.045) 1px, transparent 1px)",
-            ].join(", "),
-            backgroundSize: "100% 100%, 24px 24px",
+            background:
+              "radial-gradient(90% 60% at 70% -5%, rgba(20,80,72,.35), transparent 60%), radial-gradient(70% 50% at 15% 10%, rgba(10,45,55,.4), transparent 65%), linear-gradient(180deg,#02080a 0%,#03100c 45%,#041209 100%)",
           }}
         >
-          <div className="relative max-w-4xl mx-auto px-8 pt-20 pb-24 text-center">
-            <ScrollReveal>
-              <h1
-                className="leading-[1.06] font-black tracking-tight mb-6 text-white"
-                style={{ fontSize: "clamp(2.4rem, 9vw, 4.8rem)", letterSpacing: "-0.03em", textWrap: "balance" } as React.CSSProperties}
-              >
-                Track where AI ranks<br />
-                your brand.
-              </h1>
-              <p className="text-base text-white/45 mb-10 max-w-lg mx-auto leading-relaxed">
-                See exactly what ChatGPT, Claude, Gemini, Perplexity, and Grok say about your brand — then close the gaps with research, articles, and one-click publishing.
-              </p>
-            </ScrollReveal>
+          <NightSky />
+          <div
+            className="pointer-events-none absolute left-[52%] top-[2%] z-[1] h-[420px] w-[760px] rounded-full opacity-50 mix-blend-screen blur-[70px]"
+            style={{
+              background: "radial-gradient(ellipse at center, rgba(38,140,120,.35), transparent 65%)",
+              animation: "auroraDrift 16s ease-in-out infinite alternate",
+            }}
+            aria-hidden="true"
+          />
+          <div
+            className="pointer-events-none absolute left-[6%] top-[14%] z-[1] h-[380px] w-[560px] rounded-full opacity-50 mix-blend-screen blur-[70px]"
+            style={{
+              background: "radial-gradient(ellipse at center, rgba(18,90,110,.3), transparent 65%)",
+              animation: "auroraDrift 21s ease-in-out infinite alternate-reverse",
+            }}
+            aria-hidden="true"
+          />
 
-            <ScrollReveal delay={100}>
-              <div className="max-w-xl mx-auto mb-6">
-                <DomainForm variant="hero" />
-              </div>
-
-              <div className="flex items-center justify-center gap-6 text-sm">
-                {[
-                  { stat: "7", label: "AI engines" },
-                  { stat: "~60s", label: "first scan" },
-                  { stat: "Free", label: "to start" },
-                ].map((s, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    {i > 0 && <span className="text-white/15" aria-hidden="true">·</span>}
-                    <span className="font-bold text-white">{s.stat}</span>
-                    <span className="text-white/35">{s.label}</span>
-                  </div>
-                ))}
-              </div>
-            </ScrollReveal>
-          </div>
-        </section>
-
-        {/* INTERACTIVE DEMO */}
-        <section className="px-8 pb-20 bg-[#080808] pt-4 overflow-x-auto">
-          <div style={{ filter: "drop-shadow(0 32px 80px rgba(200,55,45,0.07))" }}>
-            <InteractiveDemoMockup />
-          </div>
-        </section>
-
-        {/* ENGINE STRIP */}
-        <section className="border-y border-white/[0.06] bg-[#080808] py-5 px-8">
-          <p className="text-center text-[11px] tracking-widest text-[#3a3a3a] font-medium mb-5 uppercase">
-            Tracking visibility across every major AI engine
-          </p>
-          <div className="flex items-center justify-center gap-10 flex-wrap">
-            {[
-              { name: "ChatGPT", logo: "/openai.svg" },
-              { name: "Claude", logo: "/claude.svg" },
-              { name: "Perplexity", logo: "/perplexity.svg" },
-              { name: "Gemini", logo: "/gemini.svg" },
-              { name: "Grok", logo: "/grok.svg" },
-              { name: "AI Overviews", color: "#4285f4" },
-              { name: "AI Mode", color: "#8b5cf6" },
-            ].map((e) => (
-              "logo" in e ? (
-                <img
-                  key={e.name}
-                  src={e.logo}
-                  alt={e.name}
-                  className="h-4 w-auto"
-                  style={{ filter: "brightness(0) invert(1)", opacity: 0.35 }}
-                />
-              ) : (
-                <div key={e.name} className="flex items-center gap-2 text-sm text-[#444] font-medium">
-                  <span style={{ color: e.color, fontSize: 8 }} aria-hidden="true">●</span>
-                  {e.name}
-                </div>
-              )
-            ))}
-          </div>
-        </section>
-
-        <BentoGrid />
-
-        {/* HOW IT WORKS */}
-        <section className="bg-[#0d0d0d] border-y border-white/[0.06] py-24 px-8">
-          <div className="max-w-5xl mx-auto">
-            <ScrollReveal>
-              <div className="text-center mb-14">
-                <h2 className="text-4xl font-black tracking-tight mb-3 text-white" style={{ textWrap: "balance" } as React.CSSProperties}>
-                  Diagnose. Treat. Repeat.
-                </h2>
-                <p className="text-[#555]">Every morning, you wake up to fresh visibility signals. Here&apos;s the loop.</p>
-              </div>
-            </ScrollReveal>
-            <ScrollReveal delay={80}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                {[
-                  { label: "Diagnose", desc: "Plug in your domain. Daily visibility updates begin across your plan engines. Your first composite visibility index arrives in minutes." },
-                  { label: "Research", desc: "Generative query mining, topic clusters, AI overlap & intent scoring. Outlines you approve." },
-                  { label: "Write", desc: "Source-grounded article generation tuned to citation patterns. Schema and FAQ included." },
-                  { label: "Publish", desc: "One-click to your CMS, structured for citation. Schema, canonical, and internal links, handled." },
-                ].map((s) => (
-                  <div key={s.label} className="border-t-2 border-brand/25 pt-5">
-                    <h3 className="font-black text-lg mb-2 text-white">{s.label}</h3>
-                    <p className="text-sm text-[#555] leading-relaxed">{s.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </ScrollReveal>
-            <p className="text-center text-xs text-[#3a3a3a] mt-10 uppercase tracking-widest">
-              The loop runs daily: update visibility, treat gaps, re-measure.
+          <div className="relative z-[5] mx-auto max-w-4xl px-6 pt-40 text-center max-md:pt-32">
+            <div className="rise" style={{ "--d": ".05s" } as React.CSSProperties}>
+              <span className="inline-flex items-center gap-2.5 rounded-full bg-mint/[0.06] px-[18px] py-2 text-[13px] uppercase tracking-[0.12em] text-mint shadow-[inset_0_0_0_1px_rgba(140,245,195,0.22)] backdrop-blur-sm">
+                <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-mint shadow-[0_0_10px_#8cf5c3]" aria-hidden="true" />
+                Generative Engine Optimization
+              </span>
+            </div>
+            <h1
+              className="rise mx-auto mb-6 mt-8 font-serif font-[340] leading-[1.08] tracking-[-0.015em] text-ink"
+              style={{ fontSize: "clamp(2.6rem, 6vw, 4.6rem)", textWrap: "balance", "--d": ".18s" } as React.CSSProperties}
+            >
+              The internet asks AI first.
+              <br />
+              Make sure it answers <em className="italic text-mint">with you.</em>
+            </h1>
+            <p
+              className="rise mx-auto mb-10 max-w-xl text-muted"
+              style={{ fontSize: "clamp(1.02rem, 1.6vw, 1.15rem)", "--d": ".32s" } as React.CSSProperties}
+            >
+              See exactly what <strong className="font-medium text-ink">ChatGPT, Claude, Gemini, Perplexity and Grok</strong>{" "}
+              say about your brand — then close the gaps with research, articles, and one-click publishing.
+            </p>
+            <div className="rise mx-auto mb-5 max-w-xl" style={{ "--d": ".46s" } as React.CSSProperties}>
+              <DomainForm variant="hero" />
+            </div>
+            <p className="rise flex items-center justify-center gap-2 text-[13.5px] text-faint" style={{ "--d": ".58s" } as React.CSSProperties}>
+              <svg className="h-3.5 w-3.5 opacity-80" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M8 1.5l1.9 3.9 4.3.6-3.1 3 .7 4.2L8 11.2l-3.8 2 .7-4.2-3.1-3 4.3-.6L8 1.5z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
+              </svg>
+              Free visibility score in ~60 seconds &nbsp;·&nbsp; No credit card
             </p>
           </div>
+
+          {/* INTERACTIVE DEMO — the real dashboard, click around */}
+          <div className="rise relative z-[6] mx-auto mt-16 max-w-5xl overflow-x-auto px-6 pb-28" style={{ "--d": ".7s" } as React.CSSProperties}>
+            <InteractiveDemoMockup />
+          </div>
+
+          <Meadow />
+          <FloraLeft />
+          <FloraRight />
         </section>
 
-        {/* PRICING */}
+        <EngineMarquee />
+
+        <LoopSection />
+
+        <FeatureBento />
+
+        <GlobeSection />
+
         <PricingSection />
 
-        {/* FAQ */}
         <FAQSection />
 
         {/* BOTTOM CTA */}
         <section
-          className="text-white py-24 px-8 text-center"
+          className="relative overflow-hidden px-6 py-32 text-center"
           style={{
-            background: "#0a0a0a",
-            backgroundImage: [
-              "radial-gradient(ellipse at 50% 100%, rgba(200,55,45,0.1) 0%, transparent 60%)",
-              "radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)",
-            ].join(", "),
-            backgroundSize: "100% 100%, 24px 24px",
+            background:
+              "radial-gradient(55% 55% at 50% 65%, rgba(20,90,70,.3), transparent 70%), linear-gradient(180deg,#040d0a 0%, #051710 60%, #030d08 100%)",
           }}
         >
+          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+            {[
+              [8, 22, 0.9], [16, 68, 0.5], [24, 14, 0.7], [33, 80, 0.4], [42, 30, 0.8], [51, 60, 0.5],
+              [58, 12, 0.6], [67, 74, 0.9], [76, 26, 0.5], [84, 64, 0.7], [91, 18, 0.6], [95, 48, 0.4],
+            ].map(([x, y, o], i) => (
+              <span
+                key={i}
+                className="tw absolute h-0.5 w-0.5 rounded-full bg-[#dfeee6]"
+                style={{ left: `${x}%`, top: `${y}%`, opacity: o, animationDelay: `-${(i * 0.4) % 3}s` }}
+              />
+            ))}
+          </div>
           <ScrollReveal>
-            <h2 className="text-4xl font-black tracking-tight mb-4 text-white" style={{ textWrap: "balance" } as React.CSSProperties}>
-              Be in the answer,<br />not just on the page.
+            <h2
+              className="mx-auto mb-5 max-w-2xl font-serif text-4xl font-[350] tracking-tight text-ink sm:text-5xl"
+              style={{ textWrap: "balance" } as React.CSSProperties}
+            >
+              Your customers already asked.
+              <br />
+              <em className="italic text-mint">See what the AI told them.</em>
             </h2>
-            <p className="text-[#555] mb-8 max-w-md mx-auto">
-              Run a free diagnosis in minutes. See exactly where you stand across the engines that now answer your customers&apos; questions.
+            <p className="mx-auto mb-10 max-w-md text-muted">
+              Free visibility score in ~60 seconds. No credit card, no sales call.
             </p>
-            <div className="max-w-md mx-auto mb-5">
+            <div className="mx-auto mb-5 max-w-md">
               <DomainForm variant="cta" />
             </div>
-            <p className="text-xs text-white/30 tracking-wide uppercase">
+            <p className="text-xs uppercase tracking-[0.14em] text-faint">
               Free analysis · Paid plans track up to 7 engines · Results in ~60s
             </p>
           </ScrollReveal>
@@ -614,59 +486,71 @@ export default function LandingPage() {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-[#0a0a0a] text-white px-8 py-16">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+      <footer className="border-t border-line bg-[#020705] px-6 py-16 text-foreground">
+        <div className="mx-auto mb-12 grid max-w-6xl grid-cols-2 gap-8 md:grid-cols-5">
           <div className="col-span-2">
-            <div className="flex items-center gap-2 mb-3">
-              <LogoIcon />
-              <span className="text-lg font-bold">RankOn<span className="text-brand">Geo</span></span>
+            <div className="mb-3 flex items-center gap-2.5">
+              <LogoMark />
+              <span className="text-lg font-semibold tracking-tight">RankOnGeo</span>
             </div>
-            <p className="text-sm text-[#888] mb-4">The visibility layer for AI search. Track. Treat. Repeat.</p>
-            <div className="flex gap-3">
-              {["Twitter", "LinkedIn", "GitHub"].map((s) => (
-                <a key={s} href="#" className="text-xs text-[#555] hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded">{s}</a>
-              ))}
-            </div>
+            <p className="mb-5 max-w-[240px] text-sm text-faint">
+              Track where AI ranks your brand — and close the gaps automatically.
+            </p>
+            <span className="inline-flex items-center gap-2 rounded-full bg-mint/[0.05] px-3.5 py-1.5 text-xs text-mint shadow-[inset_0_0_0_1px_rgba(140,245,195,0.18)]">
+              <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-mint shadow-[0_0_8px_#8cf5c3]" aria-hidden="true" />
+              All systems operational
+            </span>
           </div>
           <div>
-            <div className="text-xs uppercase tracking-widest text-[#555] font-medium mb-3">Product</div>
-            <div className="space-y-2">
+            <div className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-faint">Product</div>
+            <div className="space-y-2.5">
               {["Visibility", "Research", "Generation", "Publishing", "Pricing", "Blog"].map((l) => (
-                <a key={l} href="#" className="block text-sm text-[#888] hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded">{l}</a>
-              ))}
-            </div>
-          </div>
-          <div>
-            <div className="text-xs uppercase tracking-widest text-[#555] font-medium mb-3">Integrations</div>
-            <div className="space-y-2">
-              {["WordPress", "Shopify", "Framer", "Webhooks", "REST API"].map((l) => (
-                <a key={l} href="#" className="block text-sm text-[#888] hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded">{l}</a>
-              ))}
-            </div>
-          </div>
-          <div>
-            <div className="text-xs uppercase tracking-widest text-[#555] font-medium mb-3">Resources</div>
-            <div className="space-y-2">
-              {([["Free visibility audit", true], ["Methodology", false], ["GEO playbook", false]] as [string, boolean][]).map(([l, free]) => (
-                <a key={l} href="#" className="flex items-center gap-1.5 text-sm text-[#888] hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded">
+                <a key={l} href={l === "Pricing" ? "#pricing" : "#platform"} className="block rounded text-sm text-muted transition-colors hover:text-mint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint">
                   {l}
-                  {free && <span className="text-[9px] bg-brand text-white px-1 rounded font-bold">free</span>}
+                </a>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-faint">Integrations</div>
+            <div className="space-y-2.5">
+              {["WordPress", "Shopify", "Framer", "Webhooks", "REST API"].map((l) => (
+                <a key={l} href="#" className="block rounded text-sm text-muted transition-colors hover:text-mint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint">
+                  {l}
+                </a>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-faint">Resources</div>
+            <div className="space-y-2.5">
+              {(
+                [["Free visibility audit", true], ["Methodology", false], ["GEO playbook", false]] as [string, boolean][]
+              ).map(([l, free]) => (
+                <a key={l} href={free ? "/audit" : "#"} className="flex items-center gap-1.5 rounded text-sm text-muted transition-colors hover:text-mint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint">
+                  {l}
+                  {free && <span className="rounded bg-mint px-1 text-[9px] font-bold text-[#04241a]">free</span>}
                 </a>
               ))}
             </div>
           </div>
         </div>
-        <div className="border-t border-[#1a1a1a] pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#555]">
-          <span>© 2026 RankOnGeo</span>
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 border-t border-line pt-6 text-xs text-faint sm:flex-row">
+          <span>© 2026 RankOnGeo. Grown under a night sky.</span>
           <div className="flex gap-4">
             {["Privacy", "Terms", "DPA", "Security"].map((l) => (
-              <a key={l} href="#" className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded">{l}</a>
+              <a key={l} href="#" className="rounded transition-colors hover:text-mint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint">
+                {l}
+              </a>
             ))}
           </div>
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500" aria-hidden="true" />
-            All systems operational
-          </span>
+          <div className="flex gap-4">
+            {["Twitter", "LinkedIn", "GitHub"].map((s) => (
+              <a key={s} href="#" className="rounded transition-colors hover:text-mint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint">
+                {s}
+              </a>
+            ))}
+          </div>
         </div>
       </footer>
     </div>

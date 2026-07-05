@@ -3,10 +3,9 @@ import { useState } from "react";
 
 const LINKS = [
   { label: "Platform", href: "#platform" },
-  { label: "Tools", href: "#" },
-  { label: "Guides", href: "#" },
-  { label: "Blog", href: "#" },
+  { label: "How it works", href: "#loop" },
   { label: "Pricing", href: "#pricing" },
+  { label: "FAQ", href: "#faq" },
 ];
 
 export function MobileNav() {
@@ -18,7 +17,7 @@ export function MobileNav() {
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-label="Toggle navigation menu"
-        className="p-2 text-white/55 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded"
+        className="rounded p-2 text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint"
       >
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
           {open ? (
@@ -30,17 +29,24 @@ export function MobileNav() {
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 bg-[#0d0d0d] border-b border-white/10 shadow-xl z-50 px-8 py-4 flex flex-col gap-1">
+        <div className="absolute left-0 right-0 top-full z-50 flex flex-col gap-1 border-b border-line bg-[#04100c]/95 px-8 py-4 shadow-2xl backdrop-blur-xl">
           {LINKS.map(({ label, href }) => (
             <a
               key={label}
               href={href}
               onClick={() => setOpen(false)}
-              className="py-3 text-sm text-white/55 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded"
+              className="rounded py-3 text-sm text-muted transition-colors hover:text-mint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint"
             >
               {label}
             </a>
           ))}
+          <a
+            href="/auth"
+            onClick={() => setOpen(false)}
+            className="rounded py-3 text-sm text-muted transition-colors hover:text-mint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint"
+          >
+            Login
+          </a>
         </div>
       )}
     </div>

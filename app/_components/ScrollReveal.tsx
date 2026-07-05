@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, ReactNode } from "react";
+import { useLayoutEffect, useRef, ReactNode } from "react";
 
 export function ScrollReveal({
   children,
@@ -12,31 +12,30 @@ export function ScrollReveal({
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  /* Content ships visible (SSR / no-JS / reduced motion); we only hide it
+     right before first paint when we know the reveal animation will run. */
+  useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mediaQuery.matches) {
-      el.style.opacity = "1";
-      return;
-    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    el.style.opacity = "0";
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          el.style.animation = `fadeUp 0.55s cubic-bezier(0.16,1,0.3,1) ${delay}ms forwards`;
+          el.style.animation = `fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}ms forwards`;
           obs.disconnect();
         }
       },
-      { threshold: 0.08 }
+      { threshold: 0.08, rootMargin: "0px 0px -6% 0px" }
     );
     obs.observe(el);
     return () => obs.disconnect();
   }, [delay]);
 
   return (
-    <div ref={ref} style={{ opacity: 0 }} className={className}>
+    <div ref={ref} className={className}>
       {children}
     </div>
   );
