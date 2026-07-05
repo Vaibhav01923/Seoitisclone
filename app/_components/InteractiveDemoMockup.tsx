@@ -1,20 +1,22 @@
 "use client";
 import { useState } from "react";
 
-/* Engine hues tuned for the dark surface — recognizable but not neon. */
+/* Engine hues — kept in sync with the real dashboard's palette (app/dashboard/page.tsx). */
 const ENG_COLORS: Record<string, string> = {
-  ChatGPT: "#3ecf9e",
-  Claude: "#e08a5e",
-  Gemini: "#6ba5ff",
-  Perplexity: "#35c3d6",
-  Grok: "#cfd8d3",
-  "Google AI": "#ffb469",
+  ChatGPT: "#4f8a5b",
+  Claude: "#a8791f",
+  Gemini: "#3f6fa8",
+  Perplexity: "#2f8f96",
+  Grok: "#6b6358",
+  "Google AI": "#6f7f3f",
 };
 const ENGINES = ["ChatGPT", "Claude", "Gemini", "Perplexity", "Grok", "Google AI"];
 
+const LINKEDIN_HEX = "#0A66C2";
+
 /* shared skin */
-const card = "rounded-xl bg-white/[0.03] shadow-[inset_0_0_0_1px_rgba(234,246,238,0.07)]";
-const kpiLabel = "text-[9px] font-semibold uppercase tracking-[0.14em] text-faint mb-1";
+const card = "rounded-xl bg-[var(--surface)] border border-[var(--line)]";
+const kpiLabel = "text-[9px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-faint)] mb-1";
 
 // ── OVERVIEW ──────────────────────────────────────────────────────
 function OverviewContent() {
@@ -25,8 +27,8 @@ function OverviewContent() {
   const lastX = 8 + 14 * 27, lastY = 60 - norm[14];
   return (
     <div className="p-5" style={{ animation: "fadeUp 0.3s ease forwards" }}>
-      <h2 className="mb-0.5 text-lg font-semibold text-ink">Overview</h2>
-      <p className="mb-4 text-xs text-faint">playwright.dev · last scan Jun 24, 2026</p>
+      <h2 className="mb-0.5 text-lg font-semibold text-[var(--ink)]">Overview</h2>
+      <p className="mb-4 text-xs text-[var(--ink-faint)]">playwright.dev · last scan Jun 24, 2026</p>
       <div className="mb-4 grid grid-cols-4 gap-2.5">
         {[
           { label: "COMPOSITE VISIBILITY", val: "72.4%", sub: "+8.1% vs last scan", up: true },
@@ -36,47 +38,46 @@ function OverviewContent() {
         ].map((s) => (
           <div key={s.label} className={`${card} p-3.5`}>
             <p className={kpiLabel}>{s.label}</p>
-            <p className="font-serif text-2xl font-[400] text-ink">{s.val}</p>
-            <p className={`mt-0.5 text-[10px] ${s.up ? "text-mint" : "text-faint"}`}>{s.sub}</p>
+            <p className="font-signal-mono text-2xl font-semibold text-[var(--ink)]">{s.val}</p>
+            <p className={`mt-0.5 text-[10px] ${s.up ? "text-[var(--olive)]" : "text-[var(--ink-faint)]"}`}>{s.sub}</p>
           </div>
         ))}
       </div>
       <div className="grid grid-cols-3 gap-2.5">
         <div className={`${card} col-span-2 p-4`}>
-          <p className="mb-2 text-xs font-medium text-muted">Visibility trend — last 15 scans</p>
+          <p className="mb-2 text-xs font-medium text-[var(--ink-soft)]">Visibility trend — last 15 scans</p>
           <svg width="100%" height="65" viewBox="0 0 390 65">
             <defs>
               <linearGradient id="demoSpark" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="rgba(140,245,195,.25)" />
-                <stop offset="1" stopColor="rgba(140,245,195,0)" />
+                <stop offset="0" stopColor="rgba(177,85,46,.25)" />
+                <stop offset="1" stopColor="rgba(177,85,46,0)" />
               </linearGradient>
             </defs>
             <polygon points={`8,60 ${poly} ${lastX},60`} fill="url(#demoSpark)" />
             <polyline
               points={poly}
               fill="none"
-              stroke="#8cf5c3"
+              stroke="#b1552e"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              style={{ filter: "drop-shadow(0 0 5px rgba(140,245,195,.45))" }}
             />
-            <circle cx={lastX} cy={lastY} r="3.5" fill="#8cf5c3" />
+            <circle cx={lastX} cy={lastY} r="3.5" fill="#b1552e" />
           </svg>
         </div>
         <div className={`${card} p-4`}>
-          <p className="mb-3 text-xs font-medium text-muted">By engine</p>
+          <p className="mb-3 text-xs font-medium text-[var(--ink-soft)]">By engine</p>
           <div className="space-y-2">
             {[
               { name: "ChatGPT", pct: 80 }, { name: "Claude", pct: 74 }, { name: "Gemini", pct: 72 },
               { name: "Perplexity", pct: 69 }, { name: "Grok", pct: 65 }, { name: "Google AI", pct: 79 },
             ].map((e) => (
               <div key={e.name} className="flex items-center gap-1.5">
-                <span className="w-14 shrink-0 truncate text-right text-[9px] text-muted">{e.name}</span>
-                <div className="h-1.5 flex-1 rounded-full bg-white/[0.06]">
+                <span className="w-14 shrink-0 truncate text-right text-[9px] text-[var(--ink-soft)]">{e.name}</span>
+                <div className="h-1.5 flex-1 rounded-full bg-[var(--line)]">
                   <div className="h-full rounded-full" style={{ width: `${e.pct}%`, background: ENG_COLORS[e.name] }} />
                 </div>
-                <span className="w-6 shrink-0 text-[9px] text-muted">{e.pct}%</span>
+                <span className="w-6 shrink-0 text-[9px] text-[var(--ink-soft)]">{e.pct}%</span>
               </div>
             ))}
           </div>
@@ -95,25 +96,25 @@ function EnginesContent() {
   ];
   return (
     <div className="p-5" style={{ animation: "fadeUp 0.3s ease forwards" }}>
-      <h2 className="mb-4 text-lg font-semibold text-ink">Engines</h2>
+      <h2 className="mb-4 text-lg font-semibold text-[var(--ink)]">Engines</h2>
       <div className="space-y-2.5">
         {scans.map((scan, i) => (
           <div key={i} className={`${card} flex items-center gap-4 px-5 py-4`}>
-            <span className="w-14 shrink-0 font-serif text-3xl font-[400] text-ink">{scan.overall}%</span>
+            <span className="w-14 shrink-0 font-signal-mono text-3xl font-semibold text-[var(--ink)]">{scan.overall}%</span>
             <div className="min-w-0 flex-1">
-              <div className="mb-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted">
+              <div className="mb-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-[var(--ink-soft)]">
                 {ENGINES.map((e) => (
                   <span key={e}>
-                    <span className="font-medium text-ink/80">{e}:</span>{" "}
-                    <span className="text-muted">{scan.data[e]}%</span>
+                    <span className="font-medium text-[var(--ink)]/80">{e}:</span>{" "}
+                    <span className="text-[var(--ink-soft)]">{scan.data[e]}%</span>
                   </span>
                 ))}
               </div>
-              <p className="text-[11px] text-faint">{scan.time}</p>
+              <p className="text-[11px] text-[var(--ink-faint)]">{scan.time}</p>
             </div>
             <div className="flex shrink-0 gap-1">
               {ENGINES.map((e) => (
-                <span key={e} className="h-2 w-2 rounded-full" style={{ background: ENG_COLORS[e], boxShadow: `0 0 6px ${ENG_COLORS[e]}66` }} />
+                <span key={e} className="h-2 w-2 rounded-full" style={{ background: ENG_COLORS[e] }} />
               ))}
             </div>
           </div>
@@ -124,8 +125,8 @@ function EnginesContent() {
 }
 
 // ── PROMPTS ───────────────────────────────────────────────────────
-const PROMPT_ENGINE_COLORS: Record<string, string> = { gpt: "#3ecf9e", gemini: "#6ba5ff", google: "#ffb469" };
-const PROMPT_TYPE_COLORS: Record<string, string> = { branded: "#c9a5ff", competitor: "#ffb469", commercial: "#6ba5ff" };
+const PROMPT_ENGINE_COLORS: Record<string, string> = { gpt: ENG_COLORS.ChatGPT, gemini: ENG_COLORS.Gemini, google: ENG_COLORS["Google AI"] };
+const PROMPT_TYPE_COLORS: Record<string, string> = { branded: "#a855f7", competitor: "#b1552e", commercial: "#3b82f6" };
 
 function PromptsContent() {
   const [search, setSearch] = useState("");
@@ -140,8 +141,8 @@ function PromptsContent() {
 
   return (
     <div className="p-5" style={{ animation: "fadeUp 0.3s ease forwards" }}>
-      <h2 className="mb-0.5 text-lg font-semibold text-ink">Prompts</h2>
-      <p className="mb-4 text-xs text-faint">Manage your search prompts &amp; track visibility gaps</p>
+      <h2 className="mb-0.5 text-lg font-semibold text-[var(--ink)]">Prompts</h2>
+      <p className="mb-4 text-xs text-[var(--ink-faint)]">Manage your search prompts &amp; track visibility gaps</p>
 
       <div className="mb-3 grid grid-cols-4 gap-2.5">
         {[
@@ -152,15 +153,15 @@ function PromptsContent() {
         ].map((s) => (
           <div key={s.label} className={`${card} p-3.5`}>
             <p className={kpiLabel}>{s.label}</p>
-            <p className="font-serif text-2xl font-[400] text-ink">{s.val}</p>
-            <p className="mt-0.5 text-[10px] text-faint">{s.sub}</p>
+            <p className="font-signal-mono text-2xl font-semibold text-[var(--ink)]">{s.val}</p>
+            <p className="mt-0.5 text-[10px] text-[var(--ink-faint)]">{s.sub}</p>
           </div>
         ))}
       </div>
 
       <div className={`${card} mb-3 px-4 py-3.5`}>
-        <p className="mb-2 text-xs font-medium text-ink/90">20 of 25 prompts used</p>
-        <div className="mb-2 flex h-1.5 gap-0.5 overflow-hidden rounded-full bg-white/[0.06]">
+        <p className="mb-2 text-xs font-medium text-[var(--ink)]/90">20 of 25 prompts used</p>
+        <div className="mb-2 flex h-1.5 gap-0.5 overflow-hidden rounded-full bg-[var(--line)]">
           <div className="h-full rounded-full" style={{ width: "36%", background: PROMPT_TYPE_COLORS.commercial }} />
           <div className="h-full rounded-full" style={{ width: "24%", background: PROMPT_TYPE_COLORS.competitor }} />
           <div className="h-full rounded-full" style={{ width: "20%", background: PROMPT_TYPE_COLORS.branded }} />
@@ -169,60 +170,60 @@ function PromptsContent() {
           {([["commercial", "Commercial", 9], ["competitor", "Competitor", 6], ["branded", "Branded", 5]] as const).map(([key, label, count]) => (
             <div key={label} className="flex items-center gap-1.5">
               <div className="h-1.5 w-1.5 rounded-full" style={{ background: PROMPT_TYPE_COLORS[key] }} />
-              <span className="text-[10px] text-muted">{label} ({count})</span>
+              <span className="text-[10px] text-[var(--ink-soft)]">{label} ({count})</span>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="mb-3 flex items-center gap-2 rounded-lg bg-white/[0.04] px-3 py-2 shadow-[inset_0_0_0_1px_rgba(234,246,238,0.1)] focus-within:shadow-[inset_0_0_0_1px_rgba(140,245,195,0.4)] transition-shadow">
-        <svg className="h-3.5 w-3.5 shrink-0 text-faint" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+      <div className="mb-3 flex items-center gap-2 rounded-lg border border-[var(--line)] bg-[var(--line-soft)] px-3 py-2 focus-within:border-[var(--rust)]/40 transition-colors">
+        <svg className="h-3.5 w-3.5 shrink-0 text-[var(--ink-faint)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search prompts"
-          className="flex-1 bg-transparent text-xs text-ink outline-none placeholder:text-faint"
+          className="flex-1 bg-transparent text-xs text-[var(--ink)] outline-none placeholder:text-[var(--ink-faint)]"
         />
       </div>
 
       <div className={`${card} overflow-hidden`}>
-        <div className="grid grid-cols-[1fr_100px_90px_36px] gap-x-3 border-b border-line bg-white/[0.02] px-4 py-2.5">
+        <div className="grid grid-cols-[1fr_100px_90px_36px] gap-x-3 border-b border-[var(--line)] bg-[var(--line-soft)] px-4 py-2.5">
           <span className={kpiLabel + " mb-0"}>Prompts</span>
           <span className={kpiLabel + " mb-0"}>Engines</span>
           <span className={kpiLabel + " mb-0"}>Competing with</span>
           <span className={kpiLabel + " mb-0 text-center"}>Type</span>
         </div>
         {filtered.map((r, i) => (
-          <div key={i} className="grid grid-cols-[1fr_100px_90px_36px] items-center gap-x-3 border-b border-line px-4 py-3 last:border-0">
+          <div key={i} className="grid grid-cols-[1fr_100px_90px_36px] items-center gap-x-3 border-b border-[var(--line)] px-4 py-3 last:border-0">
             <div className="flex min-w-0 items-center gap-2.5">
               <div className="relative h-8 w-8 shrink-0">
                 <svg viewBox="0 0 32 32" className="h-8 w-8 -rotate-90">
-                  <circle cx="16" cy="16" r="13" fill="none" stroke="rgba(234,246,238,.08)" strokeWidth="2.5" />
+                  <circle cx="16" cy="16" r="13" fill="none" stroke="var(--line)" strokeWidth="2.5" />
                   <circle
                     cx="16" cy="16" r="13" fill="none"
-                    stroke={r.vis >= 80 ? "#8cf5c3" : r.vis >= 50 ? "#ffb469" : "#ff7d6b"}
+                    stroke="var(--rust)"
                     strokeWidth="2.5" strokeDasharray={`${r.vis * 0.817} 81.7`} strokeLinecap="round"
                   />
                 </svg>
-                <span className="absolute inset-0 flex items-center justify-center text-[7px] font-bold text-muted">{r.vis}%</span>
+                <span className="absolute inset-0 flex items-center justify-center text-[7px] font-bold text-[var(--ink-soft)]">{r.vis}%</span>
               </div>
-              <span className="truncate text-xs font-medium text-ink/90">{r.text}</span>
+              <span className="truncate text-xs font-medium text-[var(--ink)]/90">{r.text}</span>
             </div>
             <div className="flex items-center gap-1.5">
               {(["gpt", "gemini", "google"] as const).map((e) => (
-                <span key={e} className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: r.engines[e] ? PROMPT_ENGINE_COLORS[e] : "rgba(234,246,238,.12)" }} />
+                <span key={e} className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: r.engines[e] ? PROMPT_ENGINE_COLORS[e] : "var(--line)" }} />
               ))}
             </div>
-            <span className="truncate text-[11px] text-muted">{r.competing}</span>
+            <span className="truncate text-[11px] text-[var(--ink-soft)]">{r.competing}</span>
             <div className="flex justify-center">
               <div className="h-2 w-2 rounded-full" style={{ background: PROMPT_TYPE_COLORS[r.type] }} />
             </div>
           </div>
         ))}
         {filtered.length === 0 && (
-          <p className="px-4 py-6 text-center text-xs text-faint">No prompts match “{search}”.</p>
+          <p className="px-4 py-6 text-center text-xs text-[var(--ink-faint)]">No prompts match “{search}”.</p>
         )}
       </div>
     </div>
@@ -235,9 +236,9 @@ type EngageDemoItem = { platform: "Reddit" | "LinkedIn"; color: string; icon: st
 const CITATION_DOMAINS = [
   { rank: 1, domain: "youtube.com", count: 16, color: "#e5484d", icon: "▶", engagement: false },
   { rank: 2, domain: "reddit.com", count: 11, color: "#FF4500", icon: "R", engagement: true },
-  { rank: 3, domain: "medium.com", count: 6, color: "#e6e6e6", icon: "M", engagement: false },
-  { rank: 4, domain: "linkedin.com", count: 5, color: "#378fe9", icon: "in", engagement: true },
-  { rank: 5, domain: "github.com", count: 3, color: "#c9d1d9", icon: "◆", engagement: false },
+  { rank: 3, domain: "medium.com", count: 6, color: "#8a8f94", icon: "M", engagement: false },
+  { rank: 4, domain: "linkedin.com", count: 5, color: LINKEDIN_HEX, icon: "in", engagement: true },
+  { rank: 5, domain: "github.com", count: 3, color: "#6e7681", icon: "◆", engagement: false },
 ];
 
 const CITATION_INSTANCES: Record<string, { url: string; source: string; prompt: string }[]> = {
@@ -269,11 +270,11 @@ function CitationsContent() {
 
   const platforms: { name: "Reddit" | "LinkedIn"; color: string; icon: string; desc: string }[] = [
     { name: "Reddit", color: "#FF4500", icon: "R", desc: "Engage on Reddit threads to get cited in AI responses and boost your visibility." },
-    { name: "LinkedIn", color: "#378fe9", icon: "in", desc: "Engage on LinkedIn posts to get cited in AI responses and boost your visibility." },
+    { name: "LinkedIn", color: LINKEDIN_HEX, icon: "in", desc: "Engage on LinkedIn posts to get cited in AI responses and boost your visibility." },
   ];
 
   function openEngage(platform: "Reddit" | "LinkedIn", url: string, prompt: string) {
-    const meta = platform === "Reddit" ? { color: "#FF4500", icon: "R" } : { color: "#378fe9", icon: "in" };
+    const meta = platform === "Reddit" ? { color: "#FF4500", icon: "R" } : { color: LINKEDIN_HEX, icon: "in" };
     setEngageItem({ platform, url, prompt, ...meta });
     setEngageDraft("");
     setEngageSubmitted(false);
@@ -284,11 +285,11 @@ function CitationsContent() {
 
   return (
     <div className="relative p-5" style={{ animation: "fadeUp 0.3s ease forwards" }}>
-      <h2 className="mb-0.5 text-lg font-semibold text-ink">Citations</h2>
-      <p className="mb-4 text-xs text-faint">Discover the sources AI uses in its responses</p>
+      <h2 className="mb-0.5 text-lg font-semibold text-[var(--ink)]">Citations</h2>
+      <p className="mb-4 text-xs text-[var(--ink-faint)]">Discover the sources AI uses in its responses</p>
 
-      <p className="mb-0.5 text-xs font-medium text-ink/90">Engagement platforms</p>
-      <p className="mb-3 text-[11px] text-faint">Engage on these platforms to increase your AI visibility</p>
+      <p className="mb-0.5 text-xs font-medium text-[var(--ink)]/90">Engagement platforms</p>
+      <p className="mb-3 text-[11px] text-[var(--ink-faint)]">Engage on these platforms to increase your AI visibility</p>
       <div className="mb-4 grid grid-cols-2 gap-2.5">
         {platforms.map((p) => {
           const firstInstance = CITATION_INSTANCES[p.name === "Reddit" ? "reddit.com" : "linkedin.com"][0];
@@ -298,15 +299,15 @@ function CitationsContent() {
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold text-white" style={{ background: p.color }}>
                   {p.icon}
                 </div>
-                <span className="text-sm font-semibold text-ink">{p.name}</span>
-                <span className="ml-auto whitespace-nowrap rounded-full bg-mint/10 px-1.5 py-0.5 text-[9px] font-bold text-mint shadow-[inset_0_0_0_1px_rgba(140,245,195,0.25)]">
+                <span className="text-sm font-semibold text-[var(--ink)]">{p.name}</span>
+                <span className="ml-auto whitespace-nowrap rounded-full bg-[var(--rust-wash)] px-1.5 py-0.5 text-[9px] font-bold text-[var(--rust-deep)]">
                   High impact
                 </span>
               </div>
-              <p className="mb-2.5 text-[10px] leading-snug text-muted">{p.desc}</p>
+              <p className="mb-2.5 text-[10px] leading-snug text-[var(--ink-soft)]">{p.desc}</p>
               <button
                 onClick={() => openEngage(p.name, firstInstance.url, firstInstance.prompt)}
-                className="w-full rounded-lg py-1.5 text-xs font-semibold text-white transition-all hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint"
+                className="w-full rounded-lg py-1.5 text-xs font-semibold text-white transition-all hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)]"
                 style={{ background: p.color }}
               >
                 Engage
@@ -317,11 +318,11 @@ function CitationsContent() {
       </div>
 
       <div className={`${card} overflow-hidden`}>
-        <div className="flex items-center justify-between border-b border-line px-4 py-3">
-          <p className="text-xs font-medium text-ink/90">Top cited domains</p>
-          <p className="text-[11px] text-faint">121 domains</p>
+        <div className="flex items-center justify-between border-b border-[var(--line)] px-4 py-3">
+          <p className="text-xs font-medium text-[var(--ink)]/90">Top cited domains</p>
+          <p className="text-[11px] text-[var(--ink-faint)]">121 domains</p>
         </div>
-        <div className="grid grid-cols-[40px_1fr_70px_150px] gap-x-3 border-b border-line px-4 py-2">
+        <div className="grid grid-cols-[40px_1fr_70px_150px] gap-x-3 border-b border-[var(--line)] px-4 py-2">
           <span className={kpiLabel + " mb-0"}>Rank</span>
           <span className={kpiLabel + " mb-0"}>Domain</span>
           <span className={kpiLabel + " mb-0 text-right"}>Citations</span>
@@ -331,51 +332,51 @@ function CitationsContent() {
           const isExpanded = expandedDomain === d.domain;
           const instances = CITATION_INSTANCES[d.domain] ?? [];
           return (
-            <div key={d.domain} className="border-b border-line last:border-0">
+            <div key={d.domain} className="border-b border-[var(--line)] last:border-0">
               <button
                 onClick={() => setExpandedDomain(isExpanded ? null : d.domain)}
-                className="grid w-full grid-cols-[40px_1fr_70px_150px] items-center gap-x-3 px-4 py-2.5 text-left transition-colors hover:bg-white/[0.03] focus-visible:outline-none focus-visible:bg-white/[0.04]"
+                className="grid w-full grid-cols-[40px_1fr_70px_150px] items-center gap-x-3 px-4 py-2.5 text-left transition-colors hover:bg-[var(--line-soft)] focus-visible:outline-none focus-visible:bg-[var(--line-soft)]"
                 aria-expanded={isExpanded}
               >
-                <span className="text-[11px] font-medium text-faint">#{d.rank}</span>
+                <span className="text-[11px] font-medium text-[var(--ink-faint)]">#{d.rank}</span>
                 <div className="flex min-w-0 items-center gap-2">
-                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded text-[9px] font-bold text-[#08130d]" style={{ background: d.color }}>
+                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded text-[9px] font-bold text-[#241b12]" style={{ background: d.color }}>
                     {d.icon}
                   </div>
-                  <span className="truncate text-xs font-medium text-ink/90">{d.domain}</span>
+                  <span className="truncate text-xs font-medium text-[var(--ink)]/90">{d.domain}</span>
                 </div>
-                <span className="text-right text-xs font-semibold text-ink">{d.count}</span>
+                <span className="text-right text-xs font-semibold text-[var(--ink)]">{d.count}</span>
                 <div className="flex items-center justify-end gap-1.5">
-                  <span className={`text-right text-[11px] font-medium ${d.engagement ? "text-amber" : "text-faint"}`}>
+                  <span className={`text-right text-[11px] font-medium ${d.engagement ? "text-[var(--rust-deep)]" : "text-[var(--ink-faint)]"}`}>
                     {d.engagement ? "Engagement opportunities" : "Learn more ↗"}
                   </span>
-                  <svg className={`h-3 w-3 shrink-0 text-faint transition-transform ${isExpanded ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                  <svg className={`h-3 w-3 shrink-0 text-[var(--ink-faint)] transition-transform ${isExpanded ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
               </button>
               {isExpanded && (
-                <div className="border-t border-line bg-black/20 px-4 py-2">
+                <div className="border-t border-[var(--line)] bg-[var(--line-soft)] px-4 py-2">
                   {instances.map((inst, i) => (
-                    <div key={i} className="flex items-center gap-2 border-b border-line py-1.5 last:border-0">
+                    <div key={i} className="flex items-center gap-2 border-b border-[var(--line)] py-1.5 last:border-0">
                       <a
                         href={`https://${inst.url}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="min-w-0 flex-1 truncate text-[11px] text-mint hover:underline"
+                        className="min-w-0 flex-1 truncate text-[11px] text-[var(--rust)] hover:underline"
                       >
                         {inst.url}
                       </a>
-                      <span className="shrink-0 rounded bg-white/[0.05] px-1.5 py-0.5 text-[9px] font-medium text-muted shadow-[inset_0_0_0_1px_rgba(234,246,238,0.08)]">
+                      <span className="shrink-0 rounded border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 text-[9px] font-medium text-[var(--ink-soft)]">
                         {inst.source}
                       </span>
-                      <span className="hidden w-28 shrink-0 truncate text-[10px] italic text-faint sm:block">{inst.prompt}</span>
+                      <span className="hidden w-28 shrink-0 truncate text-[10px] italic text-[var(--ink-faint)] sm:block">{inst.prompt}</span>
                       {d.engagement && (
                         <button
                           onClick={() => openEngage(d.domain === "reddit.com" ? "Reddit" : "LinkedIn", inst.url, inst.prompt)}
                           className="shrink-0 rounded-md px-2 py-1 text-[10px] font-semibold text-white transition-all hover:brightness-110"
-                          style={{ background: d.color === "#378fe9" || d.domain === "linkedin.com" ? "#378fe9" : "#FF4500" }}
+                          style={{ background: d.domain === "linkedin.com" ? LINKEDIN_HEX : "#FF4500" }}
                         >
                           Engage
                         </button>
@@ -392,39 +393,39 @@ function CitationsContent() {
       {/* Engage side panel */}
       {engageItem && (
         <div className="absolute inset-0 z-20 flex overflow-hidden rounded-b-2xl">
-          <div className="flex-1 bg-black/50 backdrop-blur-[2px]" onClick={() => setEngageItem(null)} />
-          <div className="flex h-full w-[280px] flex-col border-l border-line-2 bg-[#0b1c13] shadow-2xl" style={{ animation: "fadeSlideIn 0.25s ease forwards" }}>
-            <div className="flex items-center gap-2.5 border-b border-line px-4 py-3">
+          <div className="flex-1 bg-black/40" onClick={() => setEngageItem(null)} />
+          <div className="flex h-full w-[280px] flex-col border-l border-[var(--line)] bg-[var(--surface)] shadow-2xl" style={{ animation: "fadeSlideIn 0.25s ease forwards" }}>
+            <div className="flex items-center gap-2.5 border-b border-[var(--line)] px-4 py-3">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold text-white" style={{ background: engageItem.color }}>
                 {engageItem.icon}
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-ink">Engage on {engageItem.platform}</p>
-                <p className="truncate text-[10px] text-faint">Draft a reply to influence this citation</p>
+                <p className="text-xs font-semibold text-[var(--ink)]">Engage on {engageItem.platform}</p>
+                <p className="truncate text-[10px] text-[var(--ink-faint)]">Draft a reply to influence this citation</p>
               </div>
-              <button onClick={() => setEngageItem(null)} className="ml-auto shrink-0 text-faint transition-colors hover:text-ink" aria-label="Close">
+              <button onClick={() => setEngageItem(null)} className="ml-auto shrink-0 text-[var(--ink-faint)] transition-colors hover:text-[var(--ink)]" aria-label="Close">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
-            <div className="border-b border-line bg-black/20 px-4 py-3">
+            <div className="border-b border-[var(--line)] bg-[var(--line-soft)] px-4 py-3">
               <p className={kpiLabel}>Thread</p>
-              <p className="break-all text-[11px] leading-relaxed text-mint">{engageItem.url}</p>
-              <p className="mt-1.5 truncate text-[10px] italic text-faint">for prompt: &ldquo;{engageItem.prompt}&rdquo;</p>
+              <p className="break-all text-[11px] leading-relaxed text-[var(--rust)]">{engageItem.url}</p>
+              <p className="mt-1.5 truncate text-[10px] italic text-[var(--ink-faint)]">for prompt: &ldquo;{engageItem.prompt}&rdquo;</p>
             </div>
 
             <div className="flex flex-1 flex-col gap-2.5 overflow-y-auto px-4 py-3">
               {engageSubmitted ? (
                 <div className="flex flex-1 flex-col items-center justify-center gap-3 py-6 text-center">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mint/10 shadow-[inset_0_0_0_1px_rgba(140,245,195,0.3)]">
-                    <svg className="h-5 w-5 text-mint" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--olive-wash)]">
+                    <svg className="h-5 w-5 text-[var(--olive)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p className="text-xs font-semibold text-ink">Task submitted!</p>
-                  <p className="text-[10px] text-faint">Your reply is queued for review.</p>
+                  <p className="text-xs font-semibold text-[var(--ink)]">Task submitted!</p>
+                  <p className="text-[10px] text-[var(--ink-faint)]">Your reply is queued for review.</p>
                 </div>
               ) : (
                 <>
@@ -432,7 +433,7 @@ function CitationsContent() {
                     <p className={kpiLabel + " mb-0"}>Reply draft</p>
                     <button
                       onClick={() => setEngageDraft(engageItem.platform === "Reddit" ? REDDIT_REPLY : LINKEDIN_REPLY)}
-                      className="flex items-center gap-1 text-[10px] font-medium text-mint transition-opacity hover:opacity-80"
+                      className="flex items-center gap-1 text-[10px] font-medium text-[var(--rust)] transition-opacity hover:opacity-80"
                     >
                       <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -445,17 +446,17 @@ function CitationsContent() {
                     onChange={(e) => setEngageDraft(e.target.value)}
                     placeholder="Write your reply, or click AI suggest…"
                     rows={5}
-                    className="w-full resize-none rounded-lg bg-white/[0.04] p-2.5 text-[11px] text-ink shadow-[inset_0_0_0_1px_rgba(234,246,238,0.1)] outline-none placeholder:text-faint focus:shadow-[inset_0_0_0_1px_rgba(140,245,195,0.4)]"
+                    className="w-full resize-none rounded-lg border border-[var(--line)] bg-[var(--line-soft)] p-2.5 text-[11px] text-[var(--ink)] outline-none placeholder:text-[var(--ink-faint)] focus:border-[var(--rust)]/40"
                   />
 
                   {engageItem.platform === "Reddit" && (
-                    <div className="overflow-hidden rounded-lg shadow-[inset_0_0_0_1px_rgba(234,246,238,0.1)]">
+                    <div className="overflow-hidden rounded-lg border border-[var(--line)]">
                       <button
                         onClick={() => setUpvoteEnabled((v) => !v)}
-                        className="flex w-full items-center gap-2.5 px-3 py-2.5 transition-colors hover:bg-white/[0.03]"
+                        className="flex w-full items-center gap-2.5 px-3 py-2.5 transition-colors hover:bg-[var(--line-soft)]"
                         aria-expanded={upvoteEnabled}
                       >
-                        <div className={`flex h-4 w-4 shrink-0 items-center justify-center rounded transition-colors ${upvoteEnabled ? "bg-[#FF4500]" : "shadow-[inset_0_0_0_1px_rgba(234,246,238,0.25)]"}`}>
+                        <div className={`flex h-4 w-4 shrink-0 items-center justify-center rounded transition-colors ${upvoteEnabled ? "bg-[#FF4500]" : "border border-[var(--line)]"}`}>
                           {upvoteEnabled && (
                             <svg className="h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -463,31 +464,31 @@ function CitationsContent() {
                           )}
                         </div>
                         <div className="min-w-0 flex-1 text-left">
-                          <p className="text-[11px] font-semibold text-ink/90">Order upvotes to rank this reply</p>
-                          <p className="text-[9px] text-faint">Boost visibility so AI engines surface your comment</p>
+                          <p className="text-[11px] font-semibold text-[var(--ink)]/90">Order upvotes to rank this reply</p>
+                          <p className="text-[9px] text-[var(--ink-faint)]">Boost visibility so AI engines surface your comment</p>
                         </div>
-                        <svg className={`h-3.5 w-3.5 shrink-0 text-faint transition-transform ${upvoteEnabled ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                        <svg className={`h-3.5 w-3.5 shrink-0 text-[var(--ink-faint)] transition-transform ${upvoteEnabled ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                         </svg>
                       </button>
 
                       {upvoteEnabled && (
-                        <div className="space-y-2.5 border-t border-line px-3 pb-3 pt-2">
+                        <div className="space-y-2.5 border-t border-[var(--line)] px-3 pb-3 pt-2">
                           <div className="flex gap-2.5">
                             <div className="flex-1">
-                              <p className="mb-1 text-[9px] font-semibold text-faint">Quantity</p>
+                              <p className="mb-1 text-[9px] font-semibold text-[var(--ink-faint)]">Quantity</p>
                               <div className="flex items-center gap-1.5">
-                                <button onClick={() => setUpvoteQty((q) => Math.max(1, q - 5))} className="flex h-6 w-6 items-center justify-center rounded-md text-xs font-medium text-muted shadow-[inset_0_0_0_1px_rgba(234,246,238,0.12)] hover:text-ink" aria-label="Fewer upvotes">−</button>
-                                <span className="w-6 text-center text-xs font-semibold text-ink">{upvoteQty}</span>
-                                <button onClick={() => setUpvoteQty((q) => q + 5)} className="flex h-6 w-6 items-center justify-center rounded-md text-xs font-medium text-muted shadow-[inset_0_0_0_1px_rgba(234,246,238,0.12)] hover:text-ink" aria-label="More upvotes">+</button>
+                                <button onClick={() => setUpvoteQty((q) => Math.max(1, q - 5))} className="flex h-6 w-6 items-center justify-center rounded-md border border-[var(--line)] text-xs font-medium text-[var(--ink-soft)] hover:text-[var(--ink)]" aria-label="Fewer upvotes">−</button>
+                                <span className="w-6 text-center text-xs font-semibold text-[var(--ink)]">{upvoteQty}</span>
+                                <button onClick={() => setUpvoteQty((q) => q + 5)} className="flex h-6 w-6 items-center justify-center rounded-md border border-[var(--line)] text-xs font-medium text-[var(--ink-soft)] hover:text-[var(--ink)]" aria-label="More upvotes">+</button>
                               </div>
                             </div>
                             <div className="flex-1">
-                              <p className="mb-1 text-[9px] font-semibold text-faint">Speed</p>
+                              <p className="mb-1 text-[9px] font-semibold text-[var(--ink-faint)]">Speed</p>
                               <select
                                 value={upvoteSpeed}
                                 onChange={(e) => setUpvoteSpeed(e.target.value as "Slow" | "Normal" | "Fast")}
-                                className="w-full rounded-md bg-white/[0.05] px-1.5 py-1 text-[11px] text-ink shadow-[inset_0_0_0_1px_rgba(234,246,238,0.12)] outline-none"
+                                className="w-full rounded-md border border-[var(--line)] bg-[var(--surface)] px-1.5 py-1 text-[11px] text-[var(--ink)] outline-none"
                               >
                                 <option value="Slow">Slow (safer)</option>
                                 <option value="Normal">Normal</option>
@@ -495,11 +496,11 @@ function CitationsContent() {
                               </select>
                             </div>
                           </div>
-                          <div className="flex items-center justify-between rounded-md bg-white/[0.03] px-2.5 py-1.5 text-[10px] text-faint">
+                          <div className="flex items-center justify-between rounded-md bg-[var(--line-soft)] px-2.5 py-1.5 text-[10px] text-[var(--ink-faint)]">
                             <span>{upvoteQty} upvotes × $0.10</span>
-                            <span className="font-semibold text-ink/90">${(upvoteQty * 0.1).toFixed(2)}</span>
+                            <span className="font-semibold text-[var(--ink)]/90">${(upvoteQty * 0.1).toFixed(2)}</span>
                           </div>
-                          <p className="rounded-md bg-amber/10 px-2.5 py-1.5 text-[10px] leading-relaxed text-amber">
+                          <p className="rounded-md bg-[var(--rust-wash)] px-2.5 py-1.5 text-[10px] leading-relaxed text-[var(--rust-deep)]">
                             Comments under 200 chars have ~35% removal rate. Keep replies natural and helpful.
                           </p>
                         </div>
@@ -511,7 +512,7 @@ function CitationsContent() {
             </div>
 
             {!engageSubmitted && (
-              <div className="border-t border-line px-4 py-3">
+              <div className="border-t border-[var(--line)] px-4 py-3">
                 <button
                   onClick={() => setEngageSubmitted(true)}
                   disabled={!engageDraft.trim()}
@@ -539,23 +540,22 @@ function CompetitorsContent() {
   return (
     <div className="p-5" style={{ animation: "fadeUp 0.3s ease forwards" }}>
       <div className={`${card} p-5`}>
-        <h2 className="mb-0.5 text-lg font-semibold text-ink">Competitors</h2>
-        <p className="mb-5 text-xs text-faint">Share of voice across AI engines</p>
+        <h2 className="mb-0.5 text-lg font-semibold text-[var(--ink)]">Competitors</h2>
+        <p className="mb-5 text-xs text-[var(--ink-faint)]">Share of voice across AI engines</p>
         <div className="space-y-3">
           {data.map((d) => (
             <div key={d.name} className="flex items-center gap-4">
-              <span className={`w-20 shrink-0 text-right text-sm ${d.isMe ? "font-semibold text-ink" : "text-muted"}`}>{d.name}</span>
-              <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+              <span className={`w-20 shrink-0 text-right text-sm ${d.isMe ? "font-semibold text-[var(--ink)]" : "text-[var(--ink-soft)]"}`}>{d.name}</span>
+              <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-[var(--line)]">
                 <div
                   className="h-full rounded-full transition-all"
                   style={{
                     width: `${d.pct}%`,
-                    background: d.isMe ? "linear-gradient(90deg, rgba(55,201,141,.6), #8cf5c3)" : "rgba(234,246,238,.22)",
-                    boxShadow: d.isMe ? "0 0 12px rgba(140,245,195,.35)" : undefined,
+                    background: d.isMe ? "var(--rust)" : "#60a5fa",
                   }}
                 />
               </div>
-              <span className={`w-9 shrink-0 text-right text-sm ${d.isMe ? "font-semibold text-mint" : "text-muted"}`}>{d.pct}%</span>
+              <span className={`w-9 shrink-0 text-right text-sm ${d.isMe ? "font-semibold text-[var(--rust)]" : "text-[var(--ink-soft)]"}`}>{d.pct}%</span>
             </div>
           ))}
         </div>
@@ -575,31 +575,31 @@ function ResearchContent() {
   ];
   return (
     <div className="p-5" style={{ animation: "fadeUp 0.3s ease forwards" }}>
-      <h2 className="mb-0.5 text-lg font-semibold text-ink">Research</h2>
-      <p className="mb-4 text-xs text-faint">20 queries where Playwright isn&apos;t mentioned</p>
+      <h2 className="mb-0.5 text-lg font-semibold text-[var(--ink)]">Research</h2>
+      <p className="mb-4 text-xs text-[var(--ink-faint)]">20 queries where Playwright isn&apos;t mentioned</p>
       <div className="space-y-2.5">
         {gaps.map((g, i) => (
           <div key={i} className={`${card} p-4`}>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <p className="mb-2 text-sm font-medium text-ink">{g.query}</p>
+                <p className="mb-2 text-sm font-medium text-[var(--ink)]">{g.query}</p>
                 <div className="mb-2 flex flex-wrap items-center gap-1.5">
                   {g.absent.map((e) => (
-                    <span key={e} className="rounded-full bg-rose/10 px-2 py-0.5 text-[11px] font-medium text-rose shadow-[inset_0_0_0_1px_rgba(255,125,107,0.25)]">
+                    <span key={e} className="rounded-full bg-red-500/10 px-2 py-0.5 text-[11px] font-medium text-red-700">
                       Not in {e}
                     </span>
                   ))}
-                  {g.instead && <span className="text-[11px] text-faint">· {g.instead} appears instead</span>}
+                  {g.instead && <span className="text-[11px] text-[var(--ink-faint)]">· {g.instead} appears instead</span>}
                 </div>
-                <p className="text-[11px] text-faint">Publishing an article that answers this query will teach AI engines to recommend Playwright for it.</p>
+                <p className="text-[11px] text-[var(--ink-faint)]">Publishing an article that answers this query will teach AI engines to recommend Playwright for it.</p>
               </div>
               {g.published ? (
                 <div className="mt-0.5 flex shrink-0 items-center gap-2">
-                  <span className="text-xs font-semibold text-mint">Published</span>
-                  <span className="cursor-pointer text-xs text-muted underline">View article ↗</span>
+                  <span className="text-xs font-semibold text-[var(--olive)]">Published</span>
+                  <span className="cursor-pointer text-xs text-[var(--ink-soft)] underline">View article ↗</span>
                 </div>
               ) : (
-                <button className="shrink-0 rounded-lg bg-mint/10 px-3 py-1.5 text-xs font-semibold text-mint shadow-[inset_0_0_0_1px_rgba(140,245,195,0.3)] transition-colors hover:bg-mint/15">
+                <button className="shrink-0 rounded-lg bg-[var(--rust-wash)] px-3 py-1.5 text-xs font-semibold text-[var(--rust-deep)] transition-colors hover:bg-[var(--rust)]/20">
                   Write article →
                 </button>
               )}
@@ -615,14 +615,14 @@ function ResearchContent() {
 function TasksContent() {
   const tasks = [
     { platform: "Reddit", color: "#FF4500", status: "Completed", url: "reddit.com/r/QualityAssurance/comments/…", reply: "Playwright's auto-waiting alone cut our flaky test rate way down — worth a look if you're fighting Selenium timeouts.", upvotes: 25, engine: "ChatGPT" },
-    { platform: "LinkedIn", color: "#378fe9", status: "Pending", url: "linkedin.com/posts/…", reply: "We moved our E2E suite from Selenium to Playwright and cut CI time in half.", upvotes: 0, engine: "Perplexity" },
+    { platform: "LinkedIn", color: LINKEDIN_HEX, status: "Pending", url: "linkedin.com/posts/…", reply: "We moved our E2E suite from Selenium to Playwright and cut CI time in half.", upvotes: 0, engine: "Perplexity" },
     { platform: "Reddit", color: "#FF4500", status: "Pending", url: "reddit.com/r/webdev/comments/…", reply: "If cross-browser flakiness is the issue, Playwright's built-in retries handle it better than Selenium out of the box.", upvotes: 10, engine: "Gemini" },
   ];
   const pending = tasks.filter((t) => t.status === "Pending").length;
   return (
     <div className="p-5" style={{ animation: "fadeUp 0.3s ease forwards" }}>
-      <h2 className="mb-0.5 text-lg font-semibold text-ink">Tasks</h2>
-      <p className="mb-4 text-xs text-faint">Replies and upvote orders submitted from Citations · {pending} pending</p>
+      <h2 className="mb-0.5 text-lg font-semibold text-[var(--ink)]">Tasks</h2>
+      <p className="mb-4 text-xs text-[var(--ink-faint)]">Replies and upvote orders submitted from Citations · {pending} pending</p>
       <div className="space-y-2.5">
         {tasks.map((t, i) => (
           <div key={i} className={`${card} p-4`}>
@@ -635,17 +635,17 @@ function TasksContent() {
                   <span
                     className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                       t.status === "Completed"
-                        ? "bg-mint/10 text-mint shadow-[inset_0_0_0_1px_rgba(140,245,195,0.25)]"
-                        : "bg-amber/10 text-amber shadow-[inset_0_0_0_1px_rgba(255,180,105,0.25)]"
+                        ? "bg-[var(--olive-wash)] text-[var(--olive)]"
+                        : "bg-[var(--rust-wash)] text-[var(--rust-deep)]"
                     }`}
                   >
                     {t.status}
                   </span>
-                  <span className="text-[10px] text-faint">{t.engine}</span>
-                  <span className="ml-auto text-[10px] text-faint">{t.url}</span>
+                  <span className="text-[10px] text-[var(--ink-faint)]">{t.engine}</span>
+                  <span className="ml-auto text-[10px] text-[var(--ink-faint)]">{t.url}</span>
                 </div>
-                <p className="mb-1.5 rounded-lg bg-black/25 px-3 py-2 text-xs text-muted shadow-[inset_0_0_0_1px_rgba(234,246,238,0.06)]">{t.reply}</p>
-                <p className="text-[10px] text-faint">{t.upvotes > 0 ? `${t.upvotes} upvotes ordered` : "No upvotes ordered"}</p>
+                <p className="mb-1.5 rounded-lg bg-[var(--line-soft)] px-3 py-2 text-xs text-[var(--ink-soft)]">{t.reply}</p>
+                <p className="text-[10px] text-[var(--ink-faint)]">{t.upvotes > 0 ? `${t.upvotes} upvotes ordered` : "No upvotes ordered"}</p>
               </div>
             </div>
           </div>
@@ -668,10 +668,10 @@ function ArticlesContent() {
     <div className="p-5" style={{ animation: "fadeUp 0.3s ease forwards" }}>
       <div className="mb-4 flex items-start justify-between">
         <div>
-          <h2 className="mb-0.5 text-lg font-semibold text-ink">Articles</h2>
-          <p className="text-xs text-faint">{articles.length} pieces · 1 published</p>
+          <h2 className="mb-0.5 text-lg font-semibold text-[var(--ink)]">Articles</h2>
+          <p className="text-xs text-[var(--ink-faint)]">{articles.length} pieces · 1 published</p>
         </div>
-        <button className="rounded-lg bg-mint/10 px-3 py-1.5 text-xs font-semibold text-mint shadow-[inset_0_0_0_1px_rgba(140,245,195,0.3)] transition-colors hover:bg-mint/15">
+        <button className="rounded-lg bg-[var(--rust-wash)] px-3 py-1.5 text-xs font-semibold text-[var(--rust-deep)] transition-colors hover:bg-[var(--rust)]/20">
           + New article
         </button>
       </div>
@@ -684,43 +684,43 @@ function ArticlesContent() {
         ].map((s) => (
           <div key={s.label} className={`${card} p-3.5`}>
             <p className={kpiLabel}>{s.label}</p>
-            <p className="font-serif text-xl font-[400] leading-tight text-ink">{s.val}</p>
-            {s.sub && <p className="mt-0.5 text-[10px] text-faint">{s.sub}</p>}
+            <p className="font-signal-mono text-xl font-semibold leading-tight text-[var(--ink)]">{s.val}</p>
+            {s.sub && <p className="mt-0.5 text-[10px] text-[var(--ink-faint)]">{s.sub}</p>}
           </div>
         ))}
       </div>
       <div className={`${card}`}>
-        <div className="flex gap-1.5 border-b border-line p-3">
+        <div className="flex gap-1.5 border-b border-[var(--line)] p-3">
           {["All", "Draft", "Review", "Scheduled", "Published"].map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={`rounded-lg px-3 py-1 text-xs font-semibold transition-colors ${
-                filter === f ? "bg-mint/15 text-mint" : "text-faint hover:bg-white/[0.04] hover:text-muted"
+                filter === f ? "bg-[var(--rust-wash)] text-[var(--rust-deep)]" : "text-[var(--ink-faint)] hover:bg-[var(--line-soft)] hover:text-[var(--ink-soft)]"
               }`}
             >
               {f}
             </button>
           ))}
         </div>
-        <div className="flex gap-3 border-b border-line px-4 py-2">
+        <div className="flex gap-3 border-b border-[var(--line)] px-4 py-2">
           <span className={kpiLabel + " mb-0 flex-1"}>Title</span>
           <span className={kpiLabel + " mb-0 w-20 text-center"}>Status</span>
           <span className={kpiLabel + " mb-0 w-10 text-center"}>SEO</span>
           <span className={kpiLabel + " mb-0 w-14 text-right"}>Updated</span>
         </div>
         {filtered.map((a, i) => (
-          <div key={i} className="flex items-start gap-3 border-b border-line px-4 py-3 last:border-0">
+          <div key={i} className="flex items-start gap-3 border-b border-[var(--line)] px-4 py-3 last:border-0">
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium leading-snug text-ink/90">{a.title}</p>
-              <p className="mt-0.5 truncate text-[10px] text-faint">{a.prompt}</p>
+              <p className="text-xs font-medium leading-snug text-[var(--ink)]/90">{a.title}</p>
+              <p className="mt-0.5 truncate text-[10px] text-[var(--ink-faint)]">{a.prompt}</p>
             </div>
-            <span className={`mt-0.5 w-20 text-center text-xs font-semibold ${a.status === "Published" ? "text-mint" : "text-muted"}`}>{a.status}</span>
-            <span className="mt-0.5 w-10 text-center text-xs text-muted">{a.seo}</span>
-            <span className="mt-0.5 w-14 text-right text-xs text-faint">{a.updated}</span>
+            <span className={`mt-0.5 w-20 text-center text-xs font-semibold ${a.status === "Published" ? "text-[var(--olive)]" : "text-[var(--ink-soft)]"}`}>{a.status}</span>
+            <span className="mt-0.5 w-10 text-center text-xs text-[var(--ink-soft)]">{a.seo}</span>
+            <span className="mt-0.5 w-14 text-right text-xs text-[var(--ink-faint)]">{a.updated}</span>
           </div>
         ))}
-        {filtered.length === 0 && <p className="px-4 py-6 text-center text-xs text-faint">Nothing with status “{filter}” yet.</p>}
+        {filtered.length === 0 && <p className="px-4 py-6 text-center text-xs text-[var(--ink-faint)]">Nothing with status “{filter}” yet.</p>}
       </div>
     </div>
   );
@@ -738,69 +738,69 @@ export function InteractiveDemoMockup() {
         onClick={() => setActiveTab(name)}
         className={`flex w-full items-center rounded-lg px-2.5 py-1.5 text-left text-xs transition-all duration-200 ${
           active
-            ? "bg-mint/10 font-semibold text-mint shadow-[inset_0_0_0_1px_rgba(140,245,195,0.22)]"
-            : "text-muted hover:bg-white/[0.04] hover:text-ink"
+            ? "bg-[var(--rust-wash)] font-semibold text-[var(--rust-deep)]"
+            : "text-[var(--ink-soft)] hover:bg-[var(--line-soft)] hover:text-[var(--ink)]"
         }`}
       >
         <span
-          className={`mr-1.5 h-1.5 w-1.5 rounded-full transition-all ${active ? "bg-mint shadow-[0_0_8px_rgba(140,245,195,0.8)]" : "bg-transparent"}`}
+          className={`mr-1.5 h-1.5 w-1.5 rounded-full transition-all ${active ? "bg-[var(--rust)]" : "bg-transparent"}`}
           aria-hidden="true"
         />
         <span className="flex-1">{name}</span>
-        {badge != null && <span className="text-[10px] font-bold text-amber">{badge}</span>}
+        {badge != null && <span className="text-[10px] font-bold text-[var(--surface)] bg-[var(--rust)] rounded-full px-1.5">{badge}</span>}
       </button>
     );
   };
 
   const sectionLabel = (text: string) => (
-    <p className="mb-1 mt-3 px-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-faint first:mt-0">{text}</p>
+    <p className="mb-1 mt-3 px-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] first:mt-0">{text}</p>
   );
 
   return (
     <div className="relative mx-auto max-w-5xl">
       <div className="min-w-[760px]">
         {/* window bar */}
-        <div className="flex items-center gap-3 rounded-t-2xl border border-b-0 border-line bg-[#0a1a12]/90 px-4 py-3 backdrop-blur-xl">
+        <div className="flex items-center gap-3 rounded-t-2xl border border-b-0 border-[var(--line)] bg-[var(--surface)] px-4 py-3">
           <div className="flex gap-1.5" aria-hidden="true">
-            <div className="h-2.5 w-2.5 rounded-full bg-rose/50" />
-            <div className="h-2.5 w-2.5 rounded-full bg-white/[0.14]" />
-            <div className="h-2.5 w-2.5 rounded-full bg-white/[0.14]" />
+            <div className="h-2.5 w-2.5 rounded-full bg-red-400/60" />
+            <div className="h-2.5 w-2.5 rounded-full bg-[var(--line)]" />
+            <div className="h-2.5 w-2.5 rounded-full bg-[var(--line)]" />
           </div>
-          <div className="flex-1 rounded-md bg-white/[0.04] px-3 py-1 text-center text-xs tracking-wide text-faint">
+          <div className="flex-1 rounded-md bg-[var(--line-soft)] px-3 py-1 text-center text-xs tracking-wide text-[var(--ink-faint)]">
             app.rankongeo.com/dashboard — playwright.dev
           </div>
-          <div className="flex items-center gap-1.5 rounded-full bg-mint/10 px-2.5 py-1 text-[11px] font-medium text-mint shadow-[inset_0_0_0_1px_rgba(140,245,195,0.25)]">
-            <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-mint shadow-[0_0_8px_rgba(140,245,195,0.8)]" aria-hidden="true" />
+          <div className="flex items-center gap-1.5 rounded-full bg-[var(--rust-wash)] px-2.5 py-1 text-[11px] font-medium text-[var(--rust-deep)]">
+            <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-[var(--rust)]" aria-hidden="true" />
             Live demo · click around
           </div>
         </div>
 
         {/* app shell */}
         <div
-          className="flex overflow-hidden rounded-b-2xl border border-t-0 border-line shadow-[0_40px_90px_-20px_rgba(0,0,0,0.8),0_0_120px_-30px_rgba(60,200,150,0.2)]"
-          style={{ height: 580, background: "linear-gradient(180deg, rgba(13,29,22,.92), rgba(6,15,11,.96))" }}
+          className="flex overflow-hidden rounded-b-2xl border border-t-0 border-[var(--line)] shadow-[0_20px_60px_-20px_oklch(0.19_0.014_55_/_25%)]"
+          style={{ height: 580, background: "var(--cream)" }}
         >
           {/* sidebar */}
-          <div className="flex w-52 shrink-0 flex-col border-r border-line bg-black/25">
-            <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
+          <div className="flex w-52 shrink-0 flex-col border-r border-[var(--line)]">
+            <div className="flex items-center justify-between border-b border-[var(--line)] px-4 py-2.5">
               <div className="flex items-center gap-1.5">
                 <svg width="16" height="16" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-                  <circle cx="16" cy="16" r="6" stroke="#8cf5c3" strokeWidth="2.5" />
-                  <circle cx="16" cy="16" r="12.5" stroke="#8cf5c3" strokeWidth="1.8" strokeDasharray="4 5" transform="rotate(-20 16 16)" />
-                  <circle cx="26.5" cy="9" r="2.5" fill="#ffb469" />
+                  <circle cx="16" cy="16" r="6" stroke="var(--rust)" strokeWidth="2.5" />
+                  <circle cx="16" cy="16" r="12.5" stroke="var(--rust)" strokeWidth="1.8" strokeDasharray="4 5" transform="rotate(-20 16 16)" />
+                  <circle cx="26.5" cy="9" r="2.5" fill="var(--olive)" />
                 </svg>
-                <span className="text-sm font-semibold text-ink">RankOnGeo</span>
+                <span className="text-sm font-semibold text-[var(--ink)]">RankOnGeo</span>
               </div>
-              <span className="text-[10px] font-medium text-faint">v2.0</span>
+              <span className="text-[10px] font-medium text-[var(--ink-faint)]">v2.0</span>
             </div>
-            <div className="border-b border-line px-2.5 py-2">
-              <div className="flex items-center gap-2 rounded-lg bg-white/[0.04] px-2.5 py-2 shadow-[inset_0_0_0_1px_rgba(234,246,238,0.08)]">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-mint/15 text-xs font-bold text-mint">P</div>
+            <div className="border-b border-[var(--line)] px-2.5 py-2">
+              <div className="flex items-center gap-2 rounded-lg border border-[var(--line)] bg-[var(--surface)] px-2.5 py-2">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[var(--rust-wash)] text-xs font-bold text-[var(--rust-deep)]">P</div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold text-ink">Playwright</p>
-                  <p className="text-[9px] uppercase tracking-wider text-faint">Owner</p>
+                  <p className="text-xs font-semibold text-[var(--ink)]">Playwright</p>
+                  <p className="text-[9px] uppercase tracking-wider text-[var(--ink-faint)]">Owner</p>
                 </div>
-                <span className="text-xs text-faint" aria-hidden="true">▾</span>
+                <span className="text-xs text-[var(--ink-faint)]" aria-hidden="true">▾</span>
               </div>
             </div>
             <div className="flex flex-1 flex-col gap-0.5 overflow-hidden px-2 py-2">
@@ -814,33 +814,33 @@ export function InteractiveDemoMockup() {
               {sectionLabel("Distribute")}
               {navItem("Publishing")}
             </div>
-            <div className="flex items-center gap-2 border-t border-line px-3 py-2.5">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber/15 text-xs font-bold text-amber">U</div>
+            <div className="flex items-center gap-2 border-t border-[var(--line)] px-3 py-2.5">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--rust-wash)] text-xs font-bold text-[var(--rust-deep)]">U</div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-medium text-ink/90">playwright.dev</p>
-                <p className="text-[9px] text-faint">Workspace</p>
+                <p className="truncate text-xs font-medium text-[var(--ink)]/90">playwright.dev</p>
+                <p className="text-[9px] text-[var(--ink-faint)]">Workspace</p>
               </div>
             </div>
           </div>
 
           {/* main panel */}
           <div className="flex flex-1 flex-col overflow-hidden">
-            <div className="flex shrink-0 items-center gap-2 border-b border-line bg-black/15 px-5 py-2.5">
+            <div className="flex shrink-0 items-center gap-2 border-b border-[var(--line)] bg-[var(--surface)]/70 px-5 py-2.5">
               <div className="flex items-center gap-1.5">
-                <div className="flex h-5 w-5 items-center justify-center rounded bg-mint/15 text-[9px] font-bold text-mint">P</div>
-                <span className="text-xs text-faint">playwright.dev</span>
-                <span className="text-xs text-faint/50" aria-hidden="true">/</span>
-                <span className="text-xs font-medium text-ink">{activeTab}</span>
+                <div className="flex h-5 w-5 items-center justify-center rounded bg-[var(--rust-wash)] text-[9px] font-bold text-[var(--rust-deep)]">P</div>
+                <span className="text-xs text-[var(--ink-faint)]">playwright.dev</span>
+                <span className="text-xs text-[var(--ink-faint)]/50" aria-hidden="true">/</span>
+                <span className="text-xs font-medium text-[var(--ink)]">{activeTab}</span>
               </div>
               <div className="flex-1" />
               <div className="hidden items-center gap-1 lg:flex">
                 {ENGINES.map((e) => (
-                  <span key={e} className="cursor-default rounded-full px-2 py-0.5 text-[10px] font-medium text-muted shadow-[inset_0_0_0_1px_rgba(234,246,238,0.1)]">
+                  <span key={e} className="cursor-default rounded-full border border-[var(--line)] px-2 py-0.5 text-[10px] font-medium text-[var(--ink-soft)]">
                     {e}
                   </span>
                 ))}
               </div>
-              <button className="ml-1 rounded-lg bg-gradient-to-b from-[#a5f8d1] to-[#6fe9b2] px-3 py-1.5 text-xs font-semibold text-[#04241a] transition-all hover:brightness-105">
+              <button className="ml-1 rounded-full bg-[var(--rust)] px-3 py-1.5 text-xs font-semibold text-[var(--surface)] transition-all hover:bg-[var(--rust-deep)]">
                 + Re-scan
               </button>
             </div>
@@ -857,8 +857,8 @@ export function InteractiveDemoMockup() {
               {(activeTab === "Publishing" || activeTab === "Agent") && (
                 <div className="flex h-full items-center justify-center p-5">
                   <div className="text-center">
-                    <p className="mb-2 font-serif text-xl italic text-muted">This one&apos;s for the real thing.</p>
-                    <a href="/dashboard" className="text-sm font-medium text-mint hover:underline">
+                    <p className="mb-2 font-signal-serif text-xl italic text-[var(--ink-soft)]">This one&apos;s for the real thing.</p>
+                    <a href="/dashboard" className="text-sm font-medium text-[var(--rust)] hover:underline">
                       Open the full dashboard →
                     </a>
                   </div>

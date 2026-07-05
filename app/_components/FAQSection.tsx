@@ -32,41 +32,41 @@ export function FAQSection() {
       <div className="mx-auto max-w-3xl">
         <div className="mb-12 text-center">
           <h2
-            className="font-serif text-4xl font-[350] tracking-tight text-ink"
+            className="font-signal-serif text-4xl font-[350] tracking-tight text-[var(--ink)]"
             style={{ textWrap: "balance" } as React.CSSProperties}
           >
-            Asked <em className="italic text-mint">&amp;</em> answered
+            Asked <em className="italic text-[var(--rust)]">&amp;</em> answered
           </h2>
         </div>
-        <div className="divide-y divide-line">
+        <div className="divide-y divide-[var(--line)]">
           {FAQS.map((faq, i) => {
             const open = openFaq === i;
             return (
               <div key={i}>
                 <button
-                  className="group flex w-full items-center justify-between gap-6 rounded px-1 py-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint"
+                  className="group flex w-full items-center justify-between gap-6 rounded px-1 py-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)]"
                   onClick={() => setOpenFaq(open ? null : i)}
                   aria-expanded={open}
                   aria-controls={`faq-answer-${i}`}
                 >
-                  <span className="text-[16px] font-medium text-ink transition-colors group-hover:text-mint">
+                  <span className="text-[16px] font-medium text-[var(--ink)] transition-colors group-hover:text-[var(--rust)]">
                     {faq.q}
                   </span>
                   <span
-                    className={`relative h-[30px] w-[30px] shrink-0 rounded-full shadow-[inset_0_0_0_1px_rgba(234,246,238,0.15)] transition-all duration-500 ${
-                      open ? "rotate-[135deg] shadow-[inset_0_0_0_1px_rgba(140,245,195,0.4)]" : ""
+                    className={`relative h-[30px] w-[30px] shrink-0 rounded-full border border-[var(--line)] transition-all duration-500 ${
+                      open ? "rotate-[135deg] border-[var(--rust)]/40" : ""
                     }`}
                     aria-hidden="true"
                   >
-                    <span className={`absolute left-1/2 top-1/2 h-[1.5px] w-3 -translate-x-1/2 -translate-y-1/2 ${open ? "bg-mint" : "bg-muted"}`} />
-                    <span className={`absolute left-1/2 top-1/2 h-3 w-[1.5px] -translate-x-1/2 -translate-y-1/2 ${open ? "bg-mint" : "bg-muted"}`} />
+                    <span className={`absolute left-1/2 top-1/2 h-[1.5px] w-3 -translate-x-1/2 -translate-y-1/2 ${open ? "bg-[var(--rust)]" : "bg-[var(--ink-soft)]"}`} />
+                    <span className={`absolute left-1/2 top-1/2 h-3 w-[1.5px] -translate-x-1/2 -translate-y-1/2 ${open ? "bg-[var(--rust)]" : "bg-[var(--ink-soft)]"}`} />
                   </span>
                 </button>
                 {open && (
                   <div
                     id={`faq-answer-${i}`}
                     role="region"
-                    className="max-w-[640px] px-1 pb-7 text-[15px] leading-relaxed text-muted"
+                    className="max-w-[640px] px-1 pb-7 text-[15px] leading-relaxed text-[var(--ink-soft)]"
                     style={{ animation: "fadeSlideIn 0.35s ease forwards" }}
                   >
                     {faq.a}
@@ -76,11 +76,11 @@ export function FAQSection() {
             );
           })}
         </div>
-        <p className="mt-10 text-center text-sm text-faint">
+        <p className="mt-10 text-center text-sm text-[var(--ink-faint)]">
           Still have questions?{" "}
           <a
             href="mailto:hello@rankongeo.com"
-            className="rounded text-mint hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint"
+            className="rounded text-[var(--rust)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)]"
           >
             Drop us a line
           </a>{" "}

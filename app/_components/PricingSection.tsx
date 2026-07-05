@@ -65,24 +65,24 @@ export function PricingSection() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-14 text-center">
           <h2
-            className="mb-4 font-serif text-4xl font-[350] tracking-tight text-ink sm:text-5xl"
+            className="mb-4 font-signal-serif text-4xl font-[350] tracking-tight text-[var(--ink)] sm:text-5xl"
             style={{ textWrap: "balance" } as React.CSSProperties}
           >
-            Plans that scale with your <em className="italic text-mint">visibility</em>
+            Plans that scale with your <em className="italic text-[var(--rust)]">visibility</em>
           </h2>
-          <p className="mb-9 text-muted">
+          <p className="mb-9 text-[var(--ink-soft)]">
             Every plan starts free — your first visibility score costs nothing.
           </p>
           <div
-            className="inline-flex items-center gap-1 rounded-full border border-line bg-surface p-1"
+            className="inline-flex items-center gap-1 rounded-full border border-[var(--line)] bg-[var(--surface)] p-1"
             role="group"
             aria-label="Billing period"
           >
             <button
               onClick={() => setBilling("monthly")}
               aria-pressed={billing === "monthly"}
-              className={`rounded-full px-5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint ${
-                billing === "monthly" ? "bg-mint/15 text-mint" : "text-faint hover:text-muted"
+              className={`rounded-full px-5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)] ${
+                billing === "monthly" ? "bg-[var(--rust-wash)] text-[var(--rust-deep)]" : "text-[var(--ink-faint)] hover:text-[var(--ink-soft)]"
               }`}
             >
               Monthly
@@ -90,11 +90,11 @@ export function PricingSection() {
             <button
               onClick={() => setBilling("annual")}
               aria-pressed={billing === "annual"}
-              className={`rounded-full px-5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint ${
-                billing === "annual" ? "bg-mint/15 text-mint" : "text-faint hover:text-muted"
+              className={`rounded-full px-5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)] ${
+                billing === "annual" ? "bg-[var(--rust-wash)] text-[var(--rust-deep)]" : "text-[var(--ink-faint)] hover:text-[var(--ink-soft)]"
               }`}
             >
-              Annual <span className="ml-1 text-xs font-semibold text-amber">−17%</span>
+              Annual <span className="ml-1 text-xs font-semibold text-[var(--olive)]">−17%</span>
             </button>
           </div>
         </div>
@@ -107,31 +107,31 @@ export function PricingSection() {
                 key={plan.name}
                 className={`relative flex flex-col rounded-3xl p-8 transition-transform duration-500 hover:-translate-y-1.5 ${
                   plan.highlight
-                    ? "bg-gradient-to-b from-mint/10 to-mint/[0.02] shadow-[inset_0_1px_0_rgba(140,245,195,0.25),inset_0_0_0_1px_rgba(140,245,195,0.3),0_40px_90px_-30px_rgba(0,0,0,0.8),0_0_90px_-30px_rgba(80,230,170,0.35)]"
-                    : "bg-gradient-to-b from-white/[0.04] to-white/[0.01] shadow-[inset_0_1px_0_rgba(234,246,238,0.08),inset_0_0_0_1px_rgba(234,246,238,0.06)]"
+                    ? "bg-[var(--surface)] border-2 border-[var(--rust)]/30"
+                    : "bg-[var(--surface)] border border-[var(--line)]"
                 }`}
               >
                 {plan.highlight && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-b from-[#a5f8d1] to-[#6fe9b2] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#04241a] shadow-[0_6px_20px_-4px_rgba(80,230,170,0.5)]">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[var(--rust)] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--surface)]">
                     Most picked
                   </div>
                 )}
                 <h3
                   className={`text-sm font-semibold uppercase tracking-[0.14em] ${
-                    plan.highlight ? "text-mint" : "text-muted"
+                    plan.highlight ? "text-[var(--rust)]" : "text-[var(--ink-soft)]"
                   }`}
                 >
                   {plan.name}
                 </h3>
                 <div className="mb-1 mt-5 flex items-baseline gap-1.5">
-                  <span className="font-serif text-5xl font-[350] tracking-tight text-ink">${price}</span>
-                  <span className="text-sm text-faint">/ month</span>
+                  <span className="font-signal-mono text-5xl font-semibold tracking-tight text-[var(--ink)]">${price}</span>
+                  <span className="text-sm text-[var(--ink-faint)]">/ month</span>
                 </div>
-                <p className="mb-7 text-sm text-muted">{plan.desc}</p>
+                <p className="mb-7 text-sm text-[var(--ink-soft)]">{plan.desc}</p>
                 <ul className="mb-8 flex-1 space-y-2.5">
                   {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm text-muted">
-                      <svg className="mt-0.5 h-4 w-4 shrink-0 text-mint" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <li key={f} className="flex items-start gap-2.5 text-sm text-[var(--ink-soft)]">
+                      <svg className="mt-0.5 h-4 w-4 shrink-0 text-[var(--rust)]" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                         <path d="M13 4.5L6.5 11 3 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                       {f}
@@ -140,10 +140,10 @@ export function PricingSection() {
                 </ul>
                 <a
                   href="/auth"
-                  className={`w-full rounded-full py-3 text-center text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                  className={`w-full rounded-full py-3 text-center text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--cream)] ${
                     plan.highlight
-                      ? "bg-gradient-to-b from-[#a5f8d1] to-[#6fe9b2] text-[#04241a] shadow-[0_0_0_1px_rgba(140,245,195,0.25),0_8px_30px_-6px_rgba(80,230,170,0.35)] hover:shadow-[0_0_0_1px_rgba(140,245,195,0.4),0_14px_40px_-6px_rgba(80,230,170,0.5)]"
-                      : "bg-white/[0.05] text-ink shadow-[inset_0_0_0_1px_rgba(234,246,238,0.15)] hover:bg-white/[0.09]"
+                      ? "bg-[var(--rust)] text-[var(--surface)] hover:bg-[var(--rust-deep)]"
+                      : "bg-[var(--line-soft)] text-[var(--ink)] hover:bg-[var(--line)]"
                   }`}
                 >
                   Get started
@@ -152,8 +152,8 @@ export function PricingSection() {
             );
           })}
         </div>
-        <p className="mt-9 text-center text-sm text-faint">
-          Not sure yet? <span className="text-amber">Run the free analysis first</span> — see your score before you
+        <p className="mt-9 text-center text-sm text-[var(--ink-faint)]">
+          Not sure yet? <span className="text-[var(--rust-deep)]">Run the free analysis first</span> — see your score before you
           spend a cent.
         </p>
       </div>

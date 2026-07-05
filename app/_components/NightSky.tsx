@@ -7,8 +7,8 @@ type Fly = { x: number; y: number; ph: number; sp: number; amp: number; drift: n
 type Meteor = { x: number; y: number; vx: number; vy: number; life: number };
 
 /**
- * Animated hero backdrop: twinkling stars, drifting dandelion seeds,
- * pulsing fireflies and the occasional meteor. Fills its nearest
+ * Animated hero backdrop: drifting dust motes, dandelion seeds,
+ * warm glimmers and the occasional shooting ember. Fills its nearest
  * positioned ancestor; pauses off-screen; static under reduced motion.
  */
 export function NightSky() {
@@ -52,7 +52,7 @@ export function NightSky() {
         x: Math.random() * W,
         y: Math.random() * H * 0.82,
         r: 0.4 + Math.random() * 1.3,
-        a: 0.25 + Math.random() * 0.6,
+        a: 0.15 + Math.random() * 0.35,
         sp: 0.4 + Math.random() * 1.4,
         ph: Math.random() * Math.PI * 2,
       }));
@@ -89,17 +89,17 @@ export function NightSky() {
       ctx.translate(sd.x, sd.y + Math.sin(t * 0.001 + sd.ph) * 9);
       ctx.rotate(sd.rot);
       ctx.scale(sd.s, sd.s);
-      ctx.strokeStyle = "rgba(230,246,236,.55)";
+      ctx.strokeStyle = "rgba(120,100,82,.45)";
       ctx.lineWidth = 0.8;
       ctx.beginPath();
       ctx.moveTo(0, 4);
       ctx.lineTo(0, 15);
       ctx.stroke();
-      ctx.fillStyle = "rgba(230,246,236,.7)";
+      ctx.fillStyle = "rgba(120,100,82,.55)";
       ctx.beginPath();
       ctx.arc(0, 15, 1.4, 0, 7);
       ctx.fill();
-      ctx.strokeStyle = "rgba(230,246,236,.4)";
+      ctx.strokeStyle = "rgba(120,100,82,.3)";
       for (let k = -3; k <= 3; k++) {
         const ang = k * 0.42;
         ctx.beginPath();
@@ -116,7 +116,7 @@ export function NightSky() {
       for (const s of stars) {
         const tw = s.a * (0.55 + 0.45 * Math.sin(t * 0.001 * s.sp + s.ph));
         ctx.globalAlpha = tw;
-        ctx.fillStyle = "#e6f4ec";
+        ctx.fillStyle = "#8a7458";
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, 7);
         ctx.fill();
@@ -130,8 +130,8 @@ export function NightSky() {
         meteor.y += meteor.vy;
         meteor.life -= 0.016;
         const g = ctx.createLinearGradient(meteor.x, meteor.y, meteor.x - 70, meteor.y - 33);
-        g.addColorStop(0, `rgba(220,255,238,${0.8 * meteor.life})`);
-        g.addColorStop(1, "rgba(220,255,238,0)");
+        g.addColorStop(0, `rgba(177,85,46,${0.6 * meteor.life})`);
+        g.addColorStop(1, "rgba(177,85,46,0)");
         ctx.strokeStyle = g;
         ctx.lineWidth = 1.6;
         ctx.beginPath();
@@ -160,9 +160,9 @@ export function NightSky() {
         const glow = 0.35 + 0.65 * Math.abs(Math.sin(f.ph * 2.3));
         ctx.save();
         ctx.globalAlpha = glow;
-        ctx.shadowColor = "rgba(255,190,120,.9)";
-        ctx.shadowBlur = 14;
-        ctx.fillStyle = "#ffd9a3";
+        ctx.shadowColor = "rgba(177,85,46,.45)";
+        ctx.shadowBlur = 5;
+        ctx.fillStyle = "#c9793f";
         ctx.beginPath();
         ctx.arc(fx, fy, 1.9, 0, 7);
         ctx.fill();
@@ -174,7 +174,7 @@ export function NightSky() {
     resize();
 
     if (reduced) {
-      ctx.fillStyle = "#e6f4ec";
+      ctx.fillStyle = "#8a7458";
       for (const s of stars) {
         ctx.globalAlpha = s.a;
         ctx.beginPath();

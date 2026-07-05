@@ -17,7 +17,7 @@ export function MobileNav() {
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-label="Toggle navigation menu"
-        className="rounded p-2 text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint"
+        className="rounded p-2 text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)]"
       >
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
           {open ? (
@@ -29,13 +29,13 @@ export function MobileNav() {
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-full z-50 flex flex-col gap-1 border-b border-line bg-[#04100c]/95 px-8 py-4 shadow-2xl backdrop-blur-xl">
+        <div className="absolute left-0 right-0 top-full z-50 flex flex-col gap-1 border-b border-[var(--line)] bg-[var(--surface)] px-8 py-4 shadow-lg">
           {LINKS.map(({ label, href }) => (
             <a
               key={label}
               href={href}
               onClick={() => setOpen(false)}
-              className="rounded py-3 text-sm text-muted transition-colors hover:text-mint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint"
+              className="rounded py-3 text-sm text-[var(--ink-soft)] transition-colors hover:text-[var(--rust)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)]"
             >
               {label}
             </a>
@@ -43,7 +43,7 @@ export function MobileNav() {
           <a
             href="/auth"
             onClick={() => setOpen(false)}
-            className="rounded py-3 text-sm text-muted transition-colors hover:text-mint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint"
+            className="rounded py-3 text-sm text-[var(--ink-soft)] transition-colors hover:text-[var(--rust)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)]"
           >
             Login
           </a>
