@@ -44,16 +44,16 @@ export async function POST(req: NextRequest) {
   if (upvotes > 0) {
     const { data: userPlan } = await db
       .from("user_plans")
-      .select("stripe_customer_id")
+      .select("dodo_customer_id")
       .eq("user_id", user.id)
       .single();
 
-    if (!userPlan?.stripe_customer_id) {
+    if (!userPlan?.dodo_customer_id) {
       return new Response(JSON.stringify({ error: "Subscribe to a plan to order upvotes" }), { status: 402 });
     }
 
     try {
-      await getDodo().creditEntitlements.balances.createLedgerEntry(userPlan.stripe_customer_id, {
+      await getDodo().creditEntitlements.balances.createLedgerEntry(userPlan.dodo_customer_id, {
         credit_entitlement_id: process.env.DODO_CREDIT_ENTITLEMENT_ID!,
         amount: (upvotes * CREDITS_PER_UPVOTE).toString(),
         entry_type: "debit",

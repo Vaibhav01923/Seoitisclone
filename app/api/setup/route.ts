@@ -79,10 +79,10 @@ export async function POST(req: NextRequest) {
   if (userId) {
     const { data: planRow } = await db
       .from("user_plans")
-      .select("plan, stripe_subscription_id")
+      .select("plan, dodo_subscription_id")
       .eq("user_id", userId)
       .single();
-    if (planRow?.stripe_subscription_id) activePlan = planRow.plan;
+    if (planRow?.dodo_subscription_id) activePlan = planRow.plan;
   }
   const promptCount = activePlan ? PLAN_AUTO_COUNTS[activePlan] ?? FREE_AUTO_COUNT : FREE_AUTO_COUNT;
 

@@ -15,21 +15,21 @@ export async function GET(req: NextRequest) {
 
   const { data: userPlan } = await db
     .from("user_plans")
-    .select("plan, stripe_customer_id, stripe_subscription_id")
+    .select("plan, dodo_customer_id, dodo_subscription_id")
     .eq("user_id", user.id)
     .single();
 
   // isFree is the one true "actively paying?" signal used for feature gating —
-  // a row can exist (and stripe_customer_id can be set) for a cancelled
-  // subscriber, but stripe_subscription_id is cleared on cancel/expiry.
-  const isFree = !userPlan?.stripe_subscription_id;
+  // a row can exist (and dodo_customer_id can be set) for a cancelled
+  // subscriber, but dodo_subscription_id is cleared on cancel/expiry.
+  const isFree = !userPlan?.dodo_subscription_id;
 
-  if (!userPlan?.stripe_customer_id) {
+  if (!userPlan?.dodo_customer_id) {
     return NextResponse.json({ plan: null, balance: 0, isFree });
   }
 
   try {
-    const balance = await getDodo().creditEntitlements.balances.retrieve(userPlan.stripe_customer_id, {
+    const balance = await getDodo().creditEntitlements.balances.retrieve(userPlan.dodo_customer_id, {
       credit_entitlement_id: process.env.DODO_CREDIT_ENTITLEMENT_ID!,
     });
     return NextResponse.json({ plan: userPlan.plan, balance: Number(balance.balance), isFree });

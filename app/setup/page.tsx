@@ -44,9 +44,9 @@ function SetupContent() {
   useEffect(() => {
     createSupabaseBrowserClient()
       .from("user_plans")
-      .select("plan, stripe_subscription_id")
+      .select("plan, dodo_subscription_id")
       .single()
-      .then(({ data }) => { if (data?.stripe_subscription_id) setUserPlan(data.plan); });
+      .then(({ data }) => { if (data?.dodo_subscription_id) setUserPlan(data.plan); });
   }, []);
 
   useEffect(() => {

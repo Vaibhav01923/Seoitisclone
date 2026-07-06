@@ -43,8 +43,8 @@ export async function POST(req: NextRequest) {
         {
           user_id: userId,
           plan,
-          stripe_customer_id: sub.customer?.customer_id ?? null,
-          stripe_subscription_id: sub.subscription_id,
+          dodo_customer_id: sub.customer?.customer_id ?? null,
+          dodo_subscription_id: sub.subscription_id,
           current_period_end: sub.next_billing_date ?? null,
         },
         { onConflict: "user_id" }
@@ -82,12 +82,12 @@ export async function POST(req: NextRequest) {
     const sub = event.data as WebhookPayload.Subscription;
     const userId = sub.metadata?.userId;
     if (userId) {
-      // Only clear stripe_subscription_id — that's the "active paid plan?" signal
+      // Only clear dodo_subscription_id — that's the "active paid plan?" signal
       // everywhere else in the app (see app/api/setup/route.ts, app/setup/page.tsx).
       // Leaving `plan` untouched keeps a record of what they were last on without
       // making a cancelled user look like an active "starter" ($49) subscriber.
       await db.from("user_plans").update({
-        stripe_subscription_id: null,
+        dodo_subscription_id: null,
       }).eq("user_id", userId);
     }
   }
