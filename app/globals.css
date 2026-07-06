@@ -71,11 +71,14 @@ body {
   color: #fff;
 }
 
-/* form controls inherit the dark theme */
+/* Form controls must inherit color from their nearest themed ancestor rather
+   than hardcoding the night-theme's --foreground — pages scoping a different
+   theme (e.g. the Signal cream/rust pages) set `color` on a wrapper via a
+   Tailwind class, and inputs need to pick that up instead of overriding it. */
 input,
 textarea,
 select {
-  color: var(--foreground);
+  color: inherit;
 }
 select option {
   background: var(--surface);
