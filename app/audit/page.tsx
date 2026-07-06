@@ -110,7 +110,7 @@ function AuditContent() {
       const res = await fetch("/api/dodo/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
+        body: JSON.stringify({ plan, cancelPath: window.location.pathname + window.location.search }),
       });
       const data = await res.json();
       if (data.url) {

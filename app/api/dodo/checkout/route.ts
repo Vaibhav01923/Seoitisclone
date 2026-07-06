@@ -15,7 +15,7 @@ const PLAN_PRODUCTS: Record<string, string | undefined> = {
 };
 
 export async function POST(req: NextRequest) {
-  const { plan } = await req.json();
+  const { plan, cancelPath } = await req.json();
 
   const db = clientFromRequest(req);
   const { data: { user } } = await db.auth.getUser();
@@ -26,10 +26,18 @@ export async function POST(req: NextRequest) {
 
   const origin = req.headers.get("origin") ?? "http://localhost:3000";
 
+  // cancelPath lets the caller send the user back to wherever they started
+  // checkout from (dashboard, landing pricing, the /audit tool) instead of
+  // always dumping them on /audit. Only accept a same-origin relative path.
+  const safeCancelPath =
+    typeof cancelPath === "string" && cancelPath.startsWith("/") && !cancelPath.startsWith("//") && !cancelPath.includes("://")
+      ? cancelPath
+      : "/dashboard";
+
   const session = await getDodo().checkoutSessions.create({
     product_cart: [{ product_id: productId, quantity: 1 }],
     return_url: `${origin}/dashboard?subscription=success`,
-    cancel_url: `${origin}/audit`,
+    cancel_url: `${origin}${safeCancelPath}`,
     metadata: { userId: user.id, plan },
     customer: { email: user.email! },
   });

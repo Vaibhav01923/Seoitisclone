@@ -63,6 +63,21 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  if (event.type === "subscription.failed") {
+    const sub = event.data as WebhookPayload.Subscription;
+    // Dodo doesn't include a gateway decline reason on this event (or on the
+    // payment object itself, which just shows error_code: "UNKNOWN_ERROR") —
+    // this is purely so a failed first payment shows up in our own logs
+    // instead of only being visible in Dodo's dashboard. No user_plans write:
+    // a failed subscription never granted a plan, so there's nothing to undo.
+    console.error("[dodo webhook] subscription.failed", {
+      subscriptionId: sub.subscription_id,
+      userId: sub.metadata?.userId,
+      plan: sub.metadata?.plan,
+      customerEmail: sub.customer?.email,
+    });
+  }
+
   if (event.type === "subscription.cancelled" || event.type === "subscription.expired") {
     const sub = event.data as WebhookPayload.Subscription;
     const userId = sub.metadata?.userId;
