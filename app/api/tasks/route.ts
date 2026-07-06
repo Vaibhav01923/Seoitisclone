@@ -1,15 +1,6 @@
 import { NextRequest } from "next/server";
-import { randomUUID } from "node:crypto";
-import DodoPayments from "dodopayments";
 import { clientFromRequest } from "@/lib/supabase";
-
-const CREDITS_PER_UPVOTE = 0.5;
-
-const getDodo = () =>
-  new DodoPayments({
-    bearerToken: process.env.DODO_API_KEY!,
-    environment: (process.env.DODO_ENVIRONMENT ?? "test_mode") as "test_mode" | "live_mode",
-  });
+import { placeRedditOrder } from "@/lib/reddit-order-service";
 
 export async function GET(req: NextRequest) {
   const db = clientFromRequest(req);
@@ -42,30 +33,23 @@ export async function POST(req: NextRequest) {
   const upvotes = upvotesOrdered ?? 0;
 
   if (upvotes > 0) {
-    const { data: userPlan } = await db
-      .from("user_plans")
-      .select("dodo_customer_id")
-      .eq("user_id", user.id)
-      .single();
+    const result = await placeRedditOrder({
+      db,
+      userId: user.id,
+      brandId,
+      url,
+      serviceType: "post_upvote",
+      quantity: upvotes,
+      speed: deliverySpeed ?? "normal",
+      promptText,
+      engine,
+    });
 
-    if (!userPlan?.dodo_customer_id) {
-      return new Response(JSON.stringify({ error: "Subscribe to a plan to order upvotes" }), { status: 402 });
-    }
-
-    try {
-      await getDodo().creditEntitlements.balances.createLedgerEntry(userPlan.dodo_customer_id, {
-        credit_entitlement_id: process.env.DODO_CREDIT_ENTITLEMENT_ID!,
-        amount: (upvotes * CREDITS_PER_UPVOTE).toString(),
-        entry_type: "debit",
-        reason: `Reddit upvote order (${upvotes} upvotes)`,
-        idempotency_key: randomUUID(),
-        metadata: { url },
-      });
-    } catch {
-      return new Response(JSON.stringify({ error: "Not enough credits" }), { status: 402 });
-    }
+    if (!result.ok) return new Response(JSON.stringify({ error: result.error }), { status: result.status });
+    return new Response(JSON.stringify({ task: result.task, queued: result.queued }), { status: 201, headers: { "Content-Type": "application/json" } });
   }
 
+  // Free "track without upvotes" path — no credits, no provider order, just a log of the reply.
   const { data, error } = await db
     .from("engage_tasks")
     .insert({
@@ -75,8 +59,10 @@ export async function POST(req: NextRequest) {
       prompt_text: promptText ?? null,
       engine: engine ?? null,
       reply_text: replyText ?? null,
-      upvotes_ordered: upvotes,
+      upvotes_ordered: 0,
       delivery_speed: deliverySpeed ?? "normal",
+      service_type: "post_upvote",
+      credits_charged: 0,
       status: "pending",
     })
     .select()

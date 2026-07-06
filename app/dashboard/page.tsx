@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AdminTask, AIEngine, BrandData, EngageTask, GapItem, RedditThread, ScanResult, SocialKeyword, VisibilityScore } from "@/lib/types";
+import { AdminTask, AIEngine, BrandData, EngageTask, GapItem, RedditServiceType, RedditThread, ScanResult, SocialKeyword, VisibilityScore } from "@/lib/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -15,6 +15,21 @@ const ENGINE_LABELS: Record<AIEngine, string> = {
   perplexity: "Perplexity",
   google: "Google AI",
   grok: "Grok",
+};
+
+const REDDIT_SERVICE_META: Record<RedditServiceType, { label: string; creditsPerUnit: number; min: number; max: number }> = {
+  post_upvote: { label: "Upvotes", creditsPerUnit: 0.5, min: 5, max: 1000 },
+  post_downvote: { label: "Downvotes", creditsPerUnit: 0.5, min: 5, max: 1000 },
+  custom_comments: { label: "Comment", creditsPerUnit: 10, min: 1, max: 1 },
+};
+
+const TASK_STATUS_BADGE: Record<string, { label: string; className: string; dotClassName: string }> = {
+  queued: { label: "Queued — high demand", className: "bg-[var(--rust-wash)]/10 text-[var(--rust-deep)] border-[var(--rust)]/25", dotClassName: "bg-[var(--rust-wash)]/100 animate-pulse" },
+  pending: { label: "Pending", className: "bg-[var(--rust-wash)]/10 text-[var(--rust-deep)] border-[var(--rust)]/25", dotClassName: "bg-[var(--rust-wash)]/100 animate-pulse" },
+  running: { label: "Running", className: "bg-blue-500/10 text-blue-700 border-blue-500/25", dotClassName: "bg-blue-500 animate-pulse" },
+  completed: { label: "Completed", className: "bg-[var(--rust)]/10 text-[var(--rust)] border-[var(--rust)]/25", dotClassName: "bg-[var(--rust)]/100" },
+  failed: { label: "Failed — refunded", className: "bg-red-500/10 text-red-700 border-red-500/25", dotClassName: "bg-red-600" },
+  cancelled: { label: "Cancelled", className: "bg-[var(--line)] text-[var(--ink-soft)] border-[var(--line)]", dotClassName: "bg-[var(--ink-faint)]" },
 };
 
 /* Signal theme — raw hex approximations of the scoped oklch tokens
@@ -257,6 +272,31 @@ function MiniTrendChart({ runs }: { runs: ScanRun[] }) {
   );
 }
 
+function taskMatchesFilter(t: EngageTask, filter: "pending" | "completed" | "failed"): boolean {
+  if (filter === "pending") return t.status === "pending" || t.status === "queued" || t.status === "running";
+  if (filter === "completed") return t.status === "completed";
+  return t.status === "failed" || t.status === "cancelled";
+}
+
+function mapEngageTask(t: Record<string, unknown>): EngageTask {
+  return {
+    id: t.id as string,
+    brandId: t.brand_id as string,
+    url: t.url as string,
+    promptText: (t.prompt_text as string) ?? null,
+    engine: (t.engine as string) ?? null,
+    replyText: (t.reply_text as string) ?? null,
+    upvotesOrdered: (t.upvotes_ordered as number) ?? 0,
+    deliverySpeed: t.delivery_speed as string,
+    serviceType: (t.service_type as RedditServiceType) ?? "post_upvote",
+    creditsCharged: Number(t.credits_charged ?? 0),
+    providerOrderId: (t.provider_order_id as string | null) ?? null,
+    status: t.status as EngageTask["status"],
+    createdAt: t.created_at as string,
+    completedAt: (t.completed_at as string) ?? null,
+  };
+}
+
 function EmptyState({ label, sub }: { label: string; sub: string }) {
   return (
     <div className="bg-[var(--surface)] border border-dashed border-[var(--line)] rounded-2xl p-12 text-center">
@@ -436,7 +476,17 @@ function DashboardPage() {
   const [confirmingSubscription, setConfirmingSubscription] = useState(false);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const openPaywall = () => setShowPaywallModal(true);
-  const [taskFilter, setTaskFilter] = useState<"pending" | "completed">("pending");
+  const [taskFilter, setTaskFilter] = useState<"pending" | "completed" | "failed">("pending");
+
+  // Standalone Reddit-order form (Tasks tab) — independent of the Citations Engage Panel
+  const [redditOrderUrl, setRedditOrderUrl] = useState("");
+  const [redditOrderService, setRedditOrderService] = useState<RedditServiceType>("post_upvote");
+  const [redditOrderQty, setRedditOrderQty] = useState(10);
+  const [redditOrderSpeed, setRedditOrderSpeed] = useState<"slow" | "normal" | "fast">("normal");
+  const [redditOrderComment, setRedditOrderComment] = useState("");
+  const [redditOrderSubmitting, setRedditOrderSubmitting] = useState(false);
+  const [redditOrderError, setRedditOrderError] = useState("");
+  const [redditOrderSuccess, setRedditOrderSuccess] = useState("");
   const [hoveredScanIdx, setHoveredScanIdx] = useState<number | null>(null);
   // Citations page state
   const [showCitationOnboarding, setShowCitationOnboarding] = useState(false);
@@ -578,7 +628,7 @@ function DashboardPage() {
             }
           }).finally(() => setLoadingResults(false));
           fetch(`/api/keywords?brandId=${id}`).then((r) => r.json()).then((d) => setSocialKeywords(d.keywords ?? []));
-          fetch(`/api/tasks?brandId=${id}`).then((r) => r.json()).then((d) => setEngageTasks((d.tasks ?? []).map((t: Record<string, unknown>) => ({ id: t.id, brandId: t.brand_id, url: t.url, promptText: t.prompt_text, engine: t.engine, replyText: t.reply_text, upvotesOrdered: t.upvotes_ordered, deliverySpeed: t.delivery_speed, status: t.status, createdAt: t.created_at } as EngageTask))));
+          fetch(`/api/tasks?brandId=${id}`).then((r) => r.json()).then((d) => setEngageTasks((d.tasks ?? []).map(mapEngageTask)));
           fetch(`/api/reddit/threads?brandId=${id}`).then((r) => r.json()).then((d) => setRedditThreads(d.threads ?? []));
           fetch(`/api/articles?brandId=${id}`).then((r) => r.json()).then((d) => setSavedArticles((d.articles ?? []).map(mapArticleFromDb))).finally(() => setLoadingArticles(false));
           fetch(`/api/publishing/channels?brandId=${id}`).then((r) => r.json()).then((d) => setPublishingChannels(d.channels ?? []));
@@ -1046,6 +1096,52 @@ function DashboardPage() {
     sessionStorage.setItem("dashTab", tab);
   }
 
+  async function submitRedditOrder() {
+    if (isFreeTier) { openPaywall(); return; }
+    setRedditOrderError("");
+    setRedditOrderSuccess("");
+
+    if (!/^https?:\/\/(www\.)?reddit\.com\//i.test(redditOrderUrl.trim())) {
+      setRedditOrderError("Enter a valid reddit.com link");
+      return;
+    }
+    if (redditOrderService === "custom_comments" && !redditOrderComment.trim()) {
+      setRedditOrderError("Enter the comment text to post");
+      return;
+    }
+
+    setRedditOrderSubmitting(true);
+    try {
+      const res = await fetch("/api/reddit-orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          brandId: brand?.id,
+          url: redditOrderUrl.trim(),
+          serviceType: redditOrderService,
+          quantity: redditOrderService === "custom_comments" ? undefined : redditOrderQty,
+          commentText: redditOrderService === "custom_comments" ? redditOrderComment.trim() : undefined,
+          speed: redditOrderSpeed,
+        }),
+      });
+      const d = await res.json();
+      if (res.ok) {
+        if (d.task) setEngageTasks((prev) => [mapEngageTask(d.task), ...prev]);
+        const spent = REDDIT_SERVICE_META[redditOrderService].creditsPerUnit * (redditOrderService === "custom_comments" ? 1 : redditOrderQty);
+        setCredits((prev) => (prev ? { ...prev, balance: prev.balance - spent } : prev));
+        setRedditOrderSuccess(d.queued ? "High demand for this link right now — we'll submit your order automatically." : "Order submitted.");
+        setRedditOrderUrl("");
+        setRedditOrderComment("");
+      } else {
+        setRedditOrderError(d.error ?? "Failed to submit order");
+      }
+    } catch {
+      setRedditOrderError("Failed to submit order. Try again.");
+    } finally {
+      setRedditOrderSubmitting(false);
+    }
+  }
+
   async function signOut() {
     await createSupabaseBrowserClient().auth.signOut();
     router.push("/auth");
@@ -1232,7 +1328,7 @@ function DashboardPage() {
             <div className="space-y-0.5">
               <NavItem label="Research" active={activeTab === "gaps"} onClick={() => navTo("gaps")} badge={gaps.length || undefined} />
               <NavItem label="Articles" active={activeTab === "articles"} onClick={() => navTo("articles")} badge={draftCount || undefined} />
-              <NavItem label="Tasks" active={activeTab === "tasks"} onClick={() => navTo("tasks")} badge={engageTasks.filter(t => t.status === "pending").length || undefined} />
+              <NavItem label="Tasks" active={activeTab === "tasks"} onClick={() => navTo("tasks")} badge={engageTasks.filter(t => t.status === "pending" || t.status === "queued" || t.status === "running").length || undefined} />
             </div>
           </div>
 
@@ -3662,28 +3758,117 @@ function DashboardPage() {
             <div className="max-w-3xl mx-auto w-full">
               <div className="mb-5">
                 <h2 className="text-lg font-semibold text-[var(--ink)]">Tasks</h2>
-                <p className="text-sm text-[var(--ink-soft)] mt-0.5">Replies and upvote orders you've submitted from the Citations tab.</p>
+                <p className="text-sm text-[var(--ink-soft)] mt-0.5">Order Reddit engagement directly, or track replies submitted from Citations.</p>
+              </div>
+
+              {/* Standalone order form */}
+              <div className="panel rounded-xl p-4 mb-6">
+                <p className="text-sm font-semibold text-[var(--ink)] mb-3">Order Reddit engagement</p>
+
+                <div className="flex gap-1 mb-3 bg-[var(--line)] rounded-lg p-1 w-fit">
+                  {(["post_upvote", "post_downvote", "custom_comments"] as const).map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setRedditOrderService(s)}
+                      className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                        redditOrderService === s ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)] hover:text-[var(--ink)]/80"
+                      }`}
+                    >
+                      {REDDIT_SERVICE_META[s].label}
+                    </button>
+                  ))}
+                </div>
+
+                <input
+                  value={redditOrderUrl}
+                  onChange={(e) => setRedditOrderUrl(e.target.value)}
+                  placeholder="https://www.reddit.com/r/.../comments/..."
+                  className="w-full text-sm border border-[var(--line)] bg-[var(--cream)] rounded-lg px-3 py-2 mb-3 outline-none text-[var(--ink)] placeholder:text-[var(--ink-faint)] focus:ring-2 focus:ring-[var(--rust)]/40"
+                />
+
+                {redditOrderService === "custom_comments" ? (
+                  <div className="mb-3">
+                    <textarea
+                      value={redditOrderComment}
+                      onChange={(e) => setRedditOrderComment(e.target.value)}
+                      placeholder="Comment to post…"
+                      maxLength={1000}
+                      rows={3}
+                      className="w-full text-sm border border-[var(--line)] bg-[var(--cream)] rounded-lg px-3 py-2 outline-none text-[var(--ink)] placeholder:text-[var(--ink-faint)] focus:ring-2 focus:ring-[var(--rust)]/40 resize-y"
+                    />
+                    <p className="text-[10px] text-[var(--ink-faint)] mt-1">No NSFW, explicit, hateful, or illegal content — orders that violate this are rejected before any credits are charged.</p>
+                  </div>
+                ) : (
+                  <div className="flex gap-3 mb-3">
+                    <div className="flex-1">
+                      <p className="text-[10px] font-semibold text-[var(--ink-soft)] mb-1.5">Quantity ({REDDIT_SERVICE_META[redditOrderService].min}–{REDDIT_SERVICE_META[redditOrderService].max})</p>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => setRedditOrderQty((q) => Math.max(REDDIT_SERVICE_META[redditOrderService].min, q - 5))} className="w-7 h-7 rounded-lg border border-[var(--line)] flex items-center justify-center text-[var(--ink-soft)] hover:bg-[var(--line-soft)] font-medium text-sm">−</button>
+                        <span className="text-sm font-semibold text-[var(--ink)] w-10 text-center">{redditOrderQty}</span>
+                        <button onClick={() => setRedditOrderQty((q) => Math.min(REDDIT_SERVICE_META[redditOrderService].max, q + 5))} className="w-7 h-7 rounded-lg border border-[var(--line)] flex items-center justify-center text-[var(--ink-soft)] hover:bg-[var(--line-soft)] font-medium text-sm">+</button>
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[10px] font-semibold text-[var(--ink-soft)] mb-1.5">Speed</p>
+                      <select
+                        value={redditOrderSpeed}
+                        onChange={(e) => setRedditOrderSpeed(e.target.value as "slow" | "normal" | "fast")}
+                        className="w-full text-xs border border-[var(--line)] rounded-lg px-2 py-1.5 bg-[var(--line-soft)] text-[var(--ink)]/80 focus:outline-none focus:ring-1 focus:ring-[var(--rust)]/30"
+                      >
+                        <option value="slow">Slow (safer)</option>
+                        <option value="normal">Normal</option>
+                        <option value="fast">Fast</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {redditOrderService === "post_downvote" && (
+                  <p className="text-[10px] text-[var(--rust-deep)] bg-[var(--rust-wash)] rounded-lg px-3 py-2 mb-3">Downvotes only work on posts less than 24 hours old.</p>
+                )}
+
+                <div className="flex items-center justify-between text-[10px] text-[var(--ink-faint)] bg-[var(--line-soft)] rounded-lg px-3 py-2 mb-3">
+                  <span>
+                    {redditOrderService === "custom_comments"
+                      ? "1 comment"
+                      : `${redditOrderQty} ${REDDIT_SERVICE_META[redditOrderService].label.toLowerCase()} × ${REDDIT_SERVICE_META[redditOrderService].creditsPerUnit} credits`}
+                  </span>
+                  <span className="font-semibold text-[var(--ink)]/80">
+                    {redditOrderService === "custom_comments" ? REDDIT_SERVICE_META.custom_comments.creditsPerUnit : redditOrderQty * REDDIT_SERVICE_META[redditOrderService].creditsPerUnit} credits
+                  </span>
+                </div>
+
+                {redditOrderError && <p className="text-xs text-red-700 bg-red-500/10 rounded-lg px-3 py-2 mb-3">{redditOrderError}</p>}
+                {redditOrderSuccess && <p className="text-xs text-[var(--rust-deep)] bg-[var(--rust-wash)] rounded-lg px-3 py-2 mb-3">{redditOrderSuccess}</p>}
+
+                <button
+                  onClick={submitRedditOrder}
+                  disabled={redditOrderSubmitting || !redditOrderUrl.trim() || (redditOrderService === "custom_comments" ? !redditOrderComment.trim() : false)}
+                  className="w-full text-sm font-semibold bg-[#FF4500] text-white py-2.5 rounded-lg hover:bg-[#e03d00] disabled:opacity-50 transition-colors"
+                >
+                  {redditOrderSubmitting ? "Submitting…" : "Submit order"}
+                </button>
               </div>
 
               {/* Subtabs */}
               <div className="flex gap-1 mb-5 bg-[var(--line)] rounded-xl p-1 w-fit">
-                {(["pending", "completed"] as const).map((f) => {
-                  const count = engageTasks.filter((t) => t.status === f).length;
+                {(["pending", "completed", "failed"] as const).map((f) => {
+                  const count = engageTasks.filter((t) => taskMatchesFilter(t, f)).length;
                   return (
                     <button
                       key={f}
                       onClick={() => setTaskFilter(f)}
-                      className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all capitalize ${
                         taskFilter === f
                           ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm"
                           : "text-[var(--ink-soft)] hover:text-[var(--ink)]/80"
                       }`}
                     >
-                      {f === "pending" ? "Pending" : "Completed"}
+                      {f}
                       {count > 0 && (
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
                           taskFilter === f
-                            ? f === "pending" ? "bg-[var(--rust-wash)]/15 text-[var(--rust-deep)]" : "bg-[var(--rust)]/15 text-[var(--rust)]"
+                            ? f === "failed" ? "bg-red-500/15 text-red-700" : "bg-[var(--rust-wash)]/15 text-[var(--rust-deep)]"
                             : "bg-[var(--line)] text-[var(--ink-soft)]"
                         }`}>{count}</span>
                       )}
@@ -3692,7 +3877,7 @@ function DashboardPage() {
                 })}
               </div>
 
-              {engageTasks.filter((t) => t.status === taskFilter).length === 0 ? (
+              {engageTasks.filter((t) => taskMatchesFilter(t, taskFilter)).length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
                   <div className="w-12 h-12 rounded-full bg-[var(--line)] flex items-center justify-center mb-3">
                     <svg className="w-6 h-6 text-[var(--ink-faint)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
@@ -3700,19 +3885,26 @@ function DashboardPage() {
                   {taskFilter === "pending" ? (
                     <>
                       <p className="text-sm font-medium text-[var(--ink)]/80 mb-1">No pending tasks</p>
-                      <p className="text-xs text-[var(--ink-faint)] max-w-xs">Go to Citations, click Engage on a Reddit link, draft a reply and submit a task to track it here.</p>
-                      <button onClick={() => navTo("citations")} className="mt-4 text-xs font-medium text-[#FF4500] hover:underline">Go to Citations →</button>
+                      <p className="text-xs text-[var(--ink-faint)] max-w-xs">Order Reddit engagement above, or go to Citations and click Engage on a Reddit link.</p>
+                    </>
+                  ) : taskFilter === "completed" ? (
+                    <>
+                      <p className="text-sm font-medium text-[var(--ink)]/80 mb-1">No completed tasks yet</p>
+                      <p className="text-xs text-[var(--ink-faint)] max-w-xs">Completed orders appear here once delivered.</p>
                     </>
                   ) : (
                     <>
-                      <p className="text-sm font-medium text-[var(--ink)]/80 mb-1">No completed tasks yet</p>
-                      <p className="text-xs text-[var(--ink-faint)] max-w-xs">Completed tasks will appear here once an admin marks them done.</p>
+                      <p className="text-sm font-medium text-[var(--ink)]/80 mb-1">No failed tasks</p>
+                      <p className="text-xs text-[var(--ink-faint)] max-w-xs">Orders that fail are automatically refunded and show up here.</p>
                     </>
                   )}
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {engageTasks.filter((t) => t.status === taskFilter).map((task) => (
+                  {engageTasks.filter((t) => taskMatchesFilter(t, taskFilter)).map((task) => {
+                    const badge = TASK_STATUS_BADGE[task.status] ?? TASK_STATUS_BADGE.pending;
+                    const serviceLabel = REDDIT_SERVICE_META[task.serviceType]?.label ?? "Upvotes";
+                    return (
                     <div key={task.id} className="panel rounded-xl p-4 hover:border-[var(--line)] transition-colors">
                       <div className="flex items-start gap-3">
                         <div className="w-8 h-8 rounded-lg bg-[#FF4500] flex items-center justify-center shrink-0 mt-0.5">
@@ -3723,10 +3915,11 @@ function DashboardPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${task.status === "completed" ? "bg-[var(--rust)]/10 text-[var(--rust)] border-[var(--rust)]/25" : "bg-[var(--rust-wash)]/10 text-[var(--rust-deep)] border-[var(--rust)]/25"}`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${task.status === "completed" ? "bg-[var(--rust)]/100" : "bg-[var(--rust-wash)]/100 animate-pulse"}`} />
-                              {task.status === "completed" ? "Completed" : "Pending"}
+                            <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${badge.className}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${badge.dotClassName}`} />
+                              {badge.label}
                             </span>
+                            <span className="text-[10px] text-[var(--ink-faint)]">{serviceLabel}</span>
                             {task.engine && <span className="text-[10px] text-[var(--ink-faint)]">{ENGINE_LABELS[task.engine as AIEngine] ?? task.engine}</span>}
                             <span className="text-[10px] text-[var(--ink-faint)] ml-auto">{new Date(task.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
                           </div>
@@ -3737,24 +3930,27 @@ function DashboardPage() {
                             <p className="text-xs text-[var(--ink-soft)] bg-[var(--line-soft)] rounded-lg px-3 py-2 border border-[var(--line)] line-clamp-2 mb-2">{task.replyText}</p>
                           )}
                           <div className="flex items-center gap-4 text-[10px] text-[var(--ink-faint)]">
-                            {task.upvotesOrdered > 0 ? (
+                            {task.creditsCharged > 0 ? (
                               <>
-                                <span className="flex items-center gap-1">
-                                  <svg className="w-3 h-3 text-[#FF4500]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4l8 8H4z"/></svg>
-                                  {task.upvotesOrdered} upvotes ordered
-                                </span>
-                                <span className="capitalize">{task.deliverySpeed} delivery</span>
-                                <span className="font-medium text-[var(--ink-soft)]">{task.upvotesOrdered * 0.5} credits</span>
+                                {task.serviceType !== "custom_comments" && (
+                                  <span className="flex items-center gap-1">
+                                    <svg className="w-3 h-3 text-[#FF4500]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4l8 8H4z"/></svg>
+                                    {task.upvotesOrdered} {serviceLabel.toLowerCase()} ordered
+                                  </span>
+                                )}
+                                {task.serviceType !== "custom_comments" && <span className="capitalize">{task.deliverySpeed} delivery</span>}
+                                <span className="font-medium text-[var(--ink-soft)]">{task.creditsCharged} credits</span>
                               </>
                             ) : (
-                              <span>No upvotes ordered</span>
+                              <span>No credits spent</span>
                             )}
                             {task.promptText && <span className="truncate max-w-[160px]">for: <span className="italic">{task.promptText}</span></span>}
                           </div>
                         </div>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -4442,7 +4638,7 @@ function DashboardPage() {
                           });
                           if (res.ok) {
                             const d = await res.json();
-                            setEngageTasks((prev) => [d.task ? { id: d.task.id, brandId: d.task.brand_id, url: d.task.url, promptText: d.task.prompt_text, engine: d.task.engine, replyText: d.task.reply_text, upvotesOrdered: d.task.upvotes_ordered, deliverySpeed: d.task.delivery_speed, status: d.task.status, createdAt: d.task.created_at } as EngageTask : prev[0], ...prev].filter(Boolean));
+                            setEngageTasks((prev) => [d.task ? mapEngageTask(d.task) : prev[0], ...prev].filter(Boolean));
                             setCredits((prev) => (prev ? { ...prev, balance: prev.balance - upvoteQty * 0.5 } : prev));
                             setTaskSubmitted(true);
                           } else {

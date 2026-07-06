@@ -58,6 +58,8 @@ export type SocialKeyword = {
   createdAt: string;
 };
 
+export type RedditServiceType = "post_upvote" | "post_downvote" | "custom_comments";
+
 export type EngageTask = {
   id: string;
   brandId: string;
@@ -67,7 +69,10 @@ export type EngageTask = {
   replyText: string | null;
   upvotesOrdered: number;
   deliverySpeed: string;
-  status: "pending" | "completed" | "cancelled";
+  serviceType: RedditServiceType;
+  creditsCharged: number;
+  providerOrderId: string | null;
+  status: "queued" | "pending" | "running" | "completed" | "failed" | "cancelled";
   createdAt: string;
   completedAt: string | null;
 };
