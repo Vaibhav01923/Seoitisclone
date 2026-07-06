@@ -362,8 +362,7 @@ function DashboardPage() {
   const [userEmail, setUserEmail] = useState("");
 
   // Admin state
-  const ADMIN_EMAILS = ["vaibhavkandpal81@gmail.com", "deveshpaliwal1@gmail.com"];
-  const isAdmin = ADMIN_EMAILS.includes(userEmail);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [adminTasks, setAdminTasks] = useState<AdminTask[]>([]);
   const [adminSelectedEmail, setAdminSelectedEmail] = useState<string | null>(null);
   const [adminLoading, setAdminLoading] = useState(false);
@@ -477,6 +476,8 @@ function DashboardPage() {
     createSupabaseBrowserClient()
       .auth.getUser()
       .then(({ data: { user } }) => setUserEmail(user?.email ?? ""));
+
+    fetch("/api/admin/check").then((r) => r.json()).then((d) => setIsAdmin(!!d.isAdmin));
 
     fetch("/api/reddit/connection").then((r) => r.json()).then((d) => {
       setRedditConnected(d.connected);

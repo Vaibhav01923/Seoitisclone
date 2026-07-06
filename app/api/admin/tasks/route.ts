@@ -1,11 +1,17 @@
 import { NextRequest } from "next/server";
 import { clientFromRequest, serverClient } from "@/lib/supabase";
 
-const ADMIN_EMAILS = ["vaibhavkandpal81@gmail.com", "deveshpaliwal1@gmail.com"];
-
 async function requireAdmin(req: NextRequest): Promise<{ email: string } | Response> {
   const { data: { user } } = await clientFromRequest(req).auth.getUser();
-  if (!user?.email || !ADMIN_EMAILS.includes(user.email)) {
+  if (!user?.email) {
+    return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 });
+  }
+  const { data: adminRow } = await serverClient()
+    .from("admins")
+    .select("email")
+    .eq("email", user.email)
+    .maybeSingle();
+  if (!adminRow) {
     return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 });
   }
   return { email: user.email };
