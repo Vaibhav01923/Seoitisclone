@@ -594,21 +594,27 @@ function DashboardPage() {
       });
 
     fetchCredits().then((d) => {
-      // Dodo's webhook that activates the plan runs async and can land a beat
-      // after this redirect — poll briefly instead of leaving a real customer
-      // stuck looking at "upgrade" until they think to refresh manually.
+      // Dodo's webhook that activates the plan has repeatedly failed to arrive
+      // on the first real attempt, so don't just wait on it — actively ask
+      // Dodo directly whether this user has an active subscription on every
+      // tick, which self-heals immediately instead of depending on webhook
+      // retries or the slower reconcile-dodo-subscriptions cron (every 10min).
       if (searchParams.get("subscription") === "success" && d.isFree) {
         setConfirmingSubscription(true);
         let attempts = 0;
         const poll = setInterval(() => {
           attempts++;
-          fetchCredits().then((d2) => {
-            if (!d2.isFree || attempts >= 8) {
-              clearInterval(poll);
-              setConfirmingSubscription(false);
-            }
-          });
-        }, 2000);
+          fetch("/api/dodo/reconcile-me", { method: "POST" })
+            .then((r) => r.json())
+            .catch(() => null)
+            .then(() => fetchCredits())
+            .then((d2) => {
+              if (!d2.isFree || attempts >= 10) {
+                clearInterval(poll);
+                setConfirmingSubscription(false);
+              }
+            });
+        }, 3000);
       }
     });
 
