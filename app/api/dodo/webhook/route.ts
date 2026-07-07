@@ -98,6 +98,41 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  if (event.type === "payment.succeeded") {
+    // Forward revenue directly to DataFast ourselves instead of relying on
+    // Dodo's pre-built native connector — that connector broke whenever
+    // metadata.datafast_visitor_id was absent (e.g. checkout without a
+    // prior page load), returning a misleading "Amount is required" error
+    // from DataFast even though the payment clearly had an amount.
+    const payment = event.data as WebhookPayload.Payment;
+    const apiKey = process.env.DATAFAST_API_KEY;
+    if (apiKey) {
+      try {
+        const res = await fetch("https://datafa.st/api/v1/payments", {
+          method: "POST",
+          headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            amount: payment.total_amount / 100,
+            currency: payment.currency,
+            transaction_id: payment.payment_id,
+            ...(payment.metadata?.datafast_visitor_id ? { datafast_visitor_id: payment.metadata.datafast_visitor_id } : {}),
+            email: payment.customer?.email,
+            customer_id: payment.customer?.customer_id,
+          }),
+        });
+        if (!res.ok) {
+          console.error("[dodo webhook] DataFast revenue forwarding failed", {
+            status: res.status,
+            body: await res.text(),
+            paymentId: payment.payment_id,
+          });
+        }
+      } catch (err) {
+        console.error("[dodo webhook] DataFast revenue forwarding threw", err);
+      }
+    }
+  }
+
   if (event.type === "subscription.cancelled" || event.type === "subscription.expired") {
     const sub = event.data as WebhookPayload.Subscription;
     const userId = sub.metadata?.userId;
