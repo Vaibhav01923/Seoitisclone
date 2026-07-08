@@ -81,6 +81,15 @@ export type EngageTask = {
 
 export type AdminTask = EngageTask & { userEmail: string; userId: string };
 
+export type AdminFeedback = {
+  id: string;
+  userEmail: string;
+  category: string;
+  title: string;
+  description: string;
+  createdAt: string;
+};
+
 export type RedditThread = {
   id: string;
   keyword: string;

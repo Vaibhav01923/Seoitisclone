@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AdminTask, AIEngine, BrandData, EngageTask, GapItem, RedditServiceType, RedditThread, ScanResult, SocialKeyword, VisibilityScore } from "@/lib/types";
+import { AdminFeedback, AdminTask, AIEngine, BrandData, EngageTask, GapItem, RedditServiceType, RedditThread, ScanResult, SocialKeyword, VisibilityScore } from "@/lib/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -470,6 +470,10 @@ function DashboardPage() {
   const [adminTasks, setAdminTasks] = useState<AdminTask[]>([]);
   const [adminSelectedEmail, setAdminSelectedEmail] = useState<string | null>(null);
   const [adminLoading, setAdminLoading] = useState(false);
+  const [adminView, setAdminView] = useState<"tasks" | "feedback">("tasks");
+  const [adminFeedback, setAdminFeedback] = useState<AdminFeedback[]>([]);
+  const [adminFeedbackLoaded, setAdminFeedbackLoaded] = useState(false);
+  const [adminFeedbackLoading, setAdminFeedbackLoading] = useState(false);
 
   // Agent state
   const [agentMessages, setAgentMessages] = useState<AgentMessage[]>([]);
@@ -793,6 +797,16 @@ function DashboardPage() {
       .then((d) => { if (d.tasks) setAdminTasks(d.tasks); })
       .finally(() => setAdminLoading(false));
   }, [activeTab, isAdmin]);
+
+  // Load all feedback submissions for admin when the Feedback sub-view opens
+  useEffect(() => {
+    if (activeTab !== "admin" || !isAdmin || adminView !== "feedback" || adminFeedbackLoaded) return;
+    setAdminFeedbackLoading(true);
+    fetch("/api/admin/feedback")
+      .then((r) => r.json())
+      .then((d) => setAdminFeedback(d.submissions ?? []))
+      .finally(() => { setAdminFeedbackLoading(false); setAdminFeedbackLoaded(true); });
+  }, [activeTab, isAdmin, adminView, adminFeedbackLoaded]);
 
   // Load this user's past feedback submissions when the tab opens
   useEffect(() => {
@@ -4413,13 +4427,31 @@ function DashboardPage() {
 
           {/* ADMIN TAB */}
           {activeTab === "admin" && isAdmin && (
-            <div className="lg:h-full flex flex-col lg:flex-row gap-5">
+            <div className="lg:h-full flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-base font-semibold text-[var(--ink)]">Admin</h2>
+                  <p className="text-xs text-[var(--ink-faint)] mt-0.5">{adminView === "tasks" ? "All user tasks" : "All feedback submissions"}</p>
+                </div>
+                <div className="flex gap-1 bg-[var(--line)] rounded-lg p-1">
+                  {(["tasks", "feedback"] as const).map((v) => (
+                    <button
+                      key={v}
+                      onClick={() => setAdminView(v)}
+                      className={`px-3 py-1.5 rounded-md text-xs font-semibold capitalize transition-all ${
+                        adminView === v ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)] hover:text-[var(--ink)]/80"
+                      }`}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {adminView === "tasks" && (
+              <div className="lg:h-full flex flex-col lg:flex-row gap-5">
               {/* Left: user list */}
               <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2">
-                <div className="mb-2">
-                  <h2 className="text-base font-semibold text-[var(--ink)]">Admin</h2>
-                  <p className="text-xs text-[var(--ink-faint)] mt-0.5">All user tasks</p>
-                </div>
                 {adminLoading ? (
                   <div className="flex items-center gap-2 py-6 text-xs text-[var(--ink-faint)]"><span className="w-3 h-3 border-2 border-[var(--line)] border-t-transparent rounded-full animate-spin" /> Loading…</div>
                 ) : (() => {
@@ -4525,6 +4557,34 @@ function DashboardPage() {
                   );
                 })()}
               </div>
+              </div>
+              )}
+
+              {adminView === "feedback" && (
+                <div className="flex-1 min-h-0 overflow-y-auto">
+                  {adminFeedbackLoading ? (
+                    <div className="flex items-center gap-2 py-6 text-xs text-[var(--ink-faint)]"><span className="w-3 h-3 border-2 border-[var(--line)] border-t-transparent rounded-full animate-spin" /> Loading…</div>
+                  ) : adminFeedback.length === 0 ? (
+                    <p className="text-xs text-[var(--ink-faint)] py-6 text-center">No feedback submitted yet</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {adminFeedback.map((f) => (
+                        <div key={f.id} className="panel rounded-xl p-4">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[var(--line-soft)] text-[var(--ink-soft)]">
+                              {FEEDBACK_CATEGORIES.find((c) => c.value === f.category)?.label ?? f.category}
+                            </span>
+                            <span className="text-xs font-medium text-[var(--ink-soft)] truncate">{f.userEmail}</span>
+                            <span className="text-[10px] text-[var(--ink-faint)] ml-auto shrink-0">{timeAgo(f.createdAt)}</span>
+                          </div>
+                          <p className="text-sm font-semibold text-[var(--ink)]/90">{f.title}</p>
+                          <p className="text-xs text-[var(--ink-soft)] mt-1 whitespace-pre-wrap">{f.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
