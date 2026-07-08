@@ -2998,7 +2998,7 @@ function DashboardPage() {
                       : null;
 
                     const chartBody = (
-                      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 mb-5">
+                      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 mb-5 items-start">
                         {/* Line / Bar chart */}
                         <div className="panel rounded-xl p-5">
                           <div className="flex items-start justify-between mb-1">
