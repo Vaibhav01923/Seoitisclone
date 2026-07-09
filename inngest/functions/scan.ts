@@ -188,9 +188,19 @@ export const manualScanBrand = inngest.createFunction(
         engines.map((engine) =>
           step.run(`scan-${engine}-chunk-${c}`, async () => {
             const db = serverClient();
-            const retries = engine === "google" ? 2 : 1;
+            // Gemini's API throws transient 503 "high demand" errors far more
+            // than ChatGPT/Google — needs more retries to actually succeed
+            // instead of silently dropping the prompt from results.
+            const retries = engine === "google" ? 2 : engine === "gemini" ? 3 : 1;
+            // Firing all 5 prompts in a chunk at once was itself likely
+            // triggering Gemini's overload errors — stagger the concurrent
+            // burst instead of hitting the API with 5 simultaneous requests.
+            const staggerMs = engine === "gemini" || engine === "google" ? 700 : 0;
             await Promise.all(
-              chunk.map((prompt) => runOnePrompt(engine, prompt, brand, scanRunId, brandId, db, retries))
+              chunk.map(async (prompt, idx) => {
+                if (staggerMs && idx > 0) await new Promise((r) => setTimeout(r, idx * staggerMs));
+                return runOnePrompt(engine, prompt, brand, scanRunId, brandId, db, retries);
+              })
             );
             return { done: chunk.length };
           }).catch(() => ({ done: 0 })) // chunk failure → skip, don't abort other engines

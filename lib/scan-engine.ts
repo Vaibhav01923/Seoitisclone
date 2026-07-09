@@ -208,7 +208,10 @@ export async function queryWithRetry(engine: AIEngine, promptText: string, retri
       // Never retry billing blocks, quota errors, or auth failures — they won't succeed
       if (status === 403 || status === 401 || status === 429) throw err;
       if (attempt === retries) throw err;
-      await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+      // Exponential backoff (1.5s, 3s, 6s, 12s...) — a flat/linear delay wasn't
+      // enough to ride out Gemini's transient "high demand" 503s, which caused
+      // most retried calls to fail anyway and get silently dropped from results.
+      await new Promise((r) => setTimeout(r, 1500 * 2 ** attempt));
     }
   }
   return { text: "", citations: [] };

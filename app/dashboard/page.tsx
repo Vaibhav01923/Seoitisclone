@@ -533,18 +533,26 @@ function DashboardPage() {
   const [buyCreditsQty, setBuyCreditsQty] = useState(50);
   const [buyCreditsSubmitting, setBuyCreditsSubmitting] = useState(false);
   const [analyticsUsage, setAnalyticsUsage] = useState<{ quota: number; totalEvents: number; overageEvents: number; creditsCharged: number; ingestionPaused: boolean } | null>(null);
-  const [showDeleteBrandModal, setShowDeleteBrandModal] = useState(false);
+  const [deleteBrandTarget, setDeleteBrandTarget] = useState<{ id: string; name: string; domain: string } | null>(null);
   const [deleteBrandConfirmText, setDeleteBrandConfirmText] = useState("");
   const [deletingBrand, setDeletingBrand] = useState(false);
 
   const deleteBrand = () => {
-    if (!brand) return;
+    if (!deleteBrandTarget) return;
+    const target = deleteBrandTarget;
     setDeletingBrand(true);
-    fetch(`/api/brand?id=${brand.id}`, { method: "DELETE" })
+    fetch(`/api/brand?id=${target.id}`, { method: "DELETE" })
       .then((r) => r.json())
       .then((d) => {
         if (!d.success) return;
-        const remaining = allBrands.filter((b) => b.id !== brand.id);
+        // Deleting a brand other than the currently active one — just drop it
+        // from the switcher, no need to navigate away.
+        if (brand && target.id !== brand.id) {
+          setAllBrands((prev) => prev.filter((b) => b.id !== target.id));
+          setDeleteBrandTarget(null);
+          return;
+        }
+        const remaining = allBrands.filter((b) => b.id !== target.id);
         window.location.href = remaining.length ? `/dashboard?brandId=${remaining[0].id}` : "/setup";
       })
       .finally(() => setDeletingBrand(false));
@@ -1156,7 +1164,7 @@ function DashboardPage() {
     if (!brand) return;
     setScanning(true);
     setError("");
-    const promptIds = brand.trackedPrompts.slice(0, 20).map((p) => p.id);
+    const promptIds = brand.trackedPrompts.filter((p) => p.status !== "paused").map((p) => p.id);
     const total = promptIds.length * selectedEngines.length;
     setScanProgress({ done: 0, total });
 
@@ -1709,21 +1717,38 @@ function DashboardPage() {
                 {allBrands.map((b) => {
                   const isCurrent = b.id === brand.id;
                   return (
-                    <button
+                    <div
                       key={b.id}
-                      onClick={() => {
-                        setShowBrandDropdown(false);
-                        if (!isCurrent) window.location.href = `/dashboard?brandId=${b.id}`;
-                      }}
-                      className={`w-full px-3 py-2.5 flex items-center gap-3 transition-colors text-left ${isCurrent ? "bg-[var(--line-soft)]" : "hover:bg-[var(--line-soft)]"}`}
+                      className={`w-full px-3 py-2.5 flex items-center gap-3 transition-colors ${isCurrent ? "bg-[var(--line-soft)]" : "hover:bg-[var(--line-soft)]"}`}
                     >
-                      <div className="w-7 h-7 rounded-lg bg-[var(--rust-wash)] text-[var(--rust-deep)] flex items-center justify-center text-xs font-bold shrink-0">{b.name[0]?.toUpperCase() ?? "B"}</div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs font-semibold text-[var(--ink)] truncate">{b.name}</p>
-                        <p className="text-[9px] text-[var(--ink-faint)] truncate">{isCurrent ? "Current brand" : b.domain}</p>
-                      </div>
+                      <button
+                        onClick={() => {
+                          setShowBrandDropdown(false);
+                          if (!isCurrent) window.location.href = `/dashboard?brandId=${b.id}`;
+                        }}
+                        className="flex items-center gap-3 min-w-0 flex-1 text-left"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-[var(--rust-wash)] text-[var(--rust-deep)] flex items-center justify-center text-xs font-bold shrink-0">{b.name[0]?.toUpperCase() ?? "B"}</div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-semibold text-[var(--ink)] truncate">{b.name}</p>
+                          <p className="text-[9px] text-[var(--ink-faint)] truncate">{isCurrent ? "Current brand" : b.domain}</p>
+                        </div>
+                      </button>
                       {isCurrent && <div className="w-1.5 h-1.5 rounded-full bg-[var(--olive)] shrink-0" />}
-                    </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteBrandConfirmText("");
+                          setDeleteBrandTarget({ id: b.id, name: b.name, domain: b.domain });
+                        }}
+                        title="Delete this brand"
+                        className="shrink-0 p-1 rounded-md text-[var(--ink-faint)] hover:text-red-600 hover:bg-red-500/10 transition-colors"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" />
+                        </svg>
+                      </button>
+                    </div>
                   );
                 })}
                 <button
@@ -1849,15 +1874,6 @@ function DashboardPage() {
             <span className="font-medium text-[var(--ink-soft)] truncate">{brand.domain}</span>
             <span className="text-[var(--ink-faint)] mx-0.5 hidden sm:inline">/</span>
             <span className="text-[var(--ink-faint)] hidden sm:inline whitespace-nowrap">{TAB_LABELS[activeTab]}</span>
-            <button
-              onClick={() => { setDeleteBrandConfirmText(""); setShowDeleteBrandModal(true); }}
-              title="Delete this brand"
-              className="shrink-0 p-1 rounded-md text-[var(--ink-faint)] hover:text-red-600 hover:bg-red-500/10 transition-colors"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" />
-              </svg>
-            </button>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -4134,40 +4150,40 @@ function DashboardPage() {
           )}
 
           {/* Delete brand modal — irreversible, requires typing the domain to confirm */}
-          {showDeleteBrandModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => !deletingBrand && setShowDeleteBrandModal(false)}>
+          {deleteBrandTarget && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => !deletingBrand && setDeleteBrandTarget(null)}>
               <div className="bg-[var(--surface)] rounded-2xl w-full max-w-sm shadow-2xl p-6" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-start justify-between mb-1">
-                  <p className="text-base font-semibold text-red-600">Delete {brand.name}?</p>
-                  <button onClick={() => setShowDeleteBrandModal(false)} className="text-[var(--ink-faint)] hover:text-[var(--ink-soft)]">
+                  <p className="text-base font-semibold text-red-600">Delete {deleteBrandTarget.name}?</p>
+                  <button onClick={() => setDeleteBrandTarget(null)} className="text-[var(--ink-faint)] hover:text-[var(--ink-soft)]">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                   </button>
                 </div>
                 <p className="text-xs text-[var(--ink-faint)] mb-4">
-                  This permanently deletes all tracked prompts, scan history, articles, citations, and analytics data for <span className="font-medium text-[var(--ink-soft)]">{brand.domain}</span>. This cannot be undone.
+                  This permanently deletes all tracked prompts, scan history, articles, citations, and analytics data for <span className="font-medium text-[var(--ink-soft)]">{deleteBrandTarget.domain}</span>. This cannot be undone.
                 </p>
 
                 <label className="block text-xs font-medium text-[var(--ink-soft)] mb-1.5">
-                  Type <span className="font-mono font-semibold text-[var(--ink)]">{brand.domain}</span> to confirm
+                  Type <span className="font-mono font-semibold text-[var(--ink)]">{deleteBrandTarget.domain}</span> to confirm
                 </label>
                 <input
                   type="text"
                   value={deleteBrandConfirmText}
                   onChange={(e) => setDeleteBrandConfirmText(e.target.value)}
-                  placeholder={brand.domain}
+                  placeholder={deleteBrandTarget.domain}
                   className="w-full border border-[var(--line)] rounded-lg px-3 py-2 text-sm mb-4 bg-[var(--surface)] text-[var(--ink)] focus:outline-none focus:ring-1 focus:ring-red-500/40"
                 />
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setShowDeleteBrandModal(false)}
+                    onClick={() => setDeleteBrandTarget(null)}
                     className="flex-1 text-sm font-semibold border border-[var(--line)] px-3 py-2.5 rounded-lg text-[var(--ink-soft)] hover:bg-[var(--line-soft)] transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={deleteBrand}
-                    disabled={deleteBrandConfirmText !== brand.domain || deletingBrand}
+                    disabled={deleteBrandConfirmText !== deleteBrandTarget.domain || deletingBrand}
                     className="flex-1 text-sm font-semibold bg-red-600 text-white px-3 py-2.5 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {deletingBrand ? "Deleting…" : "Delete brand"}
