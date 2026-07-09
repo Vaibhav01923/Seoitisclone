@@ -1,0 +1,51 @@
+import { NextRequest, NextResponse } from "next/server";
+import { clientFromRequest } from "@/lib/supabase";
+
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+const LIVE_WINDOW_MS = 5 * 60 * 1000;
+
+export async function GET(req: NextRequest) {
+  const db = clientFromRequest(req);
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const brandId = req.nextUrl.searchParams.get("brandId");
+  if (!brandId) return NextResponse.json({ error: "brandId required" }, { status: 400 });
+
+  const { data: brand } = await db.from("brands").select("id, site_key").eq("id", brandId).eq("user_id", user.id).single();
+  if (!brand) return NextResponse.json({ error: "Brand not found" }, { status: 404 });
+
+  const since = new Date(Date.now() - THIRTY_DAYS_MS).toISOString();
+  const { data: rows } = await db
+    .from("web_visits")
+    .select("visitor_id, session_id, path, referrer, created_at")
+    .eq("brand_id", brandId)
+    .gte("created_at", since)
+    .order("created_at", { ascending: false });
+
+  const visits = rows ?? [];
+  const liveCutoff = Date.now() - LIVE_WINDOW_MS;
+
+  const liveVisitors = new Set(visits.filter((v) => new Date(v.created_at).getTime() >= liveCutoff).map((v) => v.visitor_id)).size;
+  const visitors = new Set(visits.map((v) => v.visitor_id)).size;
+  const pageviews = visits.length;
+
+  const bySession = new Map<string, { count: number; min: number; max: number }>();
+  for (const v of visits) {
+    const t = new Date(v.created_at).getTime();
+    const s = bySession.get(v.session_id);
+    if (!s) bySession.set(v.session_id, { count: 1, min: t, max: t });
+    else { s.count++; s.min = Math.min(s.min, t); s.max = Math.max(s.max, t); }
+  }
+  const sessions = [...bySession.values()];
+  const bounceRate = sessions.length ? Math.round((sessions.filter((s) => s.count === 1).length / sessions.length) * 100) : 0;
+  const avgDurationSeconds = sessions.length
+    ? Math.round(sessions.reduce((sum, s) => sum + (s.max - s.min) / 1000, 0) / sessions.length)
+    : 0;
+
+  return NextResponse.json({
+    siteKey: brand.site_key,
+    stats: { liveVisitors, visitors, pageviews, avgDurationSeconds, bounceRate },
+    recent: visits.slice(0, 20).map((v) => ({ path: v.path, referrer: v.referrer, createdAt: v.created_at })),
+  });
+}

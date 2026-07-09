@@ -128,6 +128,7 @@ const AVAILABLE_ENGINES: AIEngine[] = ["chatgpt", "claude", "gemini", "perplexit
 
 type Tab =
   | "overview" | "history" | "results" | "citations" | "competitors"
+  | "webAnalytics" | "llmAnalytics"
   | "gaps" | "articles" | "tasks"
   | "publishing"
   | "alerts"
@@ -139,6 +140,8 @@ const TAB_LABELS: Record<Tab, string> = {
   results: "Prompts",
   citations: "Citations",
   competitors: "Competitors",
+  webAnalytics: "Web Analytics",
+  llmAnalytics: "LLM Analytics",
   gaps: "Research",
   articles: "Articles",
 
@@ -149,6 +152,30 @@ const TAB_LABELS: Record<Tab, string> = {
   agent: "Agent",
   admin: "Admin",
   feedback: "Feedback",
+};
+
+type BotBreakdown = { botName: string; count: number };
+type WebAnalyticsRecent = { path: string; referrer: string | null; createdAt: string };
+type BotAnalyticsRecent = { botName: string; path: string; referrer: string | null; createdAt: string };
+type WebAnalyticsData = {
+  siteKey: string;
+  stats: { liveVisitors: number; visitors: number; pageviews: number; avgDurationSeconds: number; bounceRate: number };
+  recent: WebAnalyticsRecent[];
+};
+type LlmAnalyticsData = {
+  siteKey: string;
+  stats: { liveBots: number; botPageviews: number };
+  breakdown: BotBreakdown[];
+  recent: BotAnalyticsRecent[];
+};
+
+const BOT_NAME_LABELS: Record<string, string> = {
+  chatgpt: "ChatGPT",
+  claude: "Claude",
+  perplexity: "Perplexity",
+  gemini: "Gemini",
+  deepseek: "DeepSeek",
+  other: "Other",
 };
 
 const FEEDBACK_CATEGORIES: { value: string; label: string; description: string }[] = [
@@ -429,6 +456,11 @@ function timeAgo(iso: string): string {
   return `${Math.floor(h / 24)}d`;
 }
 
+function referrerHost(referrer: string | null): string {
+  if (!referrer) return "Direct";
+  try { return new URL(referrer).hostname; } catch { return "Direct"; }
+}
+
 const CHANNEL_ICONS: Record<string, string> = {
   wordpress: "📝", webflow: "🌊", webhook: "🔗", discord: "💬", framer: "🎨",
 };
@@ -612,6 +644,14 @@ function DashboardPage() {
   const [feedbackDescription, setFeedbackDescription] = useState("");
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
   const [feedbackError, setFeedbackError] = useState("");
+
+  // Web/LLM analytics state
+  const [webAnalyticsData, setWebAnalyticsData] = useState<WebAnalyticsData | null>(null);
+  const [webAnalyticsLoaded, setWebAnalyticsLoaded] = useState(false);
+  const [llmAnalyticsData, setLlmAnalyticsData] = useState<LlmAnalyticsData | null>(null);
+  const [llmAnalyticsLoaded, setLlmAnalyticsLoaded] = useState(false);
+  const [sendingTestEvent, setSendingTestEvent] = useState(false);
+  const [copiedSnippet, setCopiedSnippet] = useState(false);
 
   useEffect(() => {
     const savedTab = sessionStorage.getItem("dashTab");
@@ -816,6 +856,24 @@ function DashboardPage() {
       .then((d) => setFeedbackSubmissions(d.submissions ?? []))
       .finally(() => setFeedbackLoaded(true));
   }, [activeTab, feedbackLoaded]);
+
+  // Load web analytics when that tab opens
+  useEffect(() => {
+    if (activeTab !== "webAnalytics" || !brand || webAnalyticsLoaded) return;
+    fetch(`/api/analytics/web?brandId=${brand.id}`)
+      .then((r) => r.json())
+      .then((d) => { if (d.stats) setWebAnalyticsData(d); })
+      .finally(() => setWebAnalyticsLoaded(true));
+  }, [activeTab, brand, webAnalyticsLoaded]);
+
+  // Load LLM (AI bot) analytics when that tab opens
+  useEffect(() => {
+    if (activeTab !== "llmAnalytics" || !brand || llmAnalyticsLoaded) return;
+    fetch(`/api/analytics/bot?brandId=${brand.id}`)
+      .then((r) => r.json())
+      .then((d) => { if (d.stats) setLlmAnalyticsData(d); })
+      .finally(() => setLlmAnalyticsLoaded(true));
+  }, [activeTab, brand, llmAnalyticsLoaded]);
 
   // Show citations onboarding dialog + fetch citation history when tab opens
   useEffect(() => {
@@ -1217,6 +1275,24 @@ function DashboardPage() {
     }
   }
 
+  async function sendTestEvent(type: "web" | "bot") {
+    if (!brand || sendingTestEvent) return;
+    setSendingTestEvent(true);
+    try {
+      const res = await fetch("/api/analytics/test-event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ brandId: brand.id, type }),
+      });
+      if (res.ok) {
+        if (type === "web") { setWebAnalyticsLoaded(false); }
+        else { setLlmAnalyticsLoaded(false); }
+      }
+    } finally {
+      setSendingTestEvent(false);
+    }
+  }
+
   async function submitFeedback() {
     if (feedbackSubmitting) return;
     setFeedbackError("");
@@ -1539,6 +1615,8 @@ function DashboardPage() {
               <NavItem label="Prompts" active={activeTab === "results"} onClick={() => navTo("results")} />
               <NavItem label="Citations" active={activeTab === "citations"} onClick={() => navTo("citations")} />
               <NavItem label="Competitors" active={activeTab === "competitors"} onClick={() => navTo("competitors")} />
+              <NavItem label="Web Analytics" active={activeTab === "webAnalytics"} onClick={() => navTo("webAnalytics")} />
+              <NavItem label="LLM Analytics" active={activeTab === "llmAnalytics"} onClick={() => navTo("llmAnalytics")} />
             </div>
           </div>
 
@@ -3520,6 +3598,161 @@ function DashboardPage() {
                 </div>
               )}
             </>
+          )}
+
+          {/* WEB ANALYTICS TAB */}
+          {activeTab === "webAnalytics" && (
+            <div className="max-w-4xl mx-auto w-full">
+              <div className="mb-5">
+                <h2 className="text-lg font-semibold text-[var(--ink)]">Web Analytics</h2>
+                <p className="text-sm text-[var(--ink-soft)] mt-0.5">Privacy-first analytics for your website — last 30 days</p>
+              </div>
+
+              {!webAnalyticsLoaded ? (
+                <div className="flex items-center justify-center py-24"><span className="w-6 h-6 border-2 border-[var(--line)] border-t-[var(--rust)] rounded-full animate-spin" /></div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
+                    <StatCard label="Live Visitors" value={webAnalyticsData?.stats.liveVisitors ?? 0} sub="last 5 min" />
+                    <StatCard label="Visitors" value={webAnalyticsData?.stats.visitors ?? 0} />
+                    <StatCard label="Pageviews" value={webAnalyticsData?.stats.pageviews ?? 0} />
+                    <StatCard label="Visit Duration" value={`${webAnalyticsData?.stats.avgDurationSeconds ?? 0}s`} />
+                    <StatCard label="Bounce Rate" value={`${webAnalyticsData?.stats.bounceRate ?? 0}%`} />
+                  </div>
+
+                  <div className="panel rounded-xl p-5 mb-5">
+                    <p className="text-sm font-semibold text-[var(--ink)] mb-1">Set up tracking</p>
+                    <p className="text-xs text-[var(--ink-faint)] mb-3">Add this script to the &lt;head&gt; section of your website:</p>
+                    <div className="bg-[var(--line-soft)] border border-[var(--line)] rounded-lg px-3 py-2.5 font-mono text-[11px] text-[var(--ink)]/90 overflow-x-auto mb-3">
+                      {`<script src="https://rankongeo.com/track.js" data-site="${webAnalyticsData?.siteKey ?? ""}" defer></script>`}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(`<script src="https://rankongeo.com/track.js" data-site="${webAnalyticsData?.siteKey ?? ""}" defer></script>`);
+                          setCopiedSnippet(true);
+                          setTimeout(() => setCopiedSnippet(false), 2000);
+                        }}
+                        className="text-xs font-semibold border border-[var(--line)] px-3 py-1.5 rounded-lg text-[var(--ink-soft)] hover:bg-[var(--line-soft)] transition-colors"
+                      >
+                        {copiedSnippet ? "Copied!" : "Copy script"}
+                      </button>
+                      <button
+                        onClick={() => sendTestEvent("web")}
+                        disabled={sendingTestEvent}
+                        className="text-xs font-semibold border border-[var(--line)] px-3 py-1.5 rounded-lg text-[var(--ink-soft)] hover:bg-[var(--line-soft)] disabled:opacity-50 transition-colors"
+                      >
+                        {sendingTestEvent ? "Sending…" : "Send test event"}
+                      </button>
+                      <a href="/docs/web-analytics" target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-[var(--rust)] hover:underline">
+                        Full setup docs →
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="panel rounded-xl p-5">
+                    <p className="text-sm font-semibold text-[var(--ink)] mb-4">Live Visitor Details</p>
+                    {!webAnalyticsData?.recent.length ? (
+                      <EmptyState label="No analytics data yet" sub="Add the tracking script above, or send a test event to see how it looks" />
+                    ) : (
+                      <div className="space-y-2">
+                        {webAnalyticsData.recent.map((v, i) => (
+                          <div key={i} className="flex items-center gap-3 py-2 border-b border-[var(--line)] last:border-0">
+                            <span className="text-xs font-mono text-[var(--ink)]/80 flex-1 truncate">{v.path}</span>
+                            <span className="text-[10px] text-[var(--ink-faint)] truncate max-w-[160px]">{referrerHost(v.referrer)}</span>
+                            <span className="text-[10px] text-[var(--ink-faint)] shrink-0">{timeAgo(v.createdAt)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* LLM ANALYTICS TAB */}
+          {activeTab === "llmAnalytics" && (
+            <div className="max-w-4xl mx-auto w-full">
+              <div className="mb-5">
+                <h2 className="text-lg font-semibold text-[var(--ink)]">LLM Analytics</h2>
+                <p className="text-sm text-[var(--ink-soft)] mt-0.5">AI and bot traffic analytics — last 30 days</p>
+              </div>
+
+              {!llmAnalyticsLoaded ? (
+                <div className="flex items-center justify-center py-24"><span className="w-6 h-6 border-2 border-[var(--line)] border-t-[var(--rust)] rounded-full animate-spin" /></div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-3 mb-5">
+                    <StatCard label="Live Bots" value={llmAnalyticsData?.stats.liveBots ?? 0} sub="last 5 min" />
+                    <StatCard label="Bot Pageviews" value={llmAnalyticsData?.stats.botPageviews ?? 0} />
+                  </div>
+
+                  {!!llmAnalyticsData?.breakdown.length && (
+                    <div className="panel rounded-xl p-5 mb-5">
+                      <p className="text-sm font-semibold text-[var(--ink)] mb-3">Breakdown by bot</p>
+                      <div className="space-y-2">
+                        {llmAnalyticsData.breakdown.map((b) => (
+                          <div key={b.botName} className="flex items-center gap-3">
+                            <span className="text-xs text-[var(--ink)]/80 font-medium w-24 shrink-0">{BOT_NAME_LABELS[b.botName] ?? b.botName}</span>
+                            <div className="flex-1 h-2 bg-[var(--line)] rounded-full overflow-hidden">
+                              <div className="h-full bg-[var(--rust)] rounded-full" style={{ width: `${Math.round((b.count / llmAnalyticsData.stats.botPageviews) * 100)}%` }} />
+                            </div>
+                            <span className="text-xs font-semibold text-[var(--ink)] w-10 text-right shrink-0">{b.count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="panel rounded-xl p-5 mb-5">
+                    <p className="text-sm font-semibold text-[var(--ink)] mb-1">Set up AI bot tracking</p>
+                    <p className="text-xs text-[var(--ink-faint)] mb-3">
+                      AI crawlers mostly don&apos;t run JavaScript, so this needs a server-side call from your own middleware — see the docs for a ready-to-paste Next.js example.
+                    </p>
+                    <div className="bg-[var(--line-soft)] border border-[var(--line)] rounded-lg px-3 py-2.5 font-mono text-[11px] text-[var(--ink)]/90 overflow-x-auto mb-3 whitespace-pre">
+{`curl -X POST https://rankongeo.com/api/track/bot \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "siteKey": "${llmAnalyticsData?.siteKey ?? ""}",
+    "path": "/",
+    "userAgent": "GPTBot/1.0",
+    "referrer": ""
+  }'`}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <button
+                        onClick={() => sendTestEvent("bot")}
+                        disabled={sendingTestEvent}
+                        className="text-xs font-semibold border border-[var(--line)] px-3 py-1.5 rounded-lg text-[var(--ink-soft)] hover:bg-[var(--line-soft)] disabled:opacity-50 transition-colors"
+                      >
+                        {sendingTestEvent ? "Sending…" : "Send test event"}
+                      </button>
+                      <a href="/docs/llm-analytics" target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-[var(--rust)] hover:underline">
+                        Full setup docs →
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="panel rounded-xl p-5">
+                    <p className="text-sm font-semibold text-[var(--ink)] mb-4">Live Bot Details</p>
+                    {!llmAnalyticsData?.recent.length ? (
+                      <EmptyState label="No AI bot data yet" sub="Set up server-side middleware above, or send a test event to see how it looks" />
+                    ) : (
+                      <div className="space-y-2">
+                        {llmAnalyticsData.recent.map((v, i) => (
+                          <div key={i} className="flex items-center gap-3 py-2 border-b border-[var(--line)] last:border-0">
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[var(--line-soft)] text-[var(--ink-soft)] shrink-0">{BOT_NAME_LABELS[v.botName] ?? v.botName}</span>
+                            <span className="text-xs font-mono text-[var(--ink)]/80 flex-1 truncate">{v.path}</span>
+                            <span className="text-[10px] text-[var(--ink-faint)] shrink-0">{timeAgo(v.createdAt)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
           )}
 
           {/* RESEARCH */}
