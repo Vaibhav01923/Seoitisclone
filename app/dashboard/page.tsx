@@ -578,7 +578,8 @@ function DashboardPage() {
   const [newPromptText, setNewPromptText] = useState("");
   const [togglingPromptId, setTogglingPromptId] = useState<string | null>(null);
   const [suggestingPrompts, setSuggestingPrompts] = useState(false);
-  const [promptSuggestions, setPromptSuggestions] = useState<{ text: string; category: string }[]>([]);
+  const [promptSuggestions, setPromptSuggestions] = useState<{ id: string; text: string; category: string }[]>([]);
+  const [promptSuggestionsLoaded, setPromptSuggestionsLoaded] = useState(false);
   const [addingSuggestionText, setAddingSuggestionText] = useState<string | null>(null);
   const [editingCompetitors, setEditingCompetitors] = useState(false);
   const [competitorDraft, setCompetitorDraft] = useState<string[]>([]);
@@ -865,6 +866,13 @@ function DashboardPage() {
       .then((d) => setFeedbackSubmissions(d.submissions ?? []))
       .finally(() => setFeedbackLoaded(true));
   }, [activeTab, feedbackLoaded]);
+
+  // Load persisted discovery-prompt suggestions when the Prompts tab opens —
+  // a pure DB read after the first-ever visit, no LLM call.
+  useEffect(() => {
+    if (activeTab !== "results" || !brand || promptSuggestionsLoaded) return;
+    loadPromptSuggestions();
+  }, [activeTab, brand, promptSuggestionsLoaded]);
 
   // Load web analytics when the tab opens, the date range changes, or a test event was sent
   useEffect(() => {
@@ -1338,7 +1346,21 @@ function DashboardPage() {
     }
   }
 
-  async function fetchPromptSuggestions() {
+  // Loads whatever's already persisted (or lazily generates the first-ever
+  // batch server-side) — no LLM call on repeat visits.
+  async function loadPromptSuggestions() {
+    if (!brand) return;
+    try {
+      const res = await fetch(`/api/prompts/suggest?brandId=${brand.id}`);
+      const data = await res.json();
+      setPromptSuggestions(data.suggestions ?? []);
+    } finally {
+      setPromptSuggestionsLoaded(true);
+    }
+  }
+
+  // Explicit "Suggest new ones" — replaces the whole persisted batch.
+  async function regeneratePromptSuggestions() {
     if (!brand || suggestingPrompts) return;
     setSuggestingPrompts(true);
     try {
@@ -1354,19 +1376,24 @@ function DashboardPage() {
     }
   }
 
-  async function addSuggestedPrompt(s: { text: string; category: string }) {
+  async function addSuggestedPrompt(s: { id: string; text: string; category: string }) {
     if (!brand || addingSuggestionText) return;
     setAddingSuggestionText(s.text);
     try {
-      const res = await fetch("/api/prompts", {
+      const res = await fetch("/api/prompts/suggest/accept", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brandId: brand.id, text: s.text, category: s.category }),
+        body: JSON.stringify({ brandId: brand.id, suggestionId: s.id, text: s.text, category: s.category }),
       });
       const data = await res.json();
       if (data.prompt) {
         setBrand((b) => b ? { ...b, trackedPrompts: [...b.trackedPrompts, data.prompt] } : b);
-        setPromptSuggestions((prev) => prev.filter((x) => x.text !== s.text));
+        // Swap the accepted suggestion for its backfilled replacement (if the
+        // model produced one) so the pool stays at a steady size instead of shrinking.
+        setPromptSuggestions((prev) => {
+          const withoutAccepted = prev.filter((x) => x.id !== s.id);
+          return data.replacement ? [...withoutAccepted, data.replacement] : withoutAccepted;
+        });
       }
     } finally {
       setAddingSuggestionText(null);
@@ -2571,7 +2598,8 @@ function DashboardPage() {
                         {filtered.map((p) => {
                           const pr = results.filter((r) => r.promptId === p.id);
                           const mc = pr.filter((r) => r.brandMentioned).length;
-                          const vis = pr.length ? Math.round(mc / pr.length * 100) : 0;
+                          const neverScanned = pr.length === 0;
+                          const vis = neverScanned ? 0 : Math.round(mc / pr.length * 100);
                           const hasGap = pr.length > 0 && mc === 0;
                           const cmpMap: Record<string, number> = {};
                           pr.forEach((r) => r.competitorMentions.forEach((c) => { cmpMap[c.name] = (cmpMap[c.name] ?? 0) + 1; }));
@@ -2587,7 +2615,14 @@ function DashboardPage() {
                               {/* Prompt with visibility ring — clickable */}
                               <button onClick={() => { if (isFreeTier) { openPaywall(); return; } setSelectedPromptId(p.id); setSelectedCitationDomain(null); history.pushState(null, ""); }} className="flex items-center gap-3 min-w-0 text-left">
                                 {(() => {
-                                  const ring = (
+                                  const ring = neverScanned ? (
+                                    <div className="relative w-11 h-11 shrink-0" title="Not scanned yet — included in the next run">
+                                      <svg viewBox="0 0 44 44" className="w-11 h-11 -rotate-90">
+                                        <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(48,40,33,0.15)" strokeWidth="3" strokeDasharray="3 3"/>
+                                      </svg>
+                                      <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold uppercase tracking-wide text-[var(--ink-faint)]">New</span>
+                                    </div>
+                                  ) : (
                                     <div className="relative w-11 h-11 shrink-0">
                                       <svg viewBox="0 0 44 44" className="w-11 h-11 -rotate-90">
                                         <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(48,40,33,0.1)" strokeWidth="3"/>
@@ -2754,44 +2789,47 @@ function DashboardPage() {
                         </button>
                       </div>
 
-                      {/* Suggest fresh discovery prompts */}
-                      <div className="mt-4">
-                        {promptSuggestions.length === 0 ? (
+                      {/* Discovery prompt suggestions — persisted, always shown, refilled to a
+                          steady pool size as items get added instead of needing a manual re-fetch */}
+                      <div className="mt-4 panel rounded-2xl p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <p className="text-sm font-semibold text-[var(--ink)]">New discovery prompts</p>
+                            <p className="text-xs text-[var(--ink-faint)]">Questions people ask in your niche that you aren&apos;t tracking yet — none mention your brand</p>
+                          </div>
                           <button
-                            onClick={fetchPromptSuggestions}
-                            disabled={suggestingPrompts}
-                            className="flex items-center gap-1.5 text-xs font-medium text-[var(--rust)] hover:text-[var(--rust-deep)] transition-colors disabled:opacity-50"
+                            onClick={regeneratePromptSuggestions}
+                            disabled={suggestingPrompts || !promptSuggestionsLoaded}
+                            className="flex items-center gap-1.5 text-xs font-semibold text-[var(--rust)] hover:text-[var(--rust-deep)] transition-colors disabled:opacity-50 shrink-0 ml-3"
                           >
                             {suggestingPrompts ? (
-                              <><span className="w-3 h-3 border border-[var(--rust)] border-t-transparent rounded-full animate-spin" /> Finding new prompts in your niche…</>
+                              <><span className="w-3 h-3 border border-[var(--rust)] border-t-transparent rounded-full animate-spin" /> Refreshing…</>
                             ) : (
-                              <>✦ Suggest new discovery prompts</>
+                              <>↻ Suggest new ones</>
                             )}
                           </button>
+                        </div>
+                        {!promptSuggestionsLoaded ? (
+                          <div className="flex items-center gap-2 py-4 text-xs text-[var(--ink-faint)]">
+                            <span className="w-3 h-3 border border-[var(--line)] border-t-[var(--rust)] rounded-full animate-spin" /> Finding discovery prompts in your niche…
+                          </div>
+                        ) : promptSuggestions.length === 0 ? (
+                          <p className="text-xs text-[var(--ink-faint)] py-4 text-center">No suggestions right now — try &quot;Suggest new ones&quot;</p>
                         ) : (
-                          <div className="panel rounded-2xl p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <div>
-                                <p className="text-sm font-semibold text-[var(--ink)]">New discovery prompts</p>
-                                <p className="text-xs text-[var(--ink-faint)]">Questions people ask in your niche that you aren&apos;t tracking yet — none mention your brand</p>
+                          <div className="space-y-1">
+                            {promptSuggestions.map((s) => (
+                              <div key={s.id} className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[var(--line-soft)] transition-colors">
+                                <span className="text-sm text-[var(--ink)]/90 flex-1 min-w-0">{s.text}</span>
+                                <span className={`shrink-0 text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full ${s.category === "Competitor" ? "bg-[var(--rust-wash)] text-[var(--rust-deep)]" : "bg-[var(--line)] text-[var(--ink-soft)]"}`}>{s.category}</span>
+                                <button
+                                  onClick={() => addSuggestedPrompt(s)}
+                                  disabled={addingSuggestionText !== null}
+                                  className="shrink-0 text-xs font-semibold text-[var(--rust)] hover:text-[var(--rust-deep)] border border-[var(--line)] hover:border-[var(--rust)]/40 px-2.5 py-1 rounded-lg transition-colors disabled:opacity-50"
+                                >
+                                  {addingSuggestionText === s.text ? "Adding…" : "+ Add"}
+                                </button>
                               </div>
-                              <button onClick={() => setPromptSuggestions([])} className="text-[var(--ink-faint)]/70 hover:text-[var(--ink-soft)] text-lg leading-none shrink-0 ml-3">×</button>
-                            </div>
-                            <div className="space-y-1">
-                              {promptSuggestions.map((s) => (
-                                <div key={s.text} className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[var(--line-soft)] transition-colors">
-                                  <span className="text-sm text-[var(--ink)]/90 flex-1 min-w-0">{s.text}</span>
-                                  <span className={`shrink-0 text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full ${s.category === "Competitor" ? "bg-[var(--rust-wash)] text-[var(--rust-deep)]" : "bg-[var(--line)] text-[var(--ink-soft)]"}`}>{s.category}</span>
-                                  <button
-                                    onClick={() => addSuggestedPrompt(s)}
-                                    disabled={addingSuggestionText !== null}
-                                    className="shrink-0 text-xs font-semibold text-[var(--rust)] hover:text-[var(--rust-deep)] border border-[var(--line)] hover:border-[var(--rust)]/40 px-2.5 py-1 rounded-lg transition-colors disabled:opacity-50"
-                                  >
-                                    {addingSuggestionText === s.text ? "Adding…" : "+ Add"}
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
+                            ))}
                           </div>
                         )}
                       </div>

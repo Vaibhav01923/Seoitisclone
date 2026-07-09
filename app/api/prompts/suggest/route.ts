@@ -1,20 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
 import { clientFromRequest } from "@/lib/supabase";
-
-const getClient = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+import { generatePromptSuggestions } from "@/lib/prompt-suggestions";
 
 const SUGGEST_COUNT = 10;
 
-// Suggest fresh discovery prompts the brand isn't tracking yet. Nothing is
-// saved — the client reviews and adds the ones it wants via POST /api/prompts.
-export async function POST(req: NextRequest) {
-  const { brandId } = await req.json();
-  if (!brandId) return NextResponse.json({ error: "brandId required" }, { status: 400 });
-
-  const db = clientFromRequest(req);
+async function loadBrandAndOwner(db: ReturnType<typeof clientFromRequest>, brandId: string) {
   const { data: { user } } = await db.auth.getUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  if (!user) return { error: NextResponse.json({ error: "unauthorized" }, { status: 401 }) } as const;
 
   const { data: brand } = await db
     .from("brands")
@@ -22,52 +14,79 @@ export async function POST(req: NextRequest) {
     .eq("id", brandId)
     .eq("user_id", user.id)
     .single();
-  if (!brand) return NextResponse.json({ error: "Brand not found" }, { status: 404 });
+  if (!brand) return { error: NextResponse.json({ error: "Brand not found" }, { status: 404 }) } as const;
+
+  return { brand } as const;
+}
+
+// Persisted suggestions are shown as-is — no LLM call on every tab visit.
+// Only generates fresh ones the very first time a brand has none yet.
+export async function GET(req: NextRequest) {
+  const brandId = req.nextUrl.searchParams.get("brandId");
+  if (!brandId) return NextResponse.json({ error: "brandId required" }, { status: 400 });
+
+  const db = clientFromRequest(req);
+  const result = await loadBrandAndOwner(db, brandId);
+  if ("error" in result) return result.error;
 
   const { data: existing } = await db
-    .from("tracked_prompts")
-    .select("text")
-    .eq("brand_id", brandId);
-  const existingTexts = (existing ?? []).map((p) => p.text);
+    .from("prompt_suggestions")
+    .select("id, text, category")
+    .eq("brand_id", brandId)
+    .order("created_at", { ascending: true });
 
-  const competitors = (brand.competitors ?? []).join(", ");
-  const systemPrompt = `You are an AI visibility strategist for "${brand.name}" (${brand.niche}).
+  if (existing?.length) return NextResponse.json({ suggestions: existing });
 
-Description: ${brand.description}
-Competitors: ${competitors || "unknown — infer from niche"}
-
-Generate ${SUGGEST_COUNT} NEW discovery search prompts — questions people in this niche type into ChatGPT/Gemini when they have a problem and don't know ${brand.name} exists. Think: seasonal queries, emerging trends, underserved use cases, competitor-alternative asks, casual Reddit-style questions.
-
-Rules:
-- NEVER mention "${brand.name}" or "${brand.domain}" — these are discovery prompts.
-- Do NOT duplicate or trivially rephrase any of these already-tracked prompts:
-${existingTexts.map((t) => `- ${t}`).join("\n")}
-- category is "Competitor" if the prompt names a competitor, otherwise "Commercial".
-
-Return JSON: { "prompts": [ { "text": "...", "category": "Commercial" }, ... ] }`;
-
-  const response = await getClient().chat.completions.create({
-    model: "gpt-5.5",
-    max_completion_tokens: 2000,
-    messages: [{ role: "user", content: systemPrompt }],
-    response_format: { type: "json_object" },
+  // First-ever visit for this brand — generate an initial batch and persist it.
+  const { data: tracked } = await db.from("tracked_prompts").select("text").eq("brand_id", brandId);
+  const drafts = await generatePromptSuggestions({
+    brandName: result.brand.name,
+    domain: result.brand.domain,
+    niche: result.brand.niche,
+    description: result.brand.description,
+    competitors: (result.brand.competitors ?? []).join(", "),
+    excludeTexts: (tracked ?? []).map((p) => p.text),
+    count: SUGGEST_COUNT,
   });
 
-  const raw = response.choices[0]?.message?.content ?? "{}";
-  let prompts: { text: string; category: string }[];
-  try {
-    const parsed = JSON.parse(raw);
-    prompts = Array.isArray(parsed) ? parsed : (parsed.prompts ?? []);
-  } catch {
-    return NextResponse.json({ error: "Failed to generate suggestions" }, { status: 500 });
-  }
+  if (!drafts.length) return NextResponse.json({ suggestions: [] });
 
-  // Enforce the rules the model was given: no brand name, no duplicates
-  const nameRe = new RegExp(brand.name.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
-  const existingLower = new Set(existingTexts.map((t) => t.toLowerCase().trim()));
-  const suggestions = prompts
-    .filter((p) => p.text?.trim() && !nameRe.test(p.text) && !existingLower.has(p.text.toLowerCase().trim()))
-    .slice(0, SUGGEST_COUNT);
+  const { data: saved } = await db
+    .from("prompt_suggestions")
+    .insert(drafts.map((d) => ({ brand_id: brandId, text: d.text, category: d.category })))
+    .select("id, text, category");
 
-  return NextResponse.json({ suggestions });
+  return NextResponse.json({ suggestions: saved ?? [] });
+}
+
+// Explicit "Suggest new ones" — wipes the persisted batch and generates a
+// completely fresh set, unlike GET which only ever generates once.
+export async function POST(req: NextRequest) {
+  const { brandId } = await req.json();
+  if (!brandId) return NextResponse.json({ error: "brandId required" }, { status: 400 });
+
+  const db = clientFromRequest(req);
+  const result = await loadBrandAndOwner(db, brandId);
+  if ("error" in result) return result.error;
+
+  const { data: tracked } = await db.from("tracked_prompts").select("text").eq("brand_id", brandId);
+  const drafts = await generatePromptSuggestions({
+    brandName: result.brand.name,
+    domain: result.brand.domain,
+    niche: result.brand.niche,
+    description: result.brand.description,
+    competitors: (result.brand.competitors ?? []).join(", "),
+    excludeTexts: (tracked ?? []).map((p) => p.text),
+    count: SUGGEST_COUNT,
+  });
+
+  await db.from("prompt_suggestions").delete().eq("brand_id", brandId);
+  if (!drafts.length) return NextResponse.json({ suggestions: [] });
+
+  const { data: saved } = await db
+    .from("prompt_suggestions")
+    .insert(drafts.map((d) => ({ brand_id: brandId, text: d.text, category: d.category })))
+    .select("id, text, category");
+
+  return NextResponse.json({ suggestions: saved ?? [] });
 }
