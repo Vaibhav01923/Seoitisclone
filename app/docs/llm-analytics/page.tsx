@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const CURL_SNIPPET = `curl -X POST https://rankongeo.com/api/track/bot \\
+const CURL_SNIPPET = `curl -X POST https://www.rankongeo.com/api/track/bot \\
   -H "Content-Type: application/json" \\
   -d '{
     "siteKey": "YOUR_SITE_KEY",
@@ -14,7 +14,7 @@ const CURL_SNIPPET = `curl -X POST https://rankongeo.com/api/track/bot \\
 const NEXTJS_SNIPPET = `import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(req: NextRequest) {
-  fetch("https://rankongeo.com/api/track/bot", {
+  fetch("https://www.rankongeo.com/api/track/bot", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -83,7 +83,7 @@ export default function LlmAnalyticsDocsPage() {
         {tab === "rest" ? (
           <>
             <p className="text-sm text-[var(--ink-soft)] mb-3">Use this endpoint from your server middleware:</p>
-            <p className="text-sm text-[var(--ink-soft)] mb-3"><code className="text-[var(--rust-deep)]">POST https://rankongeo.com/api/track/bot</code></p>
+            <p className="text-sm text-[var(--ink-soft)] mb-3"><code className="text-[var(--rust-deep)]">POST https://www.rankongeo.com/api/track/bot</code></p>
             <CodeBlock code={CURL_SNIPPET} />
           </>
         ) : (

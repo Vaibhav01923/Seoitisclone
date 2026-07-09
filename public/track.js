@@ -28,7 +28,11 @@
     var visitorId = getOrSet(window.localStorage, "rog_visitor_id");
     var sessionId = getOrSet(window.sessionStorage, "rog_session_id");
 
-    fetch("https://rankongeo.com/api/track/pageview", {
+    // Must be the canonical www host, not the apex domain — the apex 308s to
+    // www, and a redirected response fails the browser's CORS preflight
+    // (preflight requests are never followed on redirect), silently killing
+    // every real cross-origin pageview beacon while leaving no visible error.
+    fetch("https://www.rankongeo.com/api/track/pageview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

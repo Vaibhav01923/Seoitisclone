@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const SNIPPET = `<script src="https://rankongeo.com/track.js" data-site="YOUR_SITE_KEY" defer></script>`;
+const SNIPPET = `<script src="https://www.rankongeo.com/track.js" data-site="YOUR_SITE_KEY" defer></script>`;
 
 const TOC = [
   { href: "#setup-guide", label: "Web Analytics Setup Guide" },
@@ -64,7 +64,7 @@ export default function WebAnalyticsDocsPage() {
         <p className="text-sm font-semibold text-[var(--ink)]/90 mb-2">Not seeing data?</p>
         <ul className="text-sm text-[var(--ink-soft)] space-y-2 list-disc pl-5">
           <li>Confirm the script tag&apos;s <code className="text-[var(--rust-deep)]">data-site</code> matches the Website ID shown in your dashboard.</li>
-          <li>Open your browser&apos;s network tab and confirm a request to <code className="text-[var(--rust-deep)]">rankongeo.com/api/track/pageview</code> is firing and returning 200.</li>
+          <li>Open your browser&apos;s network tab and confirm a request to <code className="text-[var(--rust-deep)]">www.rankongeo.com/api/track/pageview</code> is firing and returning 200.</li>
           <li>Ad blockers occasionally block analytics scripts by name — this is a known limitation of any client-side analytics tool.</li>
         </ul>
       </div>

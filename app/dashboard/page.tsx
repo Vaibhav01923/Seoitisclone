@@ -3863,11 +3863,11 @@ function DashboardPage() {
                     <span className="truncate">{webAnalyticsData?.domain ? `https://${webAnalyticsData.domain.replace(/^https?:\/\//, "").replace(/\/$/, "")}/` : ""}</span>
                   </div>
                   <div className="relative bg-[var(--line-soft)] border border-[var(--line)] rounded-lg px-3 py-2.5 pr-24 font-mono text-[11px] text-[var(--ink)]/90 overflow-x-auto mb-3">
-                    {`<script src="https://rankongeo.com/track.js" data-site="${webAnalyticsData?.siteKey ?? ""}" defer></script>`}
+                    {`<script src="https://www.rankongeo.com/track.js" data-site="${webAnalyticsData?.siteKey ?? ""}" defer></script>`}
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                       <button
                         onClick={() => {
-                          navigator.clipboard.writeText(`<script src="https://rankongeo.com/track.js" data-site="${webAnalyticsData?.siteKey ?? ""}" defer></script>`);
+                          navigator.clipboard.writeText(`<script src="https://www.rankongeo.com/track.js" data-site="${webAnalyticsData?.siteKey ?? ""}" defer></script>`);
                           setCopiedSnippet(true);
                           setTimeout(() => setCopiedSnippet(false), 2000);
                         }}
@@ -4031,7 +4031,7 @@ function DashboardPage() {
                     AI crawlers mostly don&apos;t run JavaScript, so this needs a server-side call from your own middleware — see the docs for a ready-to-paste Next.js example.
                   </p>
                   <div className="bg-[var(--line-soft)] border border-[var(--line)] rounded-lg px-3 py-2.5 font-mono text-[11px] text-[var(--ink)]/90 overflow-x-auto mb-3 whitespace-pre">
-{`curl -X POST https://rankongeo.com/api/track/bot \\
+{`curl -X POST https://www.rankongeo.com/api/track/bot \\
   -H "Content-Type: application/json" \\
   -d '{
     "siteKey": "${llmAnalyticsData?.siteKey ?? ""}",
