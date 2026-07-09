@@ -1,22 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-
-const signalVars = {
-  "--cream": "oklch(0.965 0.013 80)",
-  "--surface": "oklch(0.99 0.006 80)",
-  "--ink": "oklch(0.19 0.014 55)",
-  "--ink-soft": "oklch(0.46 0.02 55)",
-  "--ink-faint": "oklch(0.62 0.02 60)",
-  "--rust": "oklch(0.56 0.15 38)",
-  "--rust-deep": "oklch(0.46 0.14 36)",
-  "--rust-wash": "oklch(0.56 0.15 38 / 12%)",
-  "--olive": "oklch(0.52 0.1 130)",
-  "--olive-wash": "oklch(0.52 0.1 130 / 12%)",
-  "--line": "oklch(0.19 0.014 55 / 10%)",
-  "--line-soft": "oklch(0.19 0.014 55 / 6%)",
-} as React.CSSProperties;
 
 const CURL_SNIPPET = `curl -X POST https://rankongeo.com/api/track/bot \\
   -H "Content-Type: application/json" \\
@@ -44,6 +28,12 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next();
 }`;
 
+const TOC = [
+  { href: "#setup-guide", label: "AI Analytics Setup Guide" },
+  { href: "#crawlers", label: "AI Crawlers, Bots that we track" },
+  { href: "#debugging", label: "Debugging" },
+];
+
 function CodeBlock({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -60,35 +50,53 @@ function CodeBlock({ code }: { code: string }) {
 }
 
 export default function LlmAnalyticsDocsPage() {
+  const [tab, setTab] = useState<"rest" | "nextjs">("rest");
+
   return (
-    <div className="min-h-screen bg-[var(--cream)] text-[var(--ink)]" style={signalVars}>
-      <div className="max-w-2xl mx-auto px-6 py-16">
-        <Link href="/dashboard" className="text-xs font-semibold text-[var(--rust)] hover:underline">← Back to dashboard</Link>
+    <div className="flex items-start gap-10">
+      <div className="max-w-2xl min-w-0">
+        <h1 className="text-3xl font-bold text-[var(--ink)] mb-2">AI Search, Crawler, Bot Analytics</h1>
+        <p className="text-[var(--ink-soft)] mb-10">Track AI search engines, crawlers, and bots visiting your website. Get insights into traffic from AI platforms like ChatGPT, Claude, and Perplexity.</p>
 
-        <h1 className="text-3xl font-bold text-[var(--ink)] mt-6 mb-2">LLM Analytics setup</h1>
-        <p className="text-[var(--ink-soft)] mb-10">Track AI search engines, crawlers, and bots visiting your site — ChatGPT, Claude, Perplexity, Gemini, DeepSeek, and more.</p>
-
-        <div className="bg-[var(--rust-wash)] border border-[var(--rust)]/25 rounded-lg px-4 py-3 mb-10">
+        <h2 id="setup-guide" className="text-lg font-semibold text-[var(--ink)] mb-3 scroll-mt-20">AI Analytics Setup Guide</h2>
+        <div className="bg-[var(--rust-wash)] border border-[var(--rust)]/25 rounded-lg px-4 py-3 mb-6">
           <p className="text-sm text-[var(--rust-deep)]">
-            Most AI crawlers don&apos;t execute JavaScript, so a client-side script (like Web Analytics uses) can&apos;t see them. This needs a <strong>server-side</strong> call from your own backend or middleware — on every request, not just the ones a browser would make.
+            Server-side analytics tracks AI agents, crawlers, and other bots that don&apos;t run JavaScript. You need to add this to your server&apos;s middleware.
           </p>
         </div>
+        <p className="text-sm text-[var(--ink-soft)] mb-4">You can use our REST API, or a Next.js middleware if that&apos;s what you&apos;re running.</p>
 
-        <h2 className="text-lg font-semibold text-[var(--ink)] mb-2">Endpoint</h2>
-        <p className="text-sm text-[var(--ink-soft)] mb-3"><code className="text-[var(--rust-deep)]">POST https://rankongeo.com/api/track/bot</code></p>
-        <CodeBlock code={CURL_SNIPPET} />
+        <div className="flex gap-1 border-b border-[var(--line)] mb-4">
+          {(["rest", "nextjs"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+                tab === t ? "border-[var(--rust)] text-[var(--rust-deep)]" : "border-transparent text-[var(--ink-faint)] hover:text-[var(--ink-soft)]"
+              }`}
+            >
+              {t === "rest" ? "REST API" : "Next.js"}
+            </button>
+          ))}
+        </div>
+
+        {tab === "rest" ? (
+          <>
+            <p className="text-sm text-[var(--ink-soft)] mb-3">Use this endpoint from your server middleware:</p>
+            <p className="text-sm text-[var(--ink-soft)] mb-3"><code className="text-[var(--rust-deep)]">POST https://rankongeo.com/api/track/bot</code></p>
+            <CodeBlock code={CURL_SNIPPET} />
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-[var(--ink-soft)] mb-3">Drop this in your <code className="text-[var(--rust-deep)]">middleware.ts</code> so every request gets checked:</p>
+            <CodeBlock code={NEXTJS_SNIPPET} />
+          </>
+        )}
         <p className="text-xs text-[var(--ink-faint)] mb-10">
-          Only recognized AI bot user-agents get stored — sending this for every request (including regular human traffic) is safe and expected; non-bot requests are silently ignored.
+          Only recognized AI bot user-agents get stored — calling this for every request (including regular human traffic) is safe and expected; non-bot requests are silently ignored.
         </p>
 
-        <h2 className="text-lg font-semibold text-[var(--ink)] mb-2">Next.js middleware example</h2>
-        <p className="text-sm text-[var(--ink-soft)] mb-3">Drop this in your <code className="text-[var(--rust-deep)]">middleware.ts</code> so every request gets checked:</p>
-        <CodeBlock code={NEXTJS_SNIPPET} />
-        <p className="text-xs text-[var(--ink-faint)] mb-10">
-          Not on Next.js? Any server-side request hook works — Express middleware, a Cloudflare Worker, an Nginx log-based script, anything that can read the incoming <code className="text-[var(--rust-deep)]">User-Agent</code> header and make an outbound POST.
-        </p>
-
-        <h2 className="text-lg font-semibold text-[var(--ink)] mb-2">AI crawlers we track</h2>
+        <h2 id="crawlers" className="text-lg font-semibold text-[var(--ink)] mb-3 scroll-mt-20">AI Crawlers, Bots that we track</h2>
         <ul className="text-sm text-[var(--ink-soft)] space-y-1.5 mb-10 list-disc pl-5">
           <li><strong className="text-[var(--ink)]">ChatGPT</strong> — OpenAI&apos;s conversational AI and search (GPTBot, ChatGPT-User, OAI-SearchBot)</li>
           <li><strong className="text-[var(--ink)]">Claude</strong> — Anthropic&apos;s AI assistant (ClaudeBot, anthropic-ai)</li>
@@ -98,17 +106,23 @@ export default function LlmAnalyticsDocsPage() {
           <li><strong className="text-[var(--ink)]">Others</strong> — CCBot, Bytespider, Amazonbot, and other AI crawlers</li>
         </ul>
 
-        <h2 className="text-lg font-semibold text-[var(--ink)] mb-2">Not seeing AI traffic?</h2>
+        <h2 id="debugging" className="text-lg font-semibold text-[var(--ink)] mb-3 scroll-mt-20">Debugging</h2>
+        <p className="text-sm font-semibold text-[var(--ink)]/90 mb-2">Not seeing AI traffic?</p>
         <ul className="text-sm text-[var(--ink-soft)] space-y-2 list-disc pl-5">
-          <li>Verify the <code className="text-[var(--rust-deep)]">siteKey</code> matches the Website ID shown on the LLM Analytics tab.</li>
+          <li>Verify your <code className="text-[var(--rust-deep)]">siteKey</code> from the LLM Analytics tab.</li>
           <li>Add a log line to confirm your middleware is actually running on the routes you expect.</li>
-          <li>AI crawlers visit on their own schedule, not on a fixed interval — it can take time before real traffic shows up. Use &quot;Send test event&quot; in the dashboard to confirm the pipeline itself works.</li>
+          <li>AI crawlers visit on their own schedule, not a fixed interval — it can take time before real traffic shows up. Use &quot;Send test event&quot; in the dashboard to confirm the pipeline itself works.</li>
         </ul>
-
-        <div className="mt-10 pt-6 border-t border-[var(--line)]">
-          <Link href="/docs/web-analytics" className="text-sm font-semibold text-[var(--rust)] hover:underline">← Web Analytics setup</Link>
-        </div>
       </div>
+
+      <nav className="w-48 shrink-0 hidden xl:block sticky top-24">
+        <p className="text-[10px] font-semibold text-[var(--ink-faint)] uppercase tracking-widest mb-2">On this page</p>
+        <div className="space-y-2 border-l border-[var(--line)] pl-3">
+          {TOC.map((t) => (
+            <a key={t.href} href={t.href} className="block text-xs text-[var(--ink-soft)] hover:text-[var(--rust)] transition-colors">{t.label}</a>
+          ))}
+        </div>
+      </nav>
     </div>
   );
 }
