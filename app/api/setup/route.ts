@@ -55,10 +55,19 @@ async function crawlSite(domain: string): Promise<string> {
     .slice(0, 12000);
 }
 
+// "nykaa.com", "http://nykaa.com/", "https://www.nykaa.com" etc. must all
+// resolve to the same brand — otherwise domain-matching (already-tracked
+// checks, the upsert's conflict target) silently misses and creates a stray
+// duplicate brand instead of finding the existing one.
+function normalizeDomain(d: string): string {
+  return d.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { domain, competitors: userCompetitors } = body;
-  if (!domain) return NextResponse.json({ error: "domain is required" }, { status: 400 });
+  const { domain: rawDomain, competitors: userCompetitors } = body;
+  if (!rawDomain) return NextResponse.json({ error: "domain is required" }, { status: 400 });
+  const normalizedIncoming = normalizeDomain(rawDomain);
 
   const db = clientFromRequest(req);
   const { data: { user } } = await db.auth.getUser();
@@ -80,10 +89,15 @@ export async function POST(req: NextRequest) {
 
   // Check the plan-based website limit before crawling/analyzing (expensive) —
   // re-running setup on an already-tracked domain is always allowed, it's only
-  // a *new* domain past the limit that's blocked.
+  // a *new* domain past the limit that's blocked. If an existing brand matches
+  // once normalized, reuse its exact stored domain string so the upsert below
+  // hits that row instead of creating a duplicate for a trivially different format.
+  let domain = normalizedIncoming;
   if (userId) {
     const { data: existingBrands } = await db.from("brands").select("domain").eq("user_id", userId);
-    const alreadyTracked = (existingBrands ?? []).some((b) => b.domain === domain);
+    const match = (existingBrands ?? []).find((b) => normalizeDomain(b.domain) === normalizedIncoming);
+    if (match) domain = match.domain;
+    const alreadyTracked = !!match;
     if (!alreadyTracked && (existingBrands?.length ?? 0) >= brandLimit) {
       return NextResponse.json({ error: "Upgrade your plan to track another brand", upgradeRequired: true }, { status: 402 });
     }
