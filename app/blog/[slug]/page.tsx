@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BlogCover } from "../../_components/BlogCover";
 import { MarkdownArticle } from "../../_components/MarkdownArticle";
 import { getPublishedPostBySlug, getPublishedPosts, readingTimeMinutes, SITE_URL } from "@/lib/blog";
 
@@ -79,6 +80,13 @@ export default async function BlogPostPage({ params }: Props) {
           ← All posts
         </Link>
       </nav>
+
+      <BlogCover
+        slug={post.slug}
+        coverImageUrl={post.cover_image_url}
+        title={post.title}
+        className="mb-10 aspect-[21/9] rounded-2xl border border-[var(--line)]"
+      />
 
       <header className="mb-10">
         <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-[var(--ink-faint)]">

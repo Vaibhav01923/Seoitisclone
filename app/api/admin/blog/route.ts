@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
       description: body.description ?? "",
       content: body.content ?? "",
       tags: Array.isArray(body.tags) ? body.tags : [],
+      cover_image_url: body.cover_image_url?.trim() || null,
       author_name: body.author_name?.trim() || "RankOnGeo Team",
       status,
       published_at: status === "published" ? new Date().toISOString() : null,

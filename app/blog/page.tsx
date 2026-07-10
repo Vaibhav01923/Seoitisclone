@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BlogIndex, type BlogCard } from "../_components/BlogIndex";
 import { getPublishedPosts, readingTimeMinutes, SITE_URL } from "@/lib/blog";
 
 export const revalidate = 3600;
@@ -18,13 +19,19 @@ export const metadata: Metadata = {
   },
 };
 
-function formatDate(iso: string | null) {
-  if (!iso) return "";
-  return new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-}
-
 export default async function BlogIndexPage() {
   const posts = await getPublishedPosts();
+
+  const cards: BlogCard[] = posts.map((p) => ({
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    description: p.description,
+    tags: p.tags,
+    published_at: p.published_at,
+    cover_image_url: p.cover_image_url,
+    readMinutes: readingTimeMinutes(p.content),
+  }));
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -43,24 +50,27 @@ export default async function BlogIndexPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-5xl">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
 
-      <header className="mb-14">
+      <header className="mb-12 max-w-2xl">
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--rust)]">Blog</p>
-        <h1 className="font-signal-serif text-4xl font-[350] tracking-tight text-[var(--ink)] sm:text-5xl">
+        <h1
+          className="font-signal-serif text-4xl font-[350] tracking-tight text-[var(--ink)] sm:text-5xl"
+          style={{ textWrap: "balance" } as React.CSSProperties}
+        >
           Notes on being <em className="italic text-[var(--rust)]">the answer</em>
         </h1>
-        <p className="mt-4 max-w-xl text-[16px] text-[var(--ink-soft)]">
+        <p className="mt-4 text-[16px] leading-relaxed text-[var(--ink-soft)]">
           Guides and research on AI search visibility, generative engine optimization, and getting your brand
           recommended by ChatGPT, Claude, Gemini, and Perplexity.
         </p>
       </header>
 
-      {posts.length === 0 ? (
+      {cards.length === 0 ? (
         <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-8 py-16 text-center">
           <p className="font-signal-serif text-2xl text-[var(--ink)]">First posts are growing.</p>
           <p className="mt-2 text-sm text-[var(--ink-soft)]">
@@ -72,29 +82,7 @@ export default async function BlogIndexPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
-          {posts.map((post) => (
-            <article key={post.id}>
-              <Link
-                href={`/blog/${post.slug}`}
-                className="block rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-8 py-7 transition-colors hover:border-[var(--rust)]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)]"
-              >
-                <div className="mb-2 flex flex-wrap items-center gap-3 text-xs text-[var(--ink-faint)]">
-                  <time dateTime={post.published_at ?? undefined}>{formatDate(post.published_at)}</time>
-                  <span>·</span>
-                  <span>{readingTimeMinutes(post.content)} min read</span>
-                  {post.tags.slice(0, 3).map((tag) => (
-                    <span key={tag} className="rounded-full bg-[var(--rust-wash)] px-2.5 py-0.5 text-[var(--rust-deep)]">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <h2 className="font-signal-serif text-2xl font-[350] tracking-tight text-[var(--ink)]">{post.title}</h2>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--ink-soft)]">{post.description}</p>
-              </Link>
-            </article>
-          ))}
-        </div>
+        <BlogIndex posts={cards} />
       )}
     </div>
   );

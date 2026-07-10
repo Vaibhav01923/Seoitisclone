@@ -11,6 +11,7 @@ type EditorState = {
   slug: string;
   description: string;
   tags: string;
+  coverImageUrl: string;
   content: string;
   status: "draft" | "published";
 };
@@ -21,6 +22,7 @@ const EMPTY_EDITOR: EditorState = {
   slug: "",
   description: "",
   tags: "",
+  coverImageUrl: "",
   content: "",
   status: "draft",
 };
@@ -42,6 +44,7 @@ function toEditor(post: BlogPost): EditorState {
     slug: post.slug,
     description: post.description,
     tags: post.tags.join(", "),
+    coverImageUrl: post.cover_image_url ?? "",
     content: post.content,
     status: post.status,
   };
@@ -111,6 +114,7 @@ export default function AdminBlogPage() {
     description: e.description,
     content: e.content,
     tags: e.tags.split(",").map((t) => t.trim()).filter(Boolean),
+    cover_image_url: e.coverImageUrl,
   });
 
   const save = async (status?: "draft" | "published") => {
@@ -196,6 +200,7 @@ export default function AdminBlogPage() {
         slug: draft.slug,
         description: draft.description,
         tags: (draft.tags as string[]).join(", "),
+        coverImageUrl: "",
         content: draft.content,
         status: "draft",
       });
@@ -345,9 +350,19 @@ export default function AdminBlogPage() {
               </label>
               <input id="post-desc" className={inputCls} value={editor.description} onChange={(e) => setField("description", e.target.value)} />
             </div>
-            <div className="md:col-span-2">
+            <div>
               <label className={labelCls} htmlFor="post-tags">Tags (comma-separated)</label>
               <input id="post-tags" className={inputCls} value={editor.tags} onChange={(e) => setField("tags", e.target.value)} />
+            </div>
+            <div>
+              <label className={labelCls} htmlFor="post-cover">Cover image URL (optional)</label>
+              <input
+                id="post-cover"
+                className={inputCls}
+                placeholder="Blank = generated night-sky cover art"
+                value={editor.coverImageUrl}
+                onChange={(e) => setField("coverImageUrl", e.target.value)}
+              />
             </div>
           </div>
 

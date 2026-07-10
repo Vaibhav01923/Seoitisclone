@@ -33,6 +33,7 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   if (typeof body.description === "string") update.description = body.description;
   if (typeof body.content === "string") update.content = body.content;
   if (Array.isArray(body.tags)) update.tags = body.tags;
+  if (typeof body.cover_image_url === "string") update.cover_image_url = body.cover_image_url.trim() || null;
   if (typeof body.author_name === "string" && body.author_name.trim()) update.author_name = body.author_name.trim();
   if (body.status === "published" || body.status === "draft") {
     update.status = body.status;
