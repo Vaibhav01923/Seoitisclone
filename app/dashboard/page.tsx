@@ -1820,6 +1820,7 @@ function DashboardPage() {
               <p className="text-[10px] font-semibold text-[var(--ink-faint)] uppercase tracking-widest px-3 mb-1.5">Admin</p>
               <div className="space-y-0.5">
                 <NavItem label="Admin" active={activeTab === "admin"} onClick={() => navTo("admin")} badge={adminTasks.filter(t => t.status === "pending").length || undefined} />
+                <NavItem label="Blog Studio" active={false} onClick={() => { window.location.href = "/admin/blog"; }} />
               </div>
             </div>
           )}
