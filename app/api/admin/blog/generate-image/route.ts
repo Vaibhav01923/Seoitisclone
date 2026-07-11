@@ -1,52 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
 import { GoogleGenAI } from "@google/genai";
 import { requireAdmin } from "@/lib/admin";
 import { serverClient } from "@/lib/supabase";
 
-const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const getGemini = () => new GoogleGenAI({ apiKey: process.env.GOOGLE_GEMINI_API_KEY });
-
-const STYLE_GUIDE = `Editorial style: abstract and minimal, in the spirit of a night sky — soft gradients, orbit rings, constellations, drifting seeds, a deep ink-navy background with warm rust, olive and cream accents. No text, letters, logos, or watermarks anywhere in the image. No photorealistic people or faces. No charts, graphs, or dashboards with fabricated data.`;
-
-async function draftPrompt(title: string, description: string): Promise<string> {
-  const response = await getOpenAI().chat.completions.create({
-    model: "gpt-4o-mini",
-    max_tokens: 220,
-    messages: [
-      {
-        role: "user",
-        content: `Write a single image-generation prompt for the cover/thumbnail image of a blog post on the RankOnGeo blog (rankongeo.com), a SaaS that tracks brand visibility in AI search engines.
-
-${STYLE_GUIDE}
-
-Blog post title: "${title}"
-${description ? `Description: ${description}` : ""}
-
-Return ONLY the image prompt itself as one paragraph — no preamble, no quotes, no markdown.`,
-      },
-    ],
-  });
-  return (response.choices[0]?.message?.content ?? "").trim();
-}
 
 export async function POST(req: NextRequest) {
   const admin = await requireAdmin(req);
   if (!admin) return NextResponse.json({ error: "Not authorized" }, { status: 403 });
 
-  const { title, description, slug, prompt: providedPrompt } = await req.json();
+  const { title, slug, prompt: providedPrompt } = await req.json();
   if (!title?.trim()) return NextResponse.json({ error: "title is required" }, { status: 400 });
 
-  let prompt = (providedPrompt ?? "").trim();
-  if (!prompt) {
-    try {
-      prompt = await draftPrompt(title.trim(), (description ?? "").trim());
-    } catch (e) {
-      console.error("[blog-image] prompt draft failed", { error: e instanceof Error ? e.message : e });
-      return NextResponse.json({ error: "Could not draft an image prompt — try again" }, { status: 502 });
-    }
-    if (!prompt) return NextResponse.json({ error: "Could not draft an image prompt — try again" }, { status: 502 });
-  }
+  const prompt =
+    (providedPrompt ?? "").trim() || `Generate a thumbnail for this blog post: "${title.trim()}"`;
 
   let imageB64: string | undefined;
   let mimeType = "image/png";

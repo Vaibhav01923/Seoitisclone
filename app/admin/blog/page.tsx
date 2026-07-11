@@ -445,13 +445,13 @@ export default function AdminBlogPage() {
             />
 
             <label className={labelCls} htmlFor="post-image-prompt">
-              AI image prompt {imagePrompt ? "(edit, then regenerate)" : "(leave blank to auto-draft one)"}
+              AI image prompt {imagePrompt ? "(edit, then regenerate)" : "(leave blank to use the post title)"}
             </label>
             <textarea
               id="post-image-prompt"
               rows={3}
               className={`${inputCls} resize-y font-signal-mono text-xs leading-relaxed`}
-              placeholder="e.g. abstract night sky with rust-colored orbit rings and drifting seeds…"
+              placeholder='Blank = Generate a thumbnail for this blog post: "<title>"'
               value={imagePrompt}
               onChange={(e) => setImagePrompt(e.target.value)}
             />
@@ -464,7 +464,7 @@ export default function AdminBlogPage() {
                 ? "Generating… (~20s)"
                 : imagePrompt.trim()
                 ? "🔄 Regenerate with this prompt"
-                : "✨ Draft prompt & generate thumbnail"}
+                : "✨ Generate thumbnail"}
             </button>
           </div>
 
