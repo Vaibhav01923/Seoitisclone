@@ -4991,24 +4991,20 @@ function DashboardPage() {
               {/* Standalone order form */}
               <div className="panel rounded-xl p-4 mb-6">
                 <p className="text-sm font-semibold text-[var(--ink)] mb-1">Order Reddit engagement</p>
-                <p className="text-xs text-[var(--ink-faint)] mb-3">First pick what you're boosting — a whole post/thread, or one specific comment.</p>
+                <p className="text-xs text-[var(--ink-faint)] mb-3">Pick a target, then an action.</p>
 
-                {/* Tier 1: target — the axis people actually get confused about */}
-                <div className="grid grid-cols-2 gap-2 mb-3">
+                {/* Tier 1: target — same segmented-tab style as tier 2 below, so both
+                    read as one consistent picker instead of two different UI patterns. */}
+                <div className="flex gap-1 mb-3 bg-[var(--line)] rounded-lg p-1 w-fit">
                   {(["post", "comment"] as const).map((target) => (
                     <button
                       key={target}
                       onClick={() => setRedditOrderService(REDDIT_TARGET_SERVICES[target][0])}
-                      className={`text-left px-3 py-2.5 rounded-lg border transition-colors ${
-                        redditOrderTarget === target
-                          ? "border-[#FF4500] bg-[#FF4500]/5"
-                          : "border-[var(--line)] hover:bg-[var(--line-soft)]"
+                      className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                        redditOrderTarget === target ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)] hover:text-[var(--ink)]/80"
                       }`}
                     >
-                      <p className="text-xs font-semibold text-[var(--ink)]">{target === "post" ? "A whole post" : "One specific comment"}</p>
-                      <p className="text-[10px] text-[var(--ink-faint)] mt-0.5">
-                        {target === "post" ? "Boost the thread's overall visibility" : "Boost one reply's ranking within a thread"}
-                      </p>
+                      {target === "post" ? "Post" : "Comment"}
                     </button>
                   ))}
                 </div>
