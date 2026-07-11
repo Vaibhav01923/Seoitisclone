@@ -130,7 +130,7 @@ export function BlogCover({
   if (coverImageUrl) {
     return (
       <div className={`overflow-hidden bg-[oklch(0.16_0.02_55)] ${className}`}>
-        <img src={coverImageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
+        <img src={coverImageUrl} alt={title} className="h-full w-full object-cover" loading="lazy" />
       </div>
     );
   }
