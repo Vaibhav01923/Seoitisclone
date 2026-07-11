@@ -19,69 +19,86 @@ const card = "rounded-xl bg-[var(--surface)] border border-[var(--line)]";
 const kpiLabel = "text-[9px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-faint)] mb-1";
 
 // ── OVERVIEW ──────────────────────────────────────────────────────
+// Mirrors the real dashboard overview: composite ring + trend, per-engine
+// score cards ("x/y prompts · avg #"), and the tracked-prompts table. No
+// invented metrics — the product doesn't report mention counts or sentiment.
 function OverviewContent() {
-  const trend = [42, 46, 44, 50, 54, 52, 58, 62, 60, 65, 68, 65, 70, 72, 74];
+  const trend = [70, 74, 72, 78, 80, 79, 83, 86, 84, 88, 90, 88, 91, 90, 92];
   const max = Math.max(...trend), min = Math.min(...trend);
   const norm = trend.map((v) => ((v - min) / (max - min)) * 55);
   const poly = norm.map((v, i) => `${i * 27 + 8},${60 - v}`).join(" ");
   const lastX = 8 + 14 * 27, lastY = 60 - norm[14];
+  const engines = [
+    { name: "ChatGPT", pct: 95, detail: "19/20 prompts · avg #2.2" },
+    { name: "Gemini", pct: 90, detail: "18/20 prompts · avg #1.9" },
+    { name: "Google AI", pct: 90, detail: "18/20 prompts · avg #1.6" },
+  ];
+  const rows: { text: string; marks: string[]; vis: number }[] = [
+    { text: "Playwright pricing", marks: ["#1", "#1", "✓"], vis: 100 },
+    { text: "Is Playwright free", marks: ["✓", "#1", "#2"], vis: 100 },
+    { text: "Playwright review", marks: ["#2", "#1", "—"], vis: 67 },
+    { text: "best browser automation tool for QA teams", marks: ["#1", "—", "#3"], vis: 67 },
+    { text: "Playwright vs Selenium which is better", marks: ["—", "#2", "—"], vis: 33 },
+  ];
+  const R = 41, C = 2 * Math.PI * R;
   return (
     <div className="p-5" style={{ animation: "fadeUp 0.3s ease forwards" }}>
-      <h2 className="mb-0.5 text-lg font-semibold text-[var(--ink)]">Overview</h2>
-      <p className="mb-4 text-xs text-[var(--ink-faint)]">playwright.dev · last scan Jun 24, 2026</p>
-      <div className="mb-4 grid grid-cols-4 gap-2.5">
-        {[
-          { label: "COMPOSITE VISIBILITY", val: "72.4%", sub: "+8.1% vs last scan", up: true },
-          { label: "TOTAL MENTIONS", val: "3,241", sub: "+12% this week", up: true },
-          { label: "AVG POSITION", val: "1.8", sub: "across all engines", up: false },
-          { label: "SENTIMENT", val: "89%", sub: "positive responses", up: false },
-        ].map((s) => (
-          <div key={s.label} className={`${card} p-3.5`}>
-            <p className={kpiLabel}>{s.label}</p>
-            <p className="font-signal-mono text-2xl font-semibold text-[var(--ink)]">{s.val}</p>
-            <p className={`mt-0.5 text-[10px] ${s.up ? "text-[var(--olive)]" : "text-[var(--ink-faint)]"}`}>{s.sub}</p>
+      <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--rust)]">Overview</p>
+      <h2 className="font-signal-serif mb-0.5 text-2xl text-[var(--ink)]">AI Visibility</h2>
+      <p className="mb-4 text-xs text-[var(--ink-faint)]">Visibility up to 92% composite, across ChatGPT, Gemini, Google AI.</p>
+
+      <div className={`${card} mb-3 flex flex-col items-center gap-2 p-4`}>
+        <div className="relative h-24 w-24">
+          <svg width="96" height="96" viewBox="0 0 96 96" style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
+            <circle cx="48" cy="48" r={R} fill="none" stroke="var(--line)" strokeWidth="8" />
+            <circle cx="48" cy="48" r={R} fill="none" stroke="var(--rust)" strokeWidth="8" strokeLinecap="round" strokeDasharray={`${0.92 * C} ${C}`} />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="font-signal-serif text-xl leading-none text-[var(--ink)]">92%</span>
+            <span className="mt-0.5 text-[7px] font-semibold uppercase tracking-wider text-[var(--ink-faint)]">Composite</span>
+          </div>
+        </div>
+        <p className="text-[11px] text-[var(--ink-soft)]">Composite visibility across 3 AI engines</p>
+        <svg width="220" height="38" viewBox="0 0 390 65" aria-hidden="true">
+          <defs>
+            <linearGradient id="demoSpark" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="rgba(177,85,46,.25)" />
+              <stop offset="1" stopColor="rgba(177,85,46,0)" />
+            </linearGradient>
+          </defs>
+          <polygon points={`8,60 ${poly} ${lastX},60`} fill="url(#demoSpark)" />
+          <polyline points={poly} fill="none" stroke="#b1552e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx={lastX} cy={lastY} r="3.5" fill="#b1552e" />
+        </svg>
+      </div>
+
+      <div className="mb-3 grid grid-cols-3 gap-2.5">
+        {engines.map((e) => (
+          <div key={e.name} className={`${card} p-3.5`}>
+            <p className="mb-1 text-xs font-semibold text-[var(--ink)]">{e.name}</p>
+            <p className="font-signal-mono text-2xl font-semibold text-[var(--ink)]">{e.pct}%</p>
+            <p className="mt-0.5 text-[10px] text-[var(--ink-faint)]">{e.detail}</p>
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-3 gap-2.5">
-        <div className={`${card} col-span-2 p-4`}>
-          <p className="mb-2 text-xs font-medium text-[var(--ink-soft)]">Visibility trend — last 15 scans</p>
-          <svg width="100%" height="65" viewBox="0 0 390 65">
-            <defs>
-              <linearGradient id="demoSpark" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="rgba(177,85,46,.25)" />
-                <stop offset="1" stopColor="rgba(177,85,46,0)" />
-              </linearGradient>
-            </defs>
-            <polygon points={`8,60 ${poly} ${lastX},60`} fill="url(#demoSpark)" />
-            <polyline
-              points={poly}
-              fill="none"
-              stroke="#b1552e"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <circle cx={lastX} cy={lastY} r="3.5" fill="#b1552e" />
-          </svg>
+
+      <div className={`${card} overflow-hidden`}>
+        <div className="flex items-center justify-between border-b border-[var(--line)] px-4 py-3">
+          <p className="text-xs font-medium text-[var(--ink)]/90">Tracked prompts</p>
+          <p className="font-signal-mono text-[10px] text-[var(--ink-faint)]">20 total</p>
         </div>
-        <div className={`${card} p-4`}>
-          <p className="mb-3 text-xs font-medium text-[var(--ink-soft)]">By engine</p>
-          <div className="space-y-2">
-            {[
-              { name: "ChatGPT", pct: 80 }, { name: "Claude", pct: 74 }, { name: "Gemini", pct: 72 },
-              { name: "Perplexity", pct: 69 }, { name: "Grok", pct: 65 }, { name: "Google AI", pct: 79 },
-            ].map((e) => (
-              <div key={e.name} className="flex items-center gap-1.5">
-                <span className="w-14 shrink-0 truncate text-right text-[9px] text-[var(--ink-soft)]">{e.name}</span>
-                <div className="h-1.5 flex-1 rounded-full bg-[var(--line)]">
-                  <div className="h-full rounded-full" style={{ width: `${e.pct}%`, background: ENG_COLORS[e.name] }} />
-                </div>
-                <span className="w-6 shrink-0 text-[9px] text-[var(--ink-soft)]">{e.pct}%</span>
-              </div>
+        {rows.map((r, i) => (
+          <div key={i} className="flex items-center gap-3 border-b border-[var(--line)] px-4 py-2.5 last:border-0">
+            <span className="w-4 shrink-0 font-signal-mono text-[10px] text-[var(--ink-faint)]">{i + 1}</span>
+            <span className="min-w-0 flex-1 truncate text-xs font-medium text-[var(--ink)]/90">{r.text}</span>
+            {r.marks.map((m, j) => (
+              <span key={j} className="w-6 shrink-0 text-center font-signal-mono text-[10px] font-bold" style={{ color: m === "—" ? "var(--ink-faint)" : "var(--rust)" }}>
+                {m}
+              </span>
             ))}
+            <span className="w-9 shrink-0 text-right font-signal-mono text-[11px] font-semibold text-[var(--ink)]">{r.vis}%</span>
           </div>
-        </div>
+        ))}
       </div>
     </div>
   );
@@ -736,7 +753,7 @@ export function InteractiveDemoMockup() {
       <button
         key={name}
         onClick={() => setActiveTab(name)}
-        className={`flex w-full items-center rounded-lg px-2.5 py-1.5 text-left text-xs transition-all duration-200 ${
+        className={`flex w-full items-center rounded-lg px-2.5 py-1 text-left text-xs transition-all duration-200 ${
           active
             ? "bg-[var(--rust-wash)] font-semibold text-[var(--rust-deep)]"
             : "text-[var(--ink-soft)] hover:bg-[var(--line-soft)] hover:text-[var(--ink)]"
@@ -753,7 +770,7 @@ export function InteractiveDemoMockup() {
   };
 
   const sectionLabel = (text: string) => (
-    <p className="mb-1 mt-3 px-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] first:mt-0">{text}</p>
+    <p className="mb-1 mt-2 px-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] first:mt-0">{text}</p>
   );
 
   return (
@@ -778,7 +795,7 @@ export function InteractiveDemoMockup() {
         {/* app shell */}
         <div
           className="flex overflow-hidden rounded-b-2xl border border-t-0 border-[var(--line)] shadow-[0_20px_60px_-20px_oklch(0.19_0.014_55_/_25%)]"
-          style={{ height: 580, background: "var(--cream)" }}
+          style={{ height: 620, background: "var(--cream)" }}
         >
           {/* sidebar */}
           <div className="flex w-52 shrink-0 flex-col border-r border-[var(--line)]">
@@ -806,13 +823,15 @@ export function InteractiveDemoMockup() {
             <div className="flex flex-1 flex-col gap-0.5 overflow-hidden px-2 py-2">
               {navItem("Agent")}
               {sectionLabel("Measure")}
-              {["Overview", "Engines", "Prompts", "Citations", "Competitors"].map((t) => navItem(t))}
+              {["Overview", "Engines", "Prompts", "Citations", "Competitors", "Web Analytics", "LLM Analytics"].map((t) => navItem(t))}
               {sectionLabel("Create")}
               {navItem("Research", 20)}
               {navItem("Articles")}
               {navItem("Tasks")}
               {sectionLabel("Distribute")}
               {navItem("Publishing")}
+              {sectionLabel("On page")}
+              {navItem("Alerts")}
             </div>
             <div className="flex items-center gap-2 border-t border-[var(--line)] px-3 py-2.5">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--rust-wash)] text-xs font-bold text-[var(--rust-deep)]">U</div>
@@ -854,7 +873,7 @@ export function InteractiveDemoMockup() {
               {activeTab === "Research" && <ResearchContent />}
               {activeTab === "Articles" && <ArticlesContent />}
               {activeTab === "Tasks" && <TasksContent />}
-              {(activeTab === "Publishing" || activeTab === "Agent") && (
+              {["Publishing", "Agent", "Web Analytics", "LLM Analytics", "Alerts"].includes(activeTab) && (
                 <div className="flex h-full items-center justify-center p-5">
                   <div className="text-center">
                     <p className="mb-2 font-signal-serif text-xl italic text-[var(--ink-soft)]">This one&apos;s for the real thing.</p>
