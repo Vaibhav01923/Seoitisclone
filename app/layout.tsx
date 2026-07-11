@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Instrument_Sans } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
+import { SelfAnalytics } from "./_components/SelfAnalytics";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -66,19 +66,7 @@ export default function RootLayout({
       className={`${instrumentSans.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
-      <Script
-        id="datafast-analytics"
-        src="https://datafa.st/js/script.js"
-        data-website-id="dfid_Z3fMzaUeXnTRGu9mAy2tT"
-        data-domain="rankongeo.com"
-        strategy="afterInteractive"
-      />
-      <Script
-        id="rankongeo-web-analytics"
-        src="https://www.rankongeo.com/track.js"
-        data-site="6469ac374959"
-        strategy="afterInteractive"
-      />
+      <SelfAnalytics />
     </html>
   );
 }
