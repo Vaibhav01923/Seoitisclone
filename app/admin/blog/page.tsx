@@ -64,6 +64,8 @@ export default function AdminBlogPage() {
   const [genKeywords, setGenKeywords] = useState("");
   const [genNotes, setGenNotes] = useState("");
 
+  const [imagePrompt, setImagePrompt] = useState("");
+
   const loadPosts = useCallback(async () => {
     const res = await fetch("/api/admin/blog");
     if (!res.ok) return;
@@ -97,6 +99,7 @@ export default function AdminBlogPage() {
     setSlugTouched(!!post);
     setPreview(false);
     setError(null);
+    setImagePrompt("");
   };
 
   const setField = <K extends keyof EditorState>(key: K, value: EditorState[K]) => {
@@ -201,6 +204,31 @@ export default function AdminBlogPage() {
     }
   };
 
+  const generateImage = async () => {
+    if (!editor?.title.trim()) return;
+    setBusy("generate-image");
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/blog/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: editor.title,
+          description: editor.description,
+          slug: editor.slug,
+          prompt: imagePrompt.trim() || undefined,
+        }),
+      });
+      if (!res.ok) return fail(res);
+      const { prompt, imageUrl } = await res.json();
+      setImagePrompt(prompt);
+      setField("coverImageUrl", imageUrl);
+      flash("Thumbnail generated — refine the prompt and regenerate if you want another take");
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const generate = async () => {
     if (!genTopic.trim()) return;
     setBusy("generate");
@@ -225,6 +253,7 @@ export default function AdminBlogPage() {
       });
       setSlugTouched(true);
       setPreview(true);
+      setImagePrompt("");
       flash(`Generated ~${draft.wordCount} words — review, edit, then publish`);
     } finally {
       setBusy(null);
@@ -283,7 +312,7 @@ export default function AdminBlogPage() {
       <section className="mb-10 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
         <h2 className="mb-1 text-sm font-semibold text-[var(--ink)]">Generate a draft with AI</h2>
         <p className="mb-4 text-xs text-[var(--ink-faint)]">
-          gpt-4o-mini drafts it, you review and publish. Nothing goes live without you.
+          AI drafts it, you review and publish. Nothing goes live without you.
         </p>
         <div className="grid gap-3 md:grid-cols-2">
           <div>
@@ -378,20 +407,65 @@ export default function AdminBlogPage() {
               </div>
               <input id="post-desc" className={inputCls} value={editor.description} onChange={(e) => setField("description", e.target.value)} />
             </div>
-            <div>
+            <div className="md:col-span-2">
               <label className={labelCls} htmlFor="post-tags">Tags (comma-separated)</label>
               <input id="post-tags" className={inputCls} value={editor.tags} onChange={(e) => setField("tags", e.target.value)} />
             </div>
-            <div>
-              <label className={labelCls} htmlFor="post-cover">Cover image URL (optional)</label>
-              <input
-                id="post-cover"
-                className={inputCls}
-                placeholder="Blank = generated night-sky cover art"
-                value={editor.coverImageUrl}
-                onChange={(e) => setField("coverImageUrl", e.target.value)}
-              />
+          </div>
+
+          {/* Thumbnail */}
+          <div className="mt-4 rounded-xl border border-[var(--line)] bg-[var(--cream)]/40 p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <label className={labelCls + " mb-0"} htmlFor="post-cover">Thumbnail</label>
+              {editor.coverImageUrl && (
+                <button
+                  onClick={() => setField("coverImageUrl", "")}
+                  className="text-xs font-medium text-[var(--ink-faint)] hover:text-red-600"
+                >
+                  Remove image
+                </button>
+              )}
             </div>
+
+            {editor.coverImageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={editor.coverImageUrl}
+                alt=""
+                className="mb-3 aspect-[21/9] w-full rounded-lg border border-[var(--line)] object-cover"
+              />
+            )}
+
+            <input
+              id="post-cover"
+              className={`${inputCls} mb-3`}
+              placeholder="Paste an image URL, or generate one with AI below — blank = night-sky cover art"
+              value={editor.coverImageUrl}
+              onChange={(e) => setField("coverImageUrl", e.target.value)}
+            />
+
+            <label className={labelCls} htmlFor="post-image-prompt">
+              AI image prompt {imagePrompt ? "(edit, then regenerate)" : "(leave blank to auto-draft one)"}
+            </label>
+            <textarea
+              id="post-image-prompt"
+              rows={3}
+              className={`${inputCls} resize-y font-signal-mono text-xs leading-relaxed`}
+              placeholder="e.g. abstract night sky with rust-colored orbit rings and drifting seeds…"
+              value={imagePrompt}
+              onChange={(e) => setImagePrompt(e.target.value)}
+            />
+            <button
+              onClick={generateImage}
+              disabled={busy === "generate-image" || !editor.title.trim()}
+              className={`${btnGhost} mt-2`}
+            >
+              {busy === "generate-image"
+                ? "Generating… (~20s)"
+                : imagePrompt.trim()
+                ? "🔄 Regenerate with this prompt"
+                : "✨ Draft prompt & generate thumbnail"}
+            </button>
           </div>
 
           <div className="mt-4">

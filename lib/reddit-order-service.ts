@@ -101,7 +101,8 @@ export async function placeRedditOrder(params: PlaceRedditOrderParams): Promise<
       if (moderation.results[0]?.flagged) {
         return { ok: false, status: 400, error: "Comment violates content policy — no NSFW, explicit, or hateful content allowed" };
       }
-    } catch {
+    } catch (e) {
+      console.error("[reddit-order] moderation check failed", { url, error: e instanceof Error ? e.message : e });
       return { ok: false, status: 500, error: "Could not verify comment content — try again" };
     }
 
@@ -117,11 +118,18 @@ export async function placeRedditOrder(params: PlaceRedditOrderParams): Promise<
     creditsNeeded = qty * CREDIT_COST[serviceType];
   }
 
-  const { data: userPlan } = await db
-    .from("user_plans")
-    .select("dodo_customer_id")
-    .eq("user_id", userId)
-    .single();
+  let userPlan: { dodo_customer_id: string | null } | null = null;
+  try {
+    const { data } = await db
+      .from("user_plans")
+      .select("dodo_customer_id")
+      .eq("user_id", userId)
+      .single();
+    userPlan = data;
+  } catch (e) {
+    console.error("[reddit-order] user_plans lookup failed", { userId, error: e instanceof Error ? e.message : e });
+    return { ok: false, status: 500, error: "Failed to look up your plan — try again" };
+  }
 
   const customerId: string | null = userPlan?.dodo_customer_id ?? null;
   if (!customerId) {
@@ -140,7 +148,8 @@ export async function placeRedditOrder(params: PlaceRedditOrderParams): Promise<
       idempotency_key: `order:${taskId}`,
       metadata: { url, serviceType },
     });
-  } catch {
+  } catch (e) {
+    console.error("[reddit-order] credit debit failed", { taskId, url, serviceType, creditsNeeded, error: e instanceof Error ? e.message : e });
     return { ok: false, status: 402, error: "Not enough credits" };
   }
 
@@ -160,6 +169,7 @@ export async function placeRedditOrder(params: PlaceRedditOrderParams): Promise<
       // Concurrency cap hit (max 3 pending/running per link+service) — don't refund, the poller retries submission.
       status = "queued";
     } else {
+      console.error("[reddit-order] provider order failed", { taskId, url, serviceType, error: e instanceof Error ? e.message : e });
       await refund(`Refund: order failed to submit (${e instanceof Error ? e.message : "unknown error"})`);
       return { ok: false, status: 502, error: "Failed to submit order to provider — credits refunded" };
     }

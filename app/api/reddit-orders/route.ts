@@ -10,7 +10,13 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await db.auth.getUser();
   if (!user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
 
-  const body = await req.json();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let body: any;
+  try {
+    body = await req.json();
+  } catch {
+    return new Response(JSON.stringify({ error: "Invalid request body" }), { status: 400 });
+  }
   const { brandId, url, serviceType, quantity, commentText, speed } = body;
 
   if (!brandId || !url) return new Response(JSON.stringify({ error: "brandId and url required" }), { status: 400 });
