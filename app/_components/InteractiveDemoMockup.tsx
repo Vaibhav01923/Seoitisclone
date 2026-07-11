@@ -34,6 +34,18 @@ function OverviewContent() {
     { name: "Google AI", pct: 90, detail: "18/20 prompts · avg #1.6" },
   ];
   const rows: { text: string; marks: string[]; vis: number }[] = [
+    { text: "Cypress alternative that supports WebKit", marks: ["#1", "#1", "✓"], vis: 100 },
+    { text: "alternative to Selenium", marks: ["—", "#1", "✓"], vis: 67 },
+    { text: "best Selenium alternatives for modern web apps", marks: ["—", "#2", "#3"], vis: 67 },
+    { text: "Selenium alternative with auto-waiting assertions", marks: ["#2", "#1", "#1"], vis: 100 },
+    { text: "alternative to Puppeteer", marks: ["#1", "#1", "✓"], vis: 100 },
+    { text: "best Puppeteer alternatives for cross-browser testing", marks: ["#1", "#2", "#1"], vis: 100 },
+    { text: "Puppeteer alternative that supports Firefox and WebKit", marks: ["#1", "✓", "✓"], vis: 100 },
+    { text: "alternative to WebdriverIO", marks: ["—", "#3", "#1"], vis: 67 },
+    { text: "best WebdriverIO alternatives for TypeScript e2e testing", marks: ["—", "#2", "#1"], vis: 67 },
+    { text: "alternative to TestCafe", marks: ["#2", "#3", "✓"], vis: 100 },
+    { text: "TestCafe alternative with better trace debugging", marks: ["—", "#2", "#1"], vis: 67 },
+    { text: "best end-to-end testing framework for TypeScript teams", marks: ["—", "#2", "✓"], vis: 67 },
     { text: "Playwright pricing", marks: ["#1", "#1", "✓"], vis: 100 },
     { text: "Is Playwright free", marks: ["✓", "#1", "#2"], vis: 100 },
     { text: "Playwright review", marks: ["#2", "#1", "—"], vis: 67 },
@@ -629,44 +641,423 @@ function ResearchContent() {
 }
 
 // ── TASKS ─────────────────────────────────────────────────────────
+// Mirrors the real dashboard Tasks tab (app/dashboard/page.tsx): tiered
+// order form (post/comment → service → quantity/speed or comment text)
+// plus a Pending/Completed/Failed task list.
+type RedditService = "post_upvote" | "post_downvote" | "comment_upvote" | "comment_downvote" | "custom_comments";
+
+const TASK_SERVICE_META: Record<RedditService, { label: string; target: "post" | "comment"; creditsPerUnit: number; min: number; max: number; caveat?: string }> = {
+  post_upvote: { label: "Upvotes", target: "post", creditsPerUnit: 0.5, min: 5, max: 1000 },
+  post_downvote: {
+    label: "Downvotes", target: "post", creditsPerUnit: 0.5, min: 5, max: 1000,
+    caveat: "Only works on posts less than 24 hours old — on older posts the vote count may not visibly change, but it still limits the post's reach.",
+  },
+  comment_upvote: { label: "Upvotes", target: "comment", creditsPerUnit: 1, min: 5, max: 1000, caveat: "Only works on comments less than 24 hours old." },
+  comment_downvote: { label: "Downvotes", target: "comment", creditsPerUnit: 1, min: 5, max: 1000, caveat: "Only works on comments less than 24 hours old." },
+  custom_comments: { label: "Post a new comment", target: "post", creditsPerUnit: 5, min: 1, max: 1 },
+};
+const TASK_TARGET_SERVICES: Record<"post" | "comment", RedditService[]> = {
+  post: ["post_upvote", "post_downvote", "custom_comments"],
+  comment: ["comment_upvote", "comment_downvote"],
+};
+
+function RedditGlyph() {
+  return (
+    <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden="true">
+      <circle cx="10" cy="10" r="10" fill="white" fillOpacity="0.2" />
+      <path fill="white" d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.07 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.19.19 0 00-.22.14l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.51-1.53zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.65a3.55 3.55 0 01-2.85.86 3.55 3.55 0 01-2.85-.86.19.19 0 01.27-.27 3.16 3.16 0 002.58.65 3.16 3.16 0 002.58-.65.19.19 0 01.27.27zm-.17-1.65a1 1 0 111-1 1 1 0 01-1 1z" />
+    </svg>
+  );
+}
+
+type DemoTask = {
+  id: number; service: RedditService; status: "completed" | "pending" | "failed";
+  url: string; reply?: string; qty: number; speed: "Slow" | "Normal" | "Fast"; credits: number;
+  engine?: string; time: string;
+};
+
+const INITIAL_TASKS: DemoTask[] = [
+  { id: 1, service: "custom_comments", status: "completed", url: "reddit.com/r/QualityAssurance/comments/1uor3of/what_every_app_can_learn_from_duolingos/", reply: "Playwright's auto-waiting alone cut our flaky test rate way down — worth a look if Selenium timeouts are the pain point.", qty: 1, speed: "Normal", credits: 5, engine: "ChatGPT", time: "Jul 7, 05:04 AM" },
+  { id: 2, service: "post_upvote", status: "completed", url: "reddit.com/r/webdev/comments/1uozmr3/playwright_vs_selenium_which_is_better/", qty: 25, speed: "Normal", credits: 12.5, engine: "Gemini", time: "Jul 7, 04:46 AM" },
+  { id: 3, service: "custom_comments", status: "pending", url: "reddit.com/r/softwaretesting/comments/1bovaoa/selenium_vs_playwright/", reply: "We moved our E2E suite from Selenium to Playwright and cut CI time in half — happy to share specifics if useful.", qty: 1, speed: "Normal", credits: 5, engine: "Perplexity", time: "Jul 7, 04:12 AM" },
+  { id: 4, service: "comment_upvote", status: "failed", url: "reddit.com/r/QualityAssurance/comments/1mxe2yc/ai_in_qaautomation/", qty: 10, speed: "Fast", credits: 10, engine: "Google AI", time: "Jul 6, 11:52 PM" },
+];
+
 function TasksContent() {
-  const tasks = [
-    { platform: "Reddit", color: "#FF4500", status: "Completed", url: "reddit.com/r/QualityAssurance/comments/…", reply: "Playwright's auto-waiting alone cut our flaky test rate way down — worth a look if you're fighting Selenium timeouts.", upvotes: 25, engine: "ChatGPT" },
-    { platform: "LinkedIn", color: LINKEDIN_HEX, status: "Pending", url: "linkedin.com/posts/…", reply: "We moved our E2E suite from Selenium to Playwright and cut CI time in half.", upvotes: 0, engine: "Perplexity" },
-    { platform: "Reddit", color: "#FF4500", status: "Pending", url: "reddit.com/r/webdev/comments/…", reply: "If cross-browser flakiness is the issue, Playwright's built-in retries handle it better than Selenium out of the box.", upvotes: 10, engine: "Gemini" },
-  ];
-  const pending = tasks.filter((t) => t.status === "Pending").length;
+  const [target, setTarget] = useState<"post" | "comment">("post");
+  const [service, setService] = useState<RedditService>("custom_comments");
+  const [url, setUrl] = useState("");
+  const [comment, setComment] = useState("");
+  const [qty, setQty] = useState(10);
+  const [speed, setSpeed] = useState<"Slow" | "Normal" | "Fast">("Normal");
+  const [tasks, setTasks] = useState(INITIAL_TASKS);
+  const [filter, setFilter] = useState<"pending" | "completed" | "failed">("completed");
+
+  const meta = TASK_SERVICE_META[service];
+  const credits = service === "custom_comments" ? meta.creditsPerUnit : qty * meta.creditsPerUnit;
+
+  function submit() {
+    const nextId = Math.max(...tasks.map((t) => t.id)) + 1;
+    setTasks((prev) => [
+      {
+        id: nextId, service, status: "pending",
+        url: url.trim() || "reddit.com/r/…",
+        reply: service === "custom_comments" ? comment.trim() : undefined,
+        qty: service === "custom_comments" ? 1 : qty, speed, credits, time: "just now",
+      },
+      ...prev,
+    ]);
+    setUrl("");
+    setComment("");
+    setFilter("pending");
+  }
+
+  const counts = {
+    pending: tasks.filter((t) => t.status === "pending").length,
+    completed: tasks.filter((t) => t.status === "completed").length,
+    failed: tasks.filter((t) => t.status === "failed").length,
+  };
+  const visible = tasks.filter((t) => t.status === filter);
+
   return (
     <div className="p-5" style={{ animation: "fadeUp 0.3s ease forwards" }}>
       <h2 className="mb-0.5 text-lg font-semibold text-[var(--ink)]">Tasks</h2>
-      <p className="mb-4 text-xs text-[var(--ink-faint)]">Replies and upvote orders submitted from Citations · {pending} pending</p>
-      <div className="space-y-2.5">
-        {tasks.map((t, i) => (
-          <div key={i} className={`${card} p-4`}>
-            <div className="flex items-start gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[10px] font-bold text-white" style={{ background: t.color }}>
-                {t.platform === "LinkedIn" ? "in" : "R"}
+      <p className="mb-4 text-xs text-[var(--ink-faint)]">Order Reddit engagement directly, or track replies submitted from Citations.</p>
+
+      <div className={`${card} mb-4 p-4`}>
+        <p className="mb-1 text-xs font-semibold text-[var(--ink)]">Order Reddit engagement</p>
+        <p className="mb-3 text-[10px] text-[var(--ink-faint)]">First pick what you&apos;re boosting — a whole post/thread, or one specific comment.</p>
+
+        <div className="mb-3 grid grid-cols-2 gap-2">
+          {(["post", "comment"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => { setTarget(t); setService(TASK_TARGET_SERVICES[t][0]); }}
+              className={`rounded-lg border px-3 py-2.5 text-left transition-colors ${
+                target === t ? "border-[#FF4500] bg-[#FF4500]/5" : "border-[var(--line)] hover:bg-[var(--line-soft)]"
+              }`}
+            >
+              <p className="text-xs font-semibold text-[var(--ink)]">{t === "post" ? "A whole post" : "One specific comment"}</p>
+              <p className="mt-0.5 text-[10px] text-[var(--ink-faint)]">{t === "post" ? "Boost the thread's overall visibility" : "Boost one reply's ranking within a thread"}</p>
+            </button>
+          ))}
+        </div>
+
+        <div className="mb-3 flex w-fit gap-1 rounded-lg bg-[var(--line)] p-1">
+          {TASK_TARGET_SERVICES[target].map((s) => (
+            <button
+              key={s}
+              onClick={() => setService(s)}
+              className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
+                service === s ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)] hover:text-[var(--ink)]/80"
+              }`}
+            >
+              {TASK_SERVICE_META[s].label}
+            </button>
+          ))}
+        </div>
+
+        <input
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder={target === "comment" ? "https://www.reddit.com/r/.../comments/.../comment/..." : "https://www.reddit.com/r/.../comments/..."}
+          className="w-full rounded-lg border border-[var(--line)] bg-[var(--cream)] px-3 py-2 text-xs text-[var(--ink)] outline-none placeholder:text-[var(--ink-faint)] focus:ring-2 focus:ring-[var(--rust)]/40"
+        />
+        <p className="mb-3 mt-1 text-[10px] text-[var(--ink-faint)]">
+          {target === "comment" ? "Paste the comment's own link, not the post's." : "The link to the post/thread itself."}
+        </p>
+
+        {service === "custom_comments" ? (
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Comment to post…"
+            rows={3}
+            maxLength={1000}
+            className="mb-3 w-full resize-y rounded-lg border border-[var(--line)] bg-[var(--cream)] px-3 py-2 text-xs text-[var(--ink)] outline-none placeholder:text-[var(--ink-faint)] focus:ring-2 focus:ring-[var(--rust)]/40"
+          />
+        ) : (
+          <div className="mb-3 flex gap-3">
+            <div className="flex-1">
+              <p className="mb-1.5 text-[10px] font-semibold text-[var(--ink-soft)]">Quantity ({meta.min}–{meta.max})</p>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setQty((q) => Math.max(meta.min, q - 5))} className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--line)] text-sm font-medium text-[var(--ink-soft)] hover:bg-[var(--line-soft)]" aria-label="Fewer">−</button>
+                <span className="w-10 text-center text-sm font-semibold text-[var(--ink)]">{qty}</span>
+                <button onClick={() => setQty((q) => Math.min(meta.max, q + 5))} className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--line)] text-sm font-medium text-[var(--ink-soft)] hover:bg-[var(--line-soft)]" aria-label="More">+</button>
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="mb-1.5 flex items-center gap-2">
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                      t.status === "Completed"
-                        ? "bg-[var(--olive-wash)] text-[var(--olive)]"
-                        : "bg-[var(--rust-wash)] text-[var(--rust-deep)]"
-                    }`}
-                  >
-                    {t.status}
-                  </span>
-                  <span className="text-[10px] text-[var(--ink-faint)]">{t.engine}</span>
-                  <span className="ml-auto text-[10px] text-[var(--ink-faint)]">{t.url}</span>
+            </div>
+            <div className="flex-1">
+              <p className="mb-1.5 text-[10px] font-semibold text-[var(--ink-soft)]">Speed</p>
+              <select
+                value={speed}
+                onChange={(e) => setSpeed(e.target.value as "Slow" | "Normal" | "Fast")}
+                className="w-full rounded-lg border border-[var(--line)] bg-[var(--line-soft)] px-2 py-1.5 text-xs text-[var(--ink)]/80 outline-none"
+              >
+                <option value="Slow">Slow (safer)</option>
+                <option value="Normal">Normal</option>
+                <option value="Fast">Fast</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        {meta.caveat && <p className="mb-3 rounded-lg bg-[var(--rust-wash)] px-3 py-2 text-[10px] leading-relaxed text-[var(--rust-deep)]">{meta.caveat}</p>}
+
+        <div className="mb-3 flex items-center justify-between rounded-lg bg-[var(--line-soft)] px-3 py-2 text-[10px] text-[var(--ink-faint)]">
+          <span>{service === "custom_comments" ? "1 comment" : `${qty} ${meta.label.toLowerCase()} × ${meta.creditsPerUnit} credits`}</span>
+          <span className="font-semibold text-[var(--ink)]/80">{credits} credits</span>
+        </div>
+
+        <button
+          onClick={submit}
+          disabled={!url.trim() || (service === "custom_comments" && !comment.trim())}
+          className="w-full rounded-lg bg-[#FF4500] py-2.5 text-xs font-semibold text-white transition-colors hover:bg-[#e03d00] disabled:opacity-40"
+        >
+          Submit order
+        </button>
+      </div>
+
+      <div className="mb-3 flex w-fit gap-1 rounded-xl bg-[var(--line)] p-1">
+        {(["pending", "completed", "failed"] as const).map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-xs font-semibold capitalize transition-all ${
+              filter === f ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)] hover:text-[var(--ink)]/80"
+            }`}
+          >
+            {f}
+            {counts[f] > 0 && (
+              <span
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                  filter === f
+                    ? f === "failed" ? "bg-red-500/15 text-red-700" : "bg-[var(--rust-wash)] text-[var(--rust-deep)]"
+                    : "bg-[var(--surface)] text-[var(--ink-soft)]"
+                }`}
+              >
+                {counts[f]}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {visible.length === 0 ? (
+        <p className="py-10 text-center text-xs text-[var(--ink-faint)]">No {filter} tasks.</p>
+      ) : (
+        <div className="space-y-2.5">
+          {visible.map((t) => {
+            const m = TASK_SERVICE_META[t.service];
+            const label = t.service === "custom_comments" ? m.label : `${m.target === "comment" ? "Comment" : "Post"} ${m.label}`;
+            return (
+              <div key={t.id} className={`${card} p-4`}>
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#FF4500]">
+                    <RedditGlyph />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                      <span
+                        className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                          t.status === "completed"
+                            ? "border-[var(--rust)]/25 bg-[var(--rust)]/10 text-[var(--rust)]"
+                            : t.status === "failed"
+                            ? "border-red-500/25 bg-red-500/10 text-red-700"
+                            : "border-[var(--rust)]/25 bg-[var(--rust-wash)] text-[var(--rust-deep)]"
+                        }`}
+                      >
+                        {t.status === "failed" ? "Failed — refunded" : t.status === "completed" ? "Completed" : "Pending"}
+                      </span>
+                      <span className="text-[10px] text-[var(--ink-faint)]">{label}</span>
+                      {t.engine && <span className="text-[10px] text-[var(--ink-faint)]">{t.engine}</span>}
+                      <span className="ml-auto text-[10px] text-[var(--ink-faint)]">{t.time}</span>
+                    </div>
+                    <a href={`https://${t.url}`} target="_blank" rel="noopener noreferrer" className="mb-2 block truncate text-xs text-[var(--rust)] hover:underline">
+                      {t.url}
+                    </a>
+                    {t.reply && <p className="mb-2 rounded-lg border border-[var(--line)] bg-[var(--line-soft)] px-3 py-2 text-xs text-[var(--ink-soft)]">{t.reply}</p>}
+                    <div className="flex flex-wrap items-center gap-3 text-[10px] text-[var(--ink-faint)]">
+                      {t.service !== "custom_comments" && <span>{t.qty} {label.toLowerCase()} ordered</span>}
+                      {t.service !== "custom_comments" && <span className="capitalize">{t.speed.toLowerCase()} delivery</span>}
+                      <span className="font-medium text-[var(--ink-soft)]">{t.credits} credits</span>
+                    </div>
+                  </div>
                 </div>
-                <p className="mb-1.5 rounded-lg bg-[var(--line-soft)] px-3 py-2 text-xs text-[var(--ink-soft)]">{t.reply}</p>
-                <p className="text-[10px] text-[var(--ink-faint)]">{t.upvotes > 0 ? `${t.upvotes} upvotes ordered` : "No upvotes ordered"}</p>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── WEB ANALYTICS ─────────────────────────────────────────────────
+function WebAnalyticsContent() {
+  const [detailsOpen, setDetailsOpen] = useState(true);
+  const stats = [
+    { label: "LIVE VISITORS", value: 7, sub: "last 5 min" },
+    { label: "VISITORS", value: "2,481" },
+    { label: "PAGEVIEWS", value: "6,904" },
+    { label: "VISIT DURATION", value: "48s" },
+    { label: "BOUNCE RATE", value: "38%" },
+  ];
+  const pages = [
+    { label: "/docs/api/class-page", count: 3 },
+    { label: "/", count: 2 },
+    { label: "/docs/intro", count: 2 },
+  ];
+  const referrers = [
+    { label: "google.com", count: 4 },
+    { label: "github.com", count: 2 },
+    { label: "Direct", count: 1 },
+  ];
+  return (
+    <div className="p-5" style={{ animation: "fadeUp 0.3s ease forwards" }}>
+      <h2 className="mb-0.5 text-lg font-semibold text-[var(--ink)]">Web Analytics</h2>
+      <p className="mb-4 text-xs text-[var(--ink-faint)]">Privacy first analytics for your website</p>
+
+      <div className="mb-3 grid grid-cols-5 gap-2.5">
+        {stats.map((s) => (
+          <div key={s.label} className={`${card} p-3.5`}>
+            <p className={kpiLabel}>{s.label}</p>
+            <p className="font-signal-mono text-xl font-semibold text-[var(--ink)]">{s.value}</p>
+            {s.sub && <p className="mt-0.5 text-[10px] text-[var(--ink-faint)]">{s.sub}</p>}
+          </div>
+        ))}
+      </div>
+
+      <div className={`${card} mb-3 overflow-hidden`}>
+        <button onClick={() => setDetailsOpen((v) => !v)} className="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-[var(--line-soft)]" aria-expanded={detailsOpen}>
+          <p className="text-xs font-medium text-[var(--ink)]/90">Live Visitor Details</p>
+          <svg className={`h-3.5 w-3.5 text-[var(--ink-faint)] transition-transform ${detailsOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {detailsOpen && (
+          <div className="grid grid-cols-2 gap-6 border-t border-[var(--line)] px-4 py-3.5">
+            <div>
+              <p className="mb-2 text-[10px] font-semibold text-[var(--ink)]/90">Pages</p>
+              <div className="space-y-1.5">
+                {pages.map((p) => (
+                  <div key={p.label} className="flex items-center justify-between gap-2">
+                    <span className="truncate font-signal-mono text-[11px] text-[var(--ink)]/80">{p.label}</span>
+                    <span className="shrink-0 text-[11px] font-semibold text-[var(--ink)]">{p.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="mb-2 text-[10px] font-semibold text-[var(--ink)]/90">Referrers</p>
+              <div className="space-y-1.5">
+                {referrers.map((r) => (
+                  <div key={r.label} className="flex items-center justify-between gap-2">
+                    <span className="truncate text-[11px] text-[var(--ink)]/80">{r.label}</span>
+                    <span className="shrink-0 text-[11px] font-semibold text-[var(--ink)]">{r.count}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
+        )}
+      </div>
+
+      <div className={`${card} p-4`}>
+        <p className="mb-2 text-xs font-medium text-[var(--ink)]/90">Add this script to the &lt;head&gt; of your website:</p>
+        <div className="overflow-x-auto rounded-lg border border-[var(--line)] bg-[var(--line-soft)] px-3 py-2.5 font-signal-mono text-[10px] text-[var(--ink)]/90">
+          {`<script src="https://www.rankongeo.com/track.js" data-site="pw_9f2a1c" defer></script>`}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── LLM ANALYTICS ─────────────────────────────────────────────────
+function LLMAnalyticsContent() {
+  const [detailsOpen, setDetailsOpen] = useState(true);
+  const stats = [
+    { label: "LIVE BOTS", value: 2, sub: "last 5 min" },
+    { label: "BOT PAGEVIEWS", value: "612" },
+  ];
+  const pages = [
+    { label: "/docs/api/class-page", count: 2 },
+    { label: "/pricing", count: 1 },
+  ];
+  const bots = [
+    { label: "GPTBot", count: 1 },
+    { label: "PerplexityBot", count: 1 },
+  ];
+  const breakdown = [
+    { name: "GPTBot", count: 268 },
+    { name: "ClaudeBot", count: 154 },
+    { name: "PerplexityBot", count: 98 },
+    { name: "Google-Extended", count: 61 },
+    { name: "GeminiBot", count: 31 },
+  ];
+  const total = breakdown.reduce((s, b) => s + b.count, 0);
+  return (
+    <div className="p-5" style={{ animation: "fadeUp 0.3s ease forwards" }}>
+      <h2 className="mb-0.5 text-lg font-semibold text-[var(--ink)]">LLM Analytics</h2>
+      <p className="mb-4 text-xs text-[var(--ink-faint)]">AI and bot traffic analytics</p>
+
+      <div className="mb-3 grid grid-cols-2 gap-2.5">
+        {stats.map((s) => (
+          <div key={s.label} className={`${card} p-3.5`}>
+            <p className={kpiLabel}>{s.label}</p>
+            <p className="font-signal-mono text-2xl font-semibold text-[var(--ink)]">{s.value}</p>
+            {s.sub && <p className="mt-0.5 text-[10px] text-[var(--ink-faint)]">{s.sub}</p>}
+          </div>
         ))}
+      </div>
+
+      <div className={`${card} mb-3 overflow-hidden`}>
+        <button onClick={() => setDetailsOpen((v) => !v)} className="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-[var(--line-soft)]" aria-expanded={detailsOpen}>
+          <p className="text-xs font-medium text-[var(--ink)]/90">Live Bot Details</p>
+          <svg className={`h-3.5 w-3.5 text-[var(--ink-faint)] transition-transform ${detailsOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {detailsOpen && (
+          <div className="grid grid-cols-2 gap-6 border-t border-[var(--line)] px-4 py-3.5">
+            <div>
+              <p className="mb-2 text-[10px] font-semibold text-[var(--ink)]/90">Pages</p>
+              <div className="space-y-1.5">
+                {pages.map((p) => (
+                  <div key={p.label} className="flex items-center justify-between gap-2">
+                    <span className="truncate font-signal-mono text-[11px] text-[var(--ink)]/80">{p.label}</span>
+                    <span className="shrink-0 text-[11px] font-semibold text-[var(--ink)]">{p.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="mb-2 text-[10px] font-semibold text-[var(--ink)]/90">Bots</p>
+              <div className="space-y-1.5">
+                {bots.map((b) => (
+                  <div key={b.label} className="flex items-center justify-between gap-2">
+                    <span className="truncate text-[11px] text-[var(--ink)]/80">{b.label}</span>
+                    <span className="shrink-0 text-[11px] font-semibold text-[var(--ink)]">{b.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className={`${card} p-4`}>
+        <p className="mb-3 text-xs font-medium text-[var(--ink)]/90">Breakdown by bot</p>
+        <div className="space-y-2">
+          {breakdown.map((b) => (
+            <div key={b.name} className="flex items-center gap-3">
+              <span className="w-24 shrink-0 text-xs font-medium text-[var(--ink)]/80">{b.name}</span>
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-[var(--line)]">
+                <div className="h-full rounded-full bg-[var(--rust)]" style={{ width: `${Math.round((b.count / total) * 100)}%` }} />
+              </div>
+              <span className="w-8 shrink-0 text-right text-xs font-semibold text-[var(--ink)]">{b.count}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -873,7 +1264,9 @@ export function InteractiveDemoMockup() {
               {activeTab === "Research" && <ResearchContent />}
               {activeTab === "Articles" && <ArticlesContent />}
               {activeTab === "Tasks" && <TasksContent />}
-              {["Publishing", "Agent", "Web Analytics", "LLM Analytics", "Alerts"].includes(activeTab) && (
+              {activeTab === "Web Analytics" && <WebAnalyticsContent />}
+              {activeTab === "LLM Analytics" && <LLMAnalyticsContent />}
+              {["Publishing", "Agent", "Alerts"].includes(activeTab) && (
                 <div className="flex h-full items-center justify-center p-5">
                   <div className="text-center">
                     <p className="mb-2 font-signal-serif text-xl italic text-[var(--ink-soft)]">This one&apos;s for the real thing.</p>
