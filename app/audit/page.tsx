@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Instrument_Serif, Work_Sans, IBM_Plex_Mono } from "next/font/google";
 import { PricingCards } from "../_components/PricingCards";
+import { DEMO_CALL_URL } from "@/lib/links";
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
@@ -559,6 +560,17 @@ function AuditContent() {
             </div>
             <PricingCards />
             <p className="text-xs text-[var(--ink-faint)] mt-6 text-center">Cancel anytime. Your data for <span className="font-medium">{cleanDomain}</span> transfers to your account automatically.</p>
+            <p className="text-sm text-[var(--ink-soft)] mt-4 text-center">
+              Questions about these results?{" "}
+              <a
+                href={DEMO_CALL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-[var(--rust)] underline underline-offset-2 transition-colors hover:text-[var(--rust-deep)]"
+              >
+                Book a 15-min call with a founder →
+              </a>
+            </p>
           </div>
         )}
       </main>

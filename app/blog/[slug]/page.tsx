@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { BlogCover } from "../../_components/BlogCover";
 import { MarkdownArticle } from "../../_components/MarkdownArticle";
 import { getPublishedPostBySlug, getPublishedPosts, readingTimeMinutes, SITE_URL } from "@/lib/blog";
+import { DEMO_CALL_URL } from "@/lib/links";
 
 export const revalidate = 3600;
 
@@ -124,12 +125,22 @@ export default async function BlogPostPage({ params }: Props) {
         <p className="mt-1.5 text-sm text-[var(--ink-soft)]">
           Run a free visibility audit and see how ChatGPT, Claude, Gemini, and Perplexity talk about you.
         </p>
-        <Link
-          href="/audit"
-          className="mt-4 inline-block rounded-full bg-[var(--rust)] px-5 py-2 text-sm font-semibold text-[var(--surface)] transition-colors hover:bg-[var(--rust-deep)]"
-        >
-          Get your free audit
-        </Link>
+        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
+          <Link
+            href="/audit"
+            className="inline-block rounded-full bg-[var(--rust)] px-5 py-2 text-sm font-semibold text-[var(--surface)] transition-colors hover:bg-[var(--rust-deep)]"
+          >
+            Get your free audit
+          </Link>
+          <a
+            href={DEMO_CALL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium text-[var(--rust)] underline underline-offset-2 transition-colors hover:text-[var(--rust-deep)]"
+          >
+            or book a 15-min demo →
+          </a>
+        </div>
       </aside>
 
       {others.length > 0 && (

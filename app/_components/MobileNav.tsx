@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { DEMO_CALL_URL } from "@/lib/links";
 
 const LINKS = [
   { label: "Platform", href: "/#platform" },
@@ -41,6 +42,15 @@ export function MobileNav() {
               {label}
             </a>
           ))}
+          <a
+            href={DEMO_CALL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setOpen(false)}
+            className="rounded py-3 text-sm font-medium text-[var(--rust)] transition-colors hover:text-[var(--rust-deep)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)]"
+          >
+            Book a demo
+          </a>
           <a
             href="/auth?mode=signin"
             onClick={() => setOpen(false)}

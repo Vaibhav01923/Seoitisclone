@@ -8,6 +8,7 @@ import { ScrollReveal } from "./_components/ScrollReveal";
 import { InteractiveDemoMockup } from "./_components/InteractiveDemoMockup";
 import { NightSky } from "./_components/NightSky";
 import { GlobeViz } from "./_components/Scenery";
+import { DEMO_CALL_URL } from "@/lib/links";
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
@@ -526,6 +527,17 @@ export default function LandingPage() {
             <p className="text-xs uppercase tracking-[0.14em] text-[var(--ink-faint)]">
               Free analysis · Paid plans track up to 7 engines · Results in ~60s
             </p>
+            <p className="mt-6 text-sm text-[var(--ink-soft)]">
+              Rather see it live?{" "}
+              <a
+                href={DEMO_CALL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-[var(--rust)] underline underline-offset-2 transition-colors hover:text-[var(--rust-deep)]"
+              >
+                Book a 15-min demo with a founder →
+              </a>
+            </p>
           </ScrollReveal>
         </section>
       </main>
@@ -570,9 +582,14 @@ export default function LandingPage() {
             <div className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--ink-faint)]">Resources</div>
             <div className="space-y-2.5">
               {(
-                [["Free visibility audit", true], ["Methodology", false], ["GEO playbook", false]] as [string, boolean][]
-              ).map(([l, free]) => (
-                <a key={l} href={free ? "/audit" : "#"} className="flex items-center gap-1.5 rounded text-sm text-[var(--ink-soft)] transition-colors hover:text-[var(--rust)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)]">
+                [["Free visibility audit", "/audit", true], ["Book a 15-min demo", DEMO_CALL_URL, false], ["Methodology", "#", false], ["GEO playbook", "#", false]] as [string, string, boolean][]
+              ).map(([l, href, free]) => (
+                <a
+                  key={l}
+                  href={href}
+                  {...(href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                  className="flex items-center gap-1.5 rounded text-sm text-[var(--ink-soft)] transition-colors hover:text-[var(--rust)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)]"
+                >
                   {l}
                   {free && <span className="rounded bg-[var(--rust)] px-1 text-[9px] font-bold text-[var(--surface)]">free</span>}
                 </a>

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { MobileNav } from "./MobileNav";
+import { DEMO_CALL_URL } from "@/lib/links";
 
 function LogoMark({ size = 26 }: { size?: number }) {
   return (
@@ -46,6 +47,14 @@ export function SiteNav() {
           <a href="/blog" className="rounded py-2 transition-colors hover:text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)]">Blog</a>
         </div>
         <div className="ml-auto flex items-center gap-4">
+          <a
+            href={DEMO_CALL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden rounded-full border border-[var(--rust)]/40 px-4 py-2 text-sm font-medium text-[var(--rust)] transition-colors hover:border-[var(--rust)] hover:text-[var(--rust-deep)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)] md:block"
+          >
+            Book a demo
+          </a>
           <a
             href="/auth?mode=signin"
             className="hidden rounded text-sm text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)] md:block"

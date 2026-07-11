@@ -4,6 +4,7 @@ import Link from "next/link";
 import { DomainForm } from "../_components/DomainForm";
 import { PricingCards } from "../_components/PricingCards";
 import { SiteNav } from "../_components/SiteNav";
+import { DEMO_CALL_URL } from "@/lib/links";
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
@@ -87,10 +88,49 @@ export default function EarlyAccessPage() {
             AI engines are already answering questions about your market. Join the early list and get the whole
             RankOnGeo loop — tracking, research, articles, publishing — at a flat 50% off.
           </p>
+          <div className="mt-8 flex flex-col items-center gap-2.5">
+            <a
+              href={DEMO_CALL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 rounded-full bg-[var(--rust)] px-7 py-3 text-sm font-semibold text-[var(--surface)] shadow-[0_8px_20px_-8px_oklch(0.56_0.15_38_/_55%)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[var(--rust-deep)]"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <rect x="1.5" y="2.5" width="13" height="12" rx="2" stroke="currentColor" strokeWidth="1.4" />
+                <path d="M1.5 6h13M5 1v3M11 1v3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+              </svg>
+              Book a 15-min demo call
+            </a>
+            <span className="text-[13px] text-[var(--ink-faint)]">
+              Talk to a founder — we&apos;ll pull up your brand&apos;s AI visibility live on the call.
+            </span>
+          </div>
         </header>
 
         <section className="mx-auto mt-16 max-w-6xl" aria-label="Early access pricing">
           <PricingCards early />
+        </section>
+
+        <section className="mx-auto mt-14 max-w-4xl" aria-label="Book a demo call">
+          <div className="flex flex-col items-center justify-between gap-6 rounded-3xl border border-[var(--rust)]/25 bg-[var(--rust-wash)] px-8 py-8 text-center sm:flex-row sm:text-left">
+            <div>
+              <h2 className="font-signal-serif text-2xl font-[400] tracking-tight text-[var(--ink)]">
+                Not ready to buy? See it on <em className="italic text-[var(--rust)]">your</em> domain first.
+              </h2>
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-[var(--ink-soft)]">
+                15 minutes with a founder. We&apos;ll run your brand through the platform live, show where AI engines
+                leave you out, and answer anything — no slides, no pressure.
+              </p>
+            </div>
+            <a
+              href={DEMO_CALL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 rounded-full bg-[var(--rust)] px-7 py-3 text-sm font-semibold text-[var(--surface)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[var(--rust-deep)]"
+            >
+              Book a 15-min call →
+            </a>
+          </div>
         </section>
 
         <section className="mx-auto mt-20 max-w-4xl" aria-label="What you get">
@@ -117,7 +157,7 @@ export default function EarlyAccessPage() {
           <p className="mt-5 text-sm text-[var(--ink-faint)]">
             Prefer to talk it through first?{" "}
             <a
-              href="https://cal.com/deveshpaliwal/15min"
+              href={DEMO_CALL_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-[var(--rust)] underline underline-offset-2 transition-colors hover:text-[var(--rust-deep)]"
