@@ -17,7 +17,10 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://rankongeo.com"),
+  // Must be the canonical www host — the apex 308-redirects to www, so
+  // resolving relative canonical/OG urls against the apex made every page's
+  // rel=canonical point at a URL that immediately redirects away from itself.
+  metadataBase: new URL("https://www.rankongeo.com"),
   title: {
     default: "RankOnGeo — Track Your Brand in AI Search",
     template: "%s — RankOnGeo",
@@ -38,7 +41,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "RankOnGeo",
-    url: "https://rankongeo.com",
+    url: "https://www.rankongeo.com",
     title: "RankOnGeo — Track Your Brand in AI Search",
     description:
       "See how ChatGPT, Claude, Gemini, Perplexity, Grok and AI Overviews respond about your brand. Close the gap with research, articles, and publishing.",

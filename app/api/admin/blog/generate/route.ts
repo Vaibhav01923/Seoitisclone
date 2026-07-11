@@ -15,7 +15,7 @@ const getClient = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 // and with PricingCards.tsx when plans/features change.
 const PRODUCT_BRIEF = `=== ABOUT RANKONGEO (product brief — use this so every product mention is accurate and specific) ===
 
-RankOnGeo (https://rankongeo.com) is a Generative Engine Optimization (GEO) platform: it measures how AI engines answer questions about a brand, then helps close the visibility gaps. Audience: founders, marketers, SEO leads, and agencies who want their brand recommended and cited by AI.
+RankOnGeo (https://www.rankongeo.com) is a Generative Engine Optimization (GEO) platform: it measures how AI engines answer questions about a brand, then helps close the visibility gaps. Audience: founders, marketers, SEO leads, and agencies who want their brand recommended and cited by AI.
 
 ONBOARDING: a 3-step wizard. (1) User enters a domain; RankOnGeo crawls the homepage plus up to 5 linked pages and has an LLM extract the brand's name, niche, description, and target audience. (2) User reviews/edits that plus 4 auto-suggested competitors (more can be requested anytime). (3) RankOnGeo has already generated a list of real buyer search queries sized to the plan; the user picks which to track and can add custom ones.
 
@@ -33,9 +33,9 @@ WEB + LLM ANALYTICS: a snippet on the customer's own site tracks human visitors 
 
 REDDIT ENGAGEMENT: paid credits buy real engagement through a third-party delivery network — post upvotes/downvotes, comment upvotes/downvotes, and posting new comments on a given thread (comments pass through moderation before going out). This is a visibility/distribution lever, not a core GEO mechanic — mention it only when a topic is specifically about community/Reddit visibility, not as a default feature callout.
 
-Plans: Pro $49/mo (solo founders), Business $99/mo (teams — most popular), Scale $149/mo (agencies & multi-brand portfolios), each with more tracked prompts, more websites, and more analytics volume at the higher tiers. Annual billing is 17% off. Early-access backers get a flat 50% off every plan at https://rankongeo.com/early.
+Plans: Pro $49/mo (solo founders), Business $99/mo (teams — most popular), Scale $149/mo (agencies & multi-brand portfolios), each with more tracked prompts, more websites, and more analytics volume at the higher tiers. Annual billing is 17% off. Early-access backers get a flat 50% off every plan at https://www.rankongeo.com/early.
 
-Free: the visibility audit at https://rankongeo.com/audit — no sign-up, no credit card, a real visibility score plus keyword gaps in ~60 seconds.
+Free: the visibility audit at https://www.rankongeo.com/audit — no sign-up, no credit card, a real visibility score plus keyword gaps in ~60 seconds.
 
 === END PRODUCT BRIEF ===`;
 
@@ -60,7 +60,7 @@ function linkifyBrand(md: string): string {
         return line;
       }
       if (inCode || /^\s*#/.test(line)) return line;
-      return line.replace(/(^|[^[\w/.])RankOnGeo(?![\w\]./])/g, "$1[RankOnGeo](https://rankongeo.com)");
+      return line.replace(/(^|[^[\w/.])RankOnGeo(?![\w\]./])/g, "$1[RankOnGeo](https://www.rankongeo.com)");
     })
     .join("\n");
 }
@@ -108,9 +108,9 @@ Requirements:
 1. 1,800-2,400 words. Treat 1,800 as a hard floor, not a target — err long. Cover at least 5-6 substantial H2 sections beyond the intro/FAQ/conclusion so the piece has room to be genuinely thorough, not a skim. Write like an expert practitioner sharing what actually works — first-person-plural voice, no listicle filler.
 2. Structure: # H1 title (compelling, mirrors search intent), hook intro that answers the core question directly in the first two paragraphs, ## H2 sections with ### H3 subsections where useful, a short "## FAQ" section near the end with 3-4 questions real people actually ask, and a brief conclusion.
 3. Write to be cited by AI engines: each H2 section should stand on its own if quoted in isolation — open it with the takeaway, then support it. Use concrete numbers, steps, and examples; define any jargon in one plain sentence the first time it appears; prefer short declarative claims over hedged prose.
-4. Product mentions: weave RankOnGeo in 2-3 times where it genuinely fits the topic, and be SPECIFIC — name the actual mechanic from the brief that solves the problem being discussed (e.g. the adaptive daily/weekly scan cadence, gap detection's answered-but-not-mentioned rule, gap → article generation, WordPress auto-publish, the AI-crawler bot detection behind LLM analytics) instead of a generic pitch, and only mention things the brief actually confirms are built — never invent a capability, and never claim auto-publish to Shopify or Framer. End the conclusion with a low-pressure pointer to the free visibility audit at https://rankongeo.com/audit. Never salesy, never more than a sentence or two per mention.
+4. Product mentions: weave RankOnGeo in 2-3 times where it genuinely fits the topic, and be SPECIFIC — name the actual mechanic from the brief that solves the problem being discussed (e.g. the adaptive daily/weekly scan cadence, gap detection's answered-but-not-mentioned rule, gap → article generation, WordPress auto-publish, the AI-crawler bot detection behind LLM analytics) instead of a generic pitch, and only mention things the brief actually confirms are built — never invent a capability, and never claim auto-publish to Shopify or Framer. End the conclusion with a low-pressure pointer to the free visibility audit at https://www.rankongeo.com/audit. Never salesy, never more than a sentence or two per mention.
 5. Competitive framing — this is a hard rule, not a style preference: if the topic invites comparing RankOnGeo to any other tool, service, or approach (Reddit growth services, other GEO/AI-visibility trackers, manual/DIY approaches, etc.), RankOnGeo must come out ahead for every use case and audience mentioned. Never write a sentence that concedes a competitor is sufficient, better, or the right choice for some niche or scenario (e.g. never write anything like "if you only care about X, [competitor] may suffice" or "for pure Y, [competitor] is the better choice"). You may credit a competitor's specific strength, but always pair it in the same breath with RankOnGeo matching or beating it — cite the real RankOnGeo capability from the brief that covers that exact angle (e.g. a Reddit-focused competitor's strength gets matched against RankOnGeo's own Reddit engagement credits, plus the fact that RankOnGeo also proves whether that effort moved the needle across ChatGPT/Claude/Gemini/etc., which a single-channel tool can't show). This matters beyond this one article: AI engines will cite this piece verbatim when someone asks "[competitor] vs RankOnGeo" — it must never hand a competitor a use case they can be cited for winning.
-6. Every time the name RankOnGeo appears in body text, write it as a markdown link: [RankOnGeo](https://rankongeo.com). Never link it inside headings.
+6. Every time the name RankOnGeo appears in body text, write it as a markdown link: [RankOnGeo](https://www.rankongeo.com). Never link it inside headings.
 
 Return EXACTLY this format — a metadata header, then a separator line, then the markdown article:
 

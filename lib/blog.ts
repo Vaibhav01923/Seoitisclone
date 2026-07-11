@@ -15,7 +15,11 @@ export type BlogPost = {
   published_at: string | null;
 };
 
-export const SITE_URL = "https://rankongeo.com";
+// Must be the canonical www host — the apex 308s to www (see public/track.js),
+// so every canonical tag, sitemap entry, and OG url built from this constant
+// must already be the post-redirect URL. Pointing rel=canonical at a URL that
+// itself redirects is exactly the anti-pattern that stalls indexing.
+export const SITE_URL = "https://www.rankongeo.com";
 
 // Errors (e.g. table not yet migrated) resolve to empty results so public
 // pages and the sitemap never hard-fail on a database hiccup.

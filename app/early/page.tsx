@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/early" },
   openGraph: {
     type: "website",
-    url: "https://rankongeo.com/early",
+    url: "https://www.rankongeo.com/early",
     title: "RankOnGeo Early Access — 50% Off All Plans",
     description: "Back us early, get every plan at a flat 50% off, and shape the roadmap with us.",
   },

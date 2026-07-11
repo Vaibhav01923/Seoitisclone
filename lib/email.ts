@@ -51,7 +51,7 @@ export function earlyWaitlistEmailHtml(plan: string): string {
     Your dashboard is ready: add your brand, and within a minute you'll see how ChatGPT, Claude, Gemini,
     Perplexity and AI Overviews answer when your customers ask about what you do.
   </p>
-  <a href="https://rankongeo.com/dashboard"
+  <a href="https://www.rankongeo.com/dashboard"
      style="display:inline-block;margin:10px 0 22px;padding:12px 26px;background:#b1552e;color:#fffdf8;border-radius:999px;font-family:Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;text-decoration:none;">
     Open your dashboard
   </a>

@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/dashboard", "/setup", "/article", "/admin", "/api/", "/auth"],
     },
-    sitemap: "https://rankongeo.com/sitemap.xml",
+    sitemap: "https://www.rankongeo.com/sitemap.xml",
   };
 }

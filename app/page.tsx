@@ -41,25 +41,25 @@ const structuredData = {
   "@graph": [
     {
       "@type": "Organization",
-      "@id": "https://rankongeo.com/#organization",
+      "@id": "https://www.rankongeo.com/#organization",
       name: "RankOnGeo",
-      url: "https://rankongeo.com",
+      url: "https://www.rankongeo.com",
       description:
         "AI search visibility platform — track how ChatGPT, Claude, Gemini, Perplexity, Grok and AI Overviews talk about your brand.",
     },
     {
       "@type": "WebSite",
-      "@id": "https://rankongeo.com/#website",
+      "@id": "https://www.rankongeo.com/#website",
       name: "RankOnGeo",
-      url: "https://rankongeo.com",
-      publisher: { "@id": "https://rankongeo.com/#organization" },
+      url: "https://www.rankongeo.com",
+      publisher: { "@id": "https://www.rankongeo.com/#organization" },
     },
     {
       "@type": "SoftwareApplication",
       name: "RankOnGeo",
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web",
-      url: "https://rankongeo.com",
+      url: "https://www.rankongeo.com",
       description:
         "Track where AI engines rank your brand and close the gaps with research, generated articles, and publishing.",
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free visibility audit" },
