@@ -1,11 +1,11 @@
 import { inngest } from "@/inngest/client";
 import { serverClient } from "@/lib/supabase";
-import { runScanForBrand, extractMentions, queryWithRetry, computeScores } from "@/lib/scan-engine";
+import { extractMentions, queryWithRetry, computeScores } from "@/lib/scan-engine";
 import { fireAlerts } from "@/lib/alerts";
 import { isDueForScheduledScan, updatePromptCadence } from "@/lib/prompt-cadence";
 import { AIEngine, BrandData, ScanResult } from "@/lib/types";
 
-const SCAN_ENGINES: AIEngine[] = ["chatgpt", "gemini", "google"];
+const SCAN_ENGINES: AIEngine[] = ["chatgpt", "gemini", "google", "claude", "perplexity"];
 
 // Triggered daily at 8am UTC — fans out one scan job per brand
 export const scheduledScanAll = inngest.createFunction(
@@ -36,7 +36,13 @@ export const scheduledScanAll = inngest.createFunction(
   }
 );
 
-// Runs once per brand — fetches prompts and calls the scan engine
+// Runs once per brand — picks the prompts due today, creates the scan_run
+// row, then hands off to the chunked runner (scan/manual.requested). The old
+// single-step design ran every prompt sequentially inside one 300s window,
+// which can't fit slow engines: Claude with web search takes ~45s per prompt,
+// so anything beyond ~6 due prompts would time the step out. The chunked
+// runner processes 5 prompts per engine in parallel per step, and its final
+// write-scores step already handles scores, alerts, and cadence updates.
 export const scanBrand = inngest.createFunction(
   { id: "scan-brand", retries: 0, triggers: [{ event: "scan/brand.requested" }] },
   async ({ event, step }) => {
@@ -44,46 +50,36 @@ export const scanBrand = inngest.createFunction(
     const { brandId } = (event as any).data as { brandId: string };
     const db = serverClient();
 
-    const brand = await step.run("fetch-brand", async () => {
-      const { data: row, error } = await db
-        .from("brands")
-        .select("id, name, domain, niche, description, target_audience, competitors")
-        .eq("id", brandId)
-        .single();
-      if (error || !row) throw new Error(error?.message ?? "Brand not found");
-
+    const run = await step.run("prepare-run", async () => {
       const { data: promptRows } = await db
         .from("tracked_prompts")
-        .select("id, text, category, status, cadence, won_streak, last_scanned_at")
+        .select("id, status, cadence, won_streak, last_scanned_at")
         .eq("brand_id", brandId)
         .neq("status", "paused");
 
       const duePrompts = (promptRows ?? []).filter(isDueForScheduledScan);
-      if (!duePrompts.length) throw new Error("No prompts due for brand");
+      if (!duePrompts.length) return null;
 
-      return {
-        id: row.id,
-        domain: row.domain,
-        name: row.name,
-        niche: row.niche,
-        description: row.description,
-        targetAudience: row.target_audience,
-        competitors: row.competitors ?? [],
-        trackedPrompts: duePrompts.map((p) => ({ id: p.id, text: p.text, category: p.category })),
-      } as BrandData;
+      // trigger defaults to 'cron' in the DB — must not count against the
+      // 2/day manual re-scan cap enforced in app/api/scan/route.ts.
+      const { data: runRow, error } = await db
+        .from("scan_runs")
+        .insert({ brand_id: brandId, engines: SCAN_ENGINES, overall_score: 0 })
+        .select("id")
+        .single();
+      if (error || !runRow) throw new Error(error?.message ?? "Failed to create scan run");
+
+      return { scanRunId: runRow.id as string, promptIds: duePrompts.map((p) => p.id as string) };
     });
 
-    const result = await step.run("run-scan", async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { overallScore, scores } = await runScanForBrand(brand, SCAN_ENGINES, db as any);
-      return { brand: brand.name, overallScore, scores };
+    if (!run) return { skipped: "no prompts due" };
+
+    await step.sendEvent("start-chunked-scan", {
+      name: "scan/manual.requested",
+      data: { brandId, scanRunId: run.scanRunId, engines: SCAN_ENGINES, promptIds: run.promptIds },
     });
 
-    await step.run("fire-alerts", async () => {
-      await fireAlerts(brand.id!, brand.name, result.overallScore, result.scores);
-    });
-
-    return { brand: result.brand, overallScore: result.overallScore };
+    return { queued: run.promptIds.length };
   }
 );
 

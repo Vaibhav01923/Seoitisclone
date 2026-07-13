@@ -1,10 +1,8 @@
-import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AIEngine, BrandData, ScanResult, VisibilityScore } from "@/lib/types";
 import { updatePromptCadence } from "@/lib/prompt-cadence";
 
-const getAnthropic = () => new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const getGrok = () => new OpenAI({ apiKey: process.env.XAI_API_KEY ?? "", baseURL: "https://api.x.ai/v1" });
 const getGemini = () => new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY ?? "");
@@ -88,17 +86,69 @@ export type EngineAnswer = {
   unavailable?: boolean;
 };
 
+// Models are pinned to what consumers get by default in each product's web
+// UI, since that's the audience whose answers we're measuring. claude.ai
+// defaults to Sonnet 5 (since 2026-07-01) — DataForSEO doesn't offer it yet,
+// so we use their newest Sonnet; bump when claude-sonnet-5 appears in
+// /v3/ai_optimization/claude/llm_responses/models. perplexity.ai's default
+// search mode runs their in-house sonar model.
+const DATAFORSEO_LLM_MODELS = {
+  claude: "claude-sonnet-4-6",
+  perplexity: "sonar",
+} as const;
+
+// DataForSEO AI Optimization — LLM Responses live endpoint. One vendor for
+// Claude + Perplexity (no Anthropic/Perplexity accounts needed), and
+// web_search:true makes both answer like their consumer UIs do: grounded in
+// live search results with cited sources, which is exactly what the
+// Citations tab measures.
+async function queryDataForSEOLLM(llmType: keyof typeof DATAFORSEO_LLM_MODELS, prompt: string): Promise<EngineAnswer> {
+  const res = await fetch(`https://api.dataforseo.com/v3/ai_optimization/${llmType}/llm_responses/live`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: dataForSEOAuth() },
+    body: JSON.stringify([{
+      user_prompt: prompt.slice(0, 500), // API caps user_prompt at 500 chars
+      model_name: DATAFORSEO_LLM_MODELS[llmType],
+      web_search: true,
+    }]),
+    signal: AbortSignal.timeout(60000),
+  });
+  if (!res.ok) throw new Error(`DataForSEO HTTP ${res.status}`);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const data: any = await res.json();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const task: any = data?.tasks?.[0];
+  // Same convention as the SERP endpoint: failures arrive wrapped in HTTP 200
+  if (data?.status_code !== 20000 || (task && task.status_code !== 20000)) {
+    throw new Error(
+      `DataForSEO error ${task?.status_code ?? data?.status_code}: ${task?.status_message ?? data?.status_message ?? "unknown"}`
+    );
+  }
+
+  // The answer arrives as message items split into sections — fragments of
+  // one continuous text, each carrying the annotations (cited URLs) for the
+  // claim it makes. Join fragments as-is; collect every annotation URL.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sections: any[] = (task?.result?.[0]?.items ?? [])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .flatMap((item: any) => item?.sections ?? []);
+  const text = sections.map((s) => s?.text ?? "").join("");
+  const citations = [
+    ...new Set(
+      sections
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .flatMap((s) => (s?.annotations ?? []).map((a: any) => a?.url))
+        .filter(Boolean) as string[]
+    ),
+  ];
+  return { text, citations };
+}
+
 export async function queryEngine(engine: AIEngine, prompt: string): Promise<EngineAnswer> {
   const systemMsg = "You are a helpful assistant. Answer the user's question thoroughly and naturally.";
 
   if (engine === "claude") {
-    const msg = await getAnthropic().messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 1000,
-      system: systemMsg,
-      messages: [{ role: "user", content: prompt }],
-    });
-    return { text: (msg.content[0] as { type: string; text: string }).text, citations: [] };
+    return queryDataForSEOLLM("claude", prompt);
   }
 
   if (engine === "chatgpt") {
@@ -174,17 +224,7 @@ export async function queryEngine(engine: AIEngine, prompt: string): Promise<Eng
   }
 
   if (engine === "perplexity") {
-    const res = await fetch("https://api.perplexity.ai/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.PERPLEXITY_API_KEY}` },
-      body: JSON.stringify({
-        model: "llama-3.1-sonar-small-128k-online",
-        messages: [{ role: "system", content: systemMsg }, { role: "user", content: prompt }],
-        max_tokens: 1000,
-      }),
-    });
-    const data = await res.json();
-    return { text: data.choices?.[0]?.message?.content ?? "", citations: data.citations ?? [] };
+    return queryDataForSEOLLM("perplexity", prompt);
   }
 
   if (engine === "grok") {
