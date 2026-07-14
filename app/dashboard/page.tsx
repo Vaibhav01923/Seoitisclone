@@ -2284,7 +2284,7 @@ function DashboardPage() {
                     <MiniTrendChart runs={scanHistory} />
                   </div>
 
-                  <div className={`grid gap-5 grid-cols-1 ${scores.length === 3 ? "sm:grid-cols-3" : scores.length === 2 ? "sm:grid-cols-2" : ""}`}>
+                  <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                     {scores.map((s) => (
                       <div key={s.engine} className="flex flex-col gap-2.5 bg-[var(--surface)] border border-[var(--line)] rounded-[20px] px-6 py-5.5">
                         <span className="text-[13px] font-semibold text-[var(--ink)]">{ENGINE_LABELS[s.engine]}</span>
