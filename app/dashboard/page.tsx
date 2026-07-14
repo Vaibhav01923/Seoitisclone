@@ -928,20 +928,36 @@ function DashboardPage() {
         .finally(() => setLoadingBrand(false));
     };
 
+    // Fetches /api/brands and reports whether the result is trustworthy —
+    // a fetch failure or a 401 (e.g. the auth cookie not fully hydrated yet
+    // right after a login redirect) must NOT be treated the same as "this
+    // account genuinely has zero brands", or an existing brand owner gets
+    // bounced to /setup as if they were a brand-new signup. Retries once
+    // before giving up.
+    const fetchBrandsWithRetry = (attempt = 0): Promise<{ confirmed: boolean; brands: { id: string; name: string; domain: string; role?: "owner" | "member" }[] }> =>
+      fetch("/api/brands")
+        .then((r) => r.json().then((data) => ({ confirmed: r.ok && !data.error, brands: data.brands ?? [] })))
+        .catch(() => ({ confirmed: false, brands: [] }))
+        .then((result) => {
+          if (result.confirmed || attempt >= 1) return result;
+          return new Promise<void>((resolve) => setTimeout(resolve, 800)).then(() => fetchBrandsWithRetry(attempt + 1));
+        });
+
     // Claim any pending invites addressed to this (verified) email BEFORE
     // fetching brands, so a fresh invitee's shared workspace shows up on
     // their very first dashboard load instead of bouncing them to /setup.
     fetch("/api/team/accept", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })
       .catch(() => null)
-      .then(() => fetch("/api/brands"))
-      .then((r) => r.json())
-      .then((data) => {
-        setAllBrands(data.brands ?? []);
+      .then(() => fetchBrandsWithRetry())
+      .then((result) => {
+        setAllBrands(result.brands);
         if (brandId) { loadBrand(brandId); return; }
-        if (data.brands?.length) { loadBrand(data.brands[0].id); }
-        else { router.push("/setup"); }
-      })
-      .catch(() => { if (!brandId) router.push("/setup"); else loadBrand(brandId); });
+        if (result.brands.length) { loadBrand(result.brands[0].id); return; }
+        // Only send a user to onboarding once we've confirmed — not just
+        // guessed after a failed request — that they have no brands yet.
+        if (result.confirmed) { router.push("/setup"); return; }
+        setLoadingBrand(false);
+      });
   }, []);
 
   // Realtime: runs after brand loads regardless of whether brandId was in the URL
@@ -1989,6 +2005,12 @@ function DashboardPage() {
               <p className="text-xs font-medium text-[var(--ink-soft)] truncate">{userEmail || brand.domain}</p>
               <p className="text-[10px] text-[var(--ink-faint)]">Workspace</p>
             </div>
+            <a href="/settings" title="Settings & billing" className="text-[var(--ink-faint)] hover:text-[var(--ink-soft)] transition-colors shrink-0">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <circle cx="12" cy="12" r="3" strokeWidth={2} />
+              </svg>
+            </a>
             <button onClick={signOut} title="Sign out" className="text-[var(--ink-faint)] hover:text-[var(--ink-soft)] transition-colors shrink-0">
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
