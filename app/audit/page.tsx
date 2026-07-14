@@ -277,8 +277,8 @@ function AuditContent() {
                 </div>
                 <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-5">
                   <p className="text-[10px] uppercase tracking-widest text-[var(--ink-faint)] font-medium mb-2">AI Engines</p>
-                  <p className="font-signal-mono text-4xl font-semibold text-[var(--ink)] leading-none mb-1">7</p>
-                  <p className="text-[11px] text-[var(--ink-faint)]">ChatGPT · Claude · Gemini + 4</p>
+                  <p className="font-signal-mono text-4xl font-semibold text-[var(--ink)] leading-none mb-1">5</p>
+                  <p className="text-[11px] text-[var(--ink-faint)]">ChatGPT · Claude · Gemini + 2</p>
                 </div>
                 <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-5">
                   <p className="text-[10px] uppercase tracking-widest text-[var(--ink-faint)] font-medium mb-2">Keywords Found</p>
@@ -482,7 +482,7 @@ function AuditContent() {
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="8" rx="2" stroke="currentColor" className="text-[var(--ink-faint)]" strokeWidth="1.5" /><path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" className="text-[var(--ink-faint)]" strokeWidth="1.5" strokeLinecap="round" /></svg>
                       </div>
                       <p className="text-sm font-semibold text-[var(--ink)] mb-1">See how AI answers your queries</p>
-                      <p className="text-xs text-[var(--ink-faint)] mb-4">Track real ChatGPT, Claude, Gemini + 4 more responses — and see if your brand is mentioned.</p>
+                      <p className="text-xs text-[var(--ink-faint)] mb-4">Track real ChatGPT, Claude, Gemini + 2 more responses — and see if your brand is mentioned.</p>
                       <button
                         onClick={() => {
                           const p = new URLSearchParams({ domain });

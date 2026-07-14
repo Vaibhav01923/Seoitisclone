@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   // call cheap while giving the model more than enough to summarize from.
   const excerpt = content.trim().slice(0, 6000);
 
-  const prompt = `You write SEO metadata for the RankOnGeo blog (rankongeo.com), a SaaS platform for tracking and improving how AI engines — ChatGPT, Claude, Gemini, Perplexity, Grok, Google AI Overviews — talk about brands.
+  const prompt = `You write SEO metadata for the RankOnGeo blog (rankongeo.com), a SaaS platform for tracking and improving how AI engines — ChatGPT, Claude, Gemini, Perplexity, Google AI Overviews — talk about brands.
 
 Given this blog article${title?.trim() ? ` titled "${title.trim()}"` : ""}, write its SEO metadata.
 

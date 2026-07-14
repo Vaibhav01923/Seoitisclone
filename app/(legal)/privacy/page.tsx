@@ -51,7 +51,7 @@ We do not sell your personal information.
 
 To deliver the Service, we share the necessary information with these categories of third-party providers, who process it under their own terms and privacy policies:
 
-- **AI model providers** — OpenAI (ChatGPT), Google (Gemini), xAI (Grok), and, via DataForSEO's AI Optimization API, Anthropic (Claude) and Perplexity. We send your tracked prompt text (and, where applicable, permit these providers' own web-search features) to generate the responses we score.
+- **AI model providers** — OpenAI (ChatGPT), Google (Gemini), and, via DataForSEO's AI Optimization API, Anthropic (Claude) and Perplexity. We send your tracked prompt text (and, where applicable, permit these providers' own web-search features) to generate the responses we score.
 - **Search/SEO data provider** — DataForSEO, for AI engine responses and Google AI Overview/search result data.
 - **Payment processor** — Dodo Payments, for subscription billing.
 - **Database and authentication** — Supabase, which hosts our application database and manages account authentication.

@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s — RankOnGeo",
   },
   description:
-    "See how ChatGPT, Claude, Gemini, Perplexity, Grok and AI Overviews respond about your brand. Close the gap with research, articles, and publishing.",
+    "See how ChatGPT, Claude, Gemini, Perplexity and Google AI respond about your brand. Close the gap with research, articles, and publishing.",
   applicationName: "RankOnGeo",
   keywords: [
     "AI search visibility",
@@ -44,13 +44,13 @@ export const metadata: Metadata = {
     url: "https://www.rankongeo.com",
     title: "RankOnGeo — Track Your Brand in AI Search",
     description:
-      "See how ChatGPT, Claude, Gemini, Perplexity, Grok and AI Overviews respond about your brand. Close the gap with research, articles, and publishing.",
+      "See how ChatGPT, Claude, Gemini, Perplexity and Google AI respond about your brand. Close the gap with research, articles, and publishing.",
   },
   twitter: {
     card: "summary_large_image",
     title: "RankOnGeo — Track Your Brand in AI Search",
     description:
-      "See how ChatGPT, Claude, Gemini, Perplexity, Grok and AI Overviews respond about your brand.",
+      "See how ChatGPT, Claude, Gemini, Perplexity and Google AI respond about your brand.",
   },
   robots: {
     index: true,

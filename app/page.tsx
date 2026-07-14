@@ -32,7 +32,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "RankOnGeo — Track Your Brand in AI Search",
   description:
-    "See how ChatGPT, Claude, Gemini, Perplexity, Grok and AI Overviews respond about your brand. Close the gap with research, articles, and publishing.",
+    "See how ChatGPT, Claude, Gemini, Perplexity and Google AI respond about your brand. Close the gap with research, articles, and publishing.",
   alternates: { canonical: "/" },
 };
 
@@ -45,7 +45,7 @@ const structuredData = {
       name: "RankOnGeo",
       url: "https://www.rankongeo.com",
       description:
-        "AI search visibility platform — track how ChatGPT, Claude, Gemini, Perplexity, Grok and AI Overviews talk about your brand.",
+        "AI search visibility platform — track how ChatGPT, Claude, Gemini, Perplexity and Google AI talk about your brand.",
     },
     {
       "@type": "WebSite",
@@ -78,7 +78,7 @@ function LogoMark({ size = 26 }: { size?: number }) {
   );
 }
 
-const ENGINE_NAMES = ["ChatGPT", "Claude", "Gemini", "Perplexity", "Grok", "Google AI Mode", "AI Overviews"];
+const ENGINE_NAMES = ["ChatGPT", "Claude", "Gemini", "Perplexity", "Google AI"];
 
 function EngineMarquee() {
   const set = (hidden: boolean) => (
@@ -106,7 +106,7 @@ function EngineMarquee() {
 }
 
 const LOOP_STEPS = [
-  { n: "1", title: "Measure", desc: "Composite visibility score across 7 engines, ~60 seconds after you enter your domain." },
+  { n: "1", title: "Measure", desc: "Composite visibility score across 5 engines, ~60 seconds after you enter your domain." },
   { n: "2", title: "Research", desc: "Generative query mining surfaces every question where AI answers without you." },
   { n: "3", title: "Write", desc: "Source-grounded articles engineered for citation — schema, FAQs and internal links included." },
   { n: "4", title: "Publish", desc: "One click to WordPress, Shopify or Framer. Webhooks and REST API for everything else." },
@@ -251,7 +251,7 @@ function FeatureBento() {
                   ))}
                 </div>
                 <div className="mt-4 flex flex-wrap gap-1.5">
-                  {["ChatGPT", "Claude", "Gemini", "Perplexity", "Grok", "AI Overviews"].map((e) => (
+                  {["ChatGPT", "Claude", "Gemini", "Perplexity", "Google AI"].map((e) => (
                     <span key={e} className="rounded-full bg-[var(--line-soft)] px-2 py-0.5 text-[9px] text-[var(--ink-faint)]">
                       {e}
                     </span>
@@ -260,7 +260,7 @@ function FeatureBento() {
               </div>
 
               <div className={`${panel} flex flex-col`}>
-                <div className="font-signal-mono text-6xl font-semibold leading-none text-[var(--ink)]">7</div>
+                <div className="font-signal-mono text-6xl font-semibold leading-none text-[var(--ink)]">{ENGINE_NAMES.length}</div>
                 <div className="mb-6 mt-1 text-sm text-[var(--ink-soft)]">AI engines tracked</div>
                 <div className="mt-auto flex flex-wrap gap-x-4 gap-y-2.5">
                   {ENGINE_NAMES.map((e) => (
@@ -373,7 +373,7 @@ function GlobeSection() {
             </p>
             <div className="grid grid-cols-2 gap-3.5">
               {[
-                { b: "5", s: "AI engines tracked, from ChatGPT to AI Overviews" },
+                { b: "5", s: "AI engines tracked, from ChatGPT to Google AI" },
                 { b: "~60s", s: "to your first visibility score. No credit card." },
                 { b: "Daily", s: "refresh cycles on Business & Scale plans" },
                 { b: "25", s: "competitor brands tracked side-by-side" },
@@ -458,7 +458,7 @@ export default function LandingPage() {
               className="rise mx-auto mb-10 max-w-xl text-[var(--ink-soft)]"
               style={{ fontSize: "clamp(1.02rem, 1.6vw, 1.15rem)", "--d": ".32s" } as React.CSSProperties}
             >
-              See exactly what <strong className="font-medium text-[var(--ink)]">ChatGPT, Claude, Gemini, Perplexity and Grok</strong>{" "}
+              See exactly what <strong className="font-medium text-[var(--ink)]">ChatGPT, Claude, Gemini, Perplexity and Google AI</strong>{" "}
               say about your brand — then close the gaps with research, articles, and one-click publishing.
             </p>
             <div className="rise mx-auto mb-5 max-w-xl" style={{ "--d": ".46s" } as React.CSSProperties}>
@@ -525,7 +525,7 @@ export default function LandingPage() {
               <DomainForm variant="cta" />
             </div>
             <p className="text-xs uppercase tracking-[0.14em] text-[var(--ink-faint)]">
-              Free analysis · Paid plans track up to 7 engines · Results in ~60s
+              Free analysis · Paid plans track up to 5 engines · Results in ~60s
             </p>
             <p className="mt-6 text-sm text-[var(--ink-soft)]">
               Rather see it live?{" "}

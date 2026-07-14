@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 
-const WORDS = ["every", "ChatGPT", "Perplexity", "Claude", "Gemini", "Grok"];
+const WORDS = ["every", "ChatGPT", "Perplexity", "Claude", "Gemini", "Google AI"];
 
 export function RotatingWord() {
   const [idx, setIdx] = useState(0);
