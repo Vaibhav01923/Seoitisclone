@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import DodoPayments from "dodopayments";
 import { clientFromRequest } from "@/lib/supabase";
 import { requireBrandAccess } from "@/lib/team";
+import { isLapsedSubscriber, gracePeriodDaysLeft } from "@/lib/plan-limits";
 
 const getDodo = () =>
   new DodoPayments({
@@ -29,7 +30,7 @@ export async function GET(req: NextRequest) {
 
   const { data: userPlan } = await db
     .from("user_plans")
-    .select("plan, dodo_customer_id, dodo_subscription_id")
+    .select("plan, dodo_customer_id, dodo_subscription_id, payment_failed_at")
     .eq("user_id", planUserId)
     .single();
 
@@ -37,18 +38,22 @@ export async function GET(req: NextRequest) {
   // a row can exist (and dodo_customer_id can be set) for a cancelled
   // subscriber, but dodo_subscription_id is cleared on cancel/expiry.
   const isFree = !userPlan?.dodo_subscription_id;
+  // isLapsed: cancelled/expired, or a renewal payment has been failing longer
+  // than the grace period — dashboard fully locks out access when true.
+  const isLapsed = isLapsedSubscriber(userPlan);
+  const graceDaysLeft = gracePeriodDaysLeft(userPlan);
 
   if (!userPlan?.dodo_customer_id) {
-    return NextResponse.json({ plan: null, balance: 0, isFree, canPurchase });
+    return NextResponse.json({ plan: null, balance: 0, isFree, canPurchase, isLapsed, graceDaysLeft });
   }
 
   try {
     const balance = await getDodo().creditEntitlements.balances.retrieve(userPlan.dodo_customer_id, {
       credit_entitlement_id: process.env.DODO_CREDIT_ENTITLEMENT_ID!,
     });
-    return NextResponse.json({ plan: userPlan.plan, balance: Number(balance.balance), isFree, canPurchase });
+    return NextResponse.json({ plan: userPlan.plan, balance: Number(balance.balance), isFree, canPurchase, isLapsed, graceDaysLeft });
   } catch {
     // No balance record yet (e.g. customer hasn't received a grant)
-    return NextResponse.json({ plan: userPlan.plan, balance: 0, isFree, canPurchase });
+    return NextResponse.json({ plan: userPlan.plan, balance: 0, isFree, canPurchase, isLapsed, graceDaysLeft });
   }
 }

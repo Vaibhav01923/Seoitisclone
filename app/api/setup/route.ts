@@ -5,7 +5,9 @@ import { BrandData, TrackedPrompt } from "@/lib/types";
 import { clientFromRequest } from "@/lib/supabase";
 import { requireAdmin } from "@/lib/admin";
 import { promptStrategy, enforceBrandCap } from "@/lib/prompt-strategy";
-import { PLAN_PROMPT_LIMITS, FREE_PROMPT_LIMIT, BRAND_LIMITS, FREE_BRAND_LIMIT } from "@/lib/plan-limits";
+import { PLAN_PROMPT_LIMITS, FREE_PROMPT_LIMIT, BRAND_LIMITS, FREE_BRAND_LIMIT, isLapsedSubscriber } from "@/lib/plan-limits";
+import { safeFetch } from "@/lib/safe-fetch";
+import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 
 // Crawling up to 6 pages (8s timeout each) plus a synchronous gpt-5.5 call
 // generating up to ~6000 tokens (max_completion_tokens below) can realistically
@@ -17,7 +19,7 @@ const getClient = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function fetchPage(url: string): Promise<string> {
   try {
-    const res = await fetch(url, {
+    const res = await safeFetch(url, {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; SEOBot/1.0)" },
       signal: AbortSignal.timeout(8000),
     });
@@ -35,7 +37,7 @@ async function crawlSite(domain: string): Promise<string> {
   const base = domain.startsWith("http") ? domain : `https://${domain}`;
   const origin = new URL(base).origin;
 
-  const homepageRes = await fetch(base, {
+  const homepageRes = await safeFetch(base, {
     headers: { "User-Agent": "Mozilla/5.0 (compatible; SEOBot/1.0)" },
     signal: AbortSignal.timeout(8000),
   });
@@ -80,13 +82,29 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await db.auth.getUser();
   const userId = user?.id;
 
+  // Logged-in users get a generous cap (normal usage adding/re-analyzing
+  // several brands); anonymous callers get the same strict cap as the public
+  // /api/analyze tool, since this route triggers the same crawl+OpenAI cost.
+  const rateLimitOk = userId
+    ? await checkRateLimit("setup", userId, 30, 3600)
+    : await checkRateLimit("setup", clientIp(req), 5, 3600);
+  if (!rateLimitOk) {
+    return NextResponse.json({ error: "Too many requests — please try again in a bit." }, { status: 429 });
+  }
+
   let activePlan: string | null = null;
   if (userId) {
     const { data: planRow } = await db
       .from("user_plans")
-      .select("plan, dodo_subscription_id")
+      .select("plan, dodo_customer_id, dodo_subscription_id, payment_failed_at")
       .eq("user_id", userId)
       .single();
+    if (isLapsedSubscriber(planRow)) {
+      return NextResponse.json(
+        { error: "Your subscription has ended. Reactivate to add or re-analyze brands.", upgradeRequired: true },
+        { status: 402 }
+      );
+    }
     if (planRow?.dodo_subscription_id) activePlan = planRow.plan;
   }
   const promptCount = activePlan ? PLAN_PROMPT_LIMITS[activePlan] ?? FREE_PROMPT_LIMIT : FREE_PROMPT_LIMIT;

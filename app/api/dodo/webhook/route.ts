@@ -56,6 +56,9 @@ async function upsertPlanFromSubscription(db: SupabaseClient<any, any, any>, sub
         dodo_customer_id: sub.customer?.customer_id ?? null,
         dodo_subscription_id: sub.subscription_id,
         current_period_end: sub.next_billing_date ?? null,
+        // Any of active/plan_changed/updated means the subscription is in
+        // good standing — clear a stale failed-payment grace-period clock.
+        payment_failed_at: null,
       },
       { onConflict: "user_id" }
     );
@@ -154,7 +157,28 @@ export async function POST(req: NextRequest) {
     if (userId) {
       await db
         .from("user_plans")
-        .update({ current_period_end: sub.next_billing_date ?? null })
+        // A successful renewal means any prior payment failure recovered —
+        // clear the grace-period clock along with the new period end.
+        .update({ current_period_end: sub.next_billing_date ?? null, payment_failed_at: null })
+        .eq("user_id", userId);
+    }
+  }
+
+  // Fires when a RENEWAL payment fails and the subscription enters Dodo's own
+  // dunning/retry cycle (distinct from subscription.failed, which is only for
+  // a failed FIRST payment on a subscription that never activated). The
+  // subscription itself isn't cancelled yet — Dodo keeps retrying — so we
+  // only start our own 3-day grace-period clock here rather than revoking
+  // access immediately. isLapsedSubscriber() enforces the cutoff once it
+  // expires; subscription.cancelled/expired below covers the case where
+  // Dodo's own retries are exhausted.
+  if (event.type === "subscription.on_hold") {
+    const sub = event.data as WebhookPayload.Subscription;
+    const userId = sub.metadata?.userId;
+    if (userId) {
+      await db
+        .from("user_plans")
+        .update({ payment_failed_at: new Date().toISOString() })
         .eq("user_id", userId);
     }
   }
@@ -217,8 +241,12 @@ export async function POST(req: NextRequest) {
       // everywhere else in the app (see app/api/setup/route.ts, app/setup/page.tsx).
       // Leaving `plan` untouched keeps a record of what they were last on without
       // making a cancelled user look like an active "starter" ($49) subscriber.
+      // isLapsedSubscriber() now treats dodo_subscription_id=null as an
+      // immediate full lockout, so also clear payment_failed_at — there's no
+      // grace period left to track once Dodo itself has cancelled/expired it.
       await db.from("user_plans").update({
         dodo_subscription_id: null,
+        payment_failed_at: null,
       }).eq("user_id", userId);
     }
   }

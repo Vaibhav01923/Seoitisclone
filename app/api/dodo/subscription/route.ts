@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import DodoPayments from "dodopayments";
 import { clientFromRequest } from "@/lib/supabase";
+import { isLapsedSubscriber, gracePeriodDaysLeft } from "@/lib/plan-limits";
 
 const getDodo = () =>
   new DodoPayments({
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest) {
 
   const { data: userPlan } = await db
     .from("user_plans")
-    .select("plan, dodo_customer_id, dodo_subscription_id")
+    .select("plan, dodo_customer_id, dodo_subscription_id, payment_failed_at")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -28,6 +29,8 @@ export async function GET(req: NextRequest) {
   const base = {
     plan: userPlan?.plan ?? null,
     isFree,
+    isLapsed: isLapsedSubscriber(userPlan),
+    graceDaysLeft: gracePeriodDaysLeft(userPlan),
     hasBillingAccount: !!userPlan?.dodo_customer_id,
     status: null as string | null,
     nextBillingDate: null as string | null,

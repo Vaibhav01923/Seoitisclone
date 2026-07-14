@@ -33,6 +33,8 @@ const PLAN_NAME: Record<string, string> = Object.fromEntries(PRICING.map((p) => 
 type SubscriptionInfo = {
   plan: string | null;
   isFree: boolean;
+  isLapsed: boolean;
+  graceDaysLeft: number | null;
   hasBillingAccount: boolean;
   status: string | null;
   nextBillingDate: string | null;
@@ -118,14 +120,32 @@ function SettingsContent() {
             </div>
             <span
               className={`text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap ${
-                sub?.isFree
+                sub?.isLapsed
+                  ? "bg-red-500/10 text-red-700"
+                  : sub?.graceDaysLeft !== null && sub?.graceDaysLeft !== undefined
+                  ? "bg-[var(--rust-wash)] text-[var(--rust-deep)]"
+                  : sub?.isFree
                   ? "bg-[var(--line-soft)] text-[var(--ink-soft)]"
                   : "bg-[var(--olive-wash)] text-[var(--olive)]"
               }`}
             >
-              {sub?.isFree ? "Free" : sub?.cancelAtNextBillingDate ? "Cancels at period end" : "Active"}
+              {sub?.isLapsed
+                ? "Locked — reactivate to restore access"
+                : sub?.graceDaysLeft !== null && sub?.graceDaysLeft !== undefined
+                ? "Payment failed"
+                : sub?.isFree
+                ? "Free"
+                : sub?.cancelAtNextBillingDate
+                ? "Cancels at period end"
+                : "Active"}
             </span>
           </div>
+
+          {sub?.graceDaysLeft !== null && sub?.graceDaysLeft !== undefined && (
+            <p className="text-sm text-[var(--rust-deep)] bg-[var(--rust-wash)] border border-[var(--rust)]/25 rounded-lg px-3 py-2 mb-4">
+              Your last payment failed. Update your payment method within {sub.graceDaysLeft} day{sub.graceDaysLeft === 1 ? "" : "s"} to avoid losing access.
+            </p>
+          )}
 
           {!sub?.isFree && sub?.nextBillingDate && (
             <p className="text-sm text-[var(--ink-soft)] mb-4">

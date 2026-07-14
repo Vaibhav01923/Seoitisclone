@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { clientFromRequest } from "@/lib/supabase";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const getClient = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(req: NextRequest) {
+  const { data: { user } } = await clientFromRequest(req).auth.getUser();
+  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+
+  if (!(await checkRateLimit("generate-article", user.id, 20, 3600))) {
+    return NextResponse.json({ error: "Too many requests — please try again in a bit." }, { status: 429 });
+  }
+
   const { gapPrompt, brandName, niche, topCompetitor, missingEngines } = await req.json();
 
   if (!gapPrompt || !brandName) {

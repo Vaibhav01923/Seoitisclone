@@ -89,7 +89,13 @@ function ArticleContent() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ gapPrompt, brandName, niche, topCompetitor, missingEngines }),
     })
-      .then((r) => r.json())
+      .then((r) => {
+        if (r.status === 401) {
+          router.replace(`/auth?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+          throw new Error("__redirecting__");
+        }
+        return r.json();
+      })
       .then((data) => {
         if (data.error) throw new Error(data.error);
         setArticle(data.article);
@@ -115,7 +121,7 @@ function ArticleContent() {
           sessionStorage.setItem(cacheKey, JSON.stringify({ article: data.article, title: data.title, wordCount: data.wordCount }));
         }
       })
-      .catch((e) => setError(e.message))
+      .catch((e) => { if (e.message !== "__redirecting__") setError(e.message); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -172,6 +178,10 @@ function ArticleContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: article, title, instruction }),
       });
+      if (res.status === 401) {
+        router.replace(`/auth?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+        return;
+      }
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setPendingContent({ article: data.article, title: data.title, wordCount: data.wordCount });

@@ -3,6 +3,7 @@ import { AIEngine } from "@/lib/types";
 import { clientFromRequest } from "@/lib/supabase";
 import { inngest } from "@/inngest/client";
 import { requireBrandAccess } from "@/lib/team";
+import { isLapsedSubscriber } from "@/lib/plan-limits";
 
 export async function POST(req: NextRequest) {
   const { brandId, engines, promptIds }: { brandId: string; engines: AIEngine[]; promptIds?: string[] } = await req.json();
@@ -17,6 +18,18 @@ export async function POST(req: NextRequest) {
 
   const access = await requireBrandAccess(db, user.id, brandId);
   if (!access) return new Response(JSON.stringify({ error: "Brand not found" }), { status: 404 });
+
+  const { data: ownerPlan } = await db
+    .from("user_plans")
+    .select("dodo_customer_id, dodo_subscription_id, payment_failed_at")
+    .eq("user_id", access.ownerId)
+    .maybeSingle();
+  if (isLapsedSubscriber(ownerPlan)) {
+    return new Response(
+      JSON.stringify({ error: "This workspace's subscription has ended. Reactivate to run scans again.", upgradeRequired: true }),
+      { status: 402 }
+    );
+  }
 
   // Cap manual re-scans at 2/day per brand — each one burns real AI-provider
   // credits across every tracked prompt × engine, so repeated clicking (or a

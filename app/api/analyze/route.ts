@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as cheerio from "cheerio";
 import OpenAI from "openai";
+import { safeFetch } from "@/lib/safe-fetch";
+import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 
 const getClient = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function fetchPage(url: string): Promise<string> {
-  const res = await fetch(url, {
+  const res = await safeFetch(url, {
     headers: { "User-Agent": "Mozilla/5.0 (compatible; SEOBot/1.0)" },
     signal: AbortSignal.timeout(8000),
   });
@@ -21,7 +23,7 @@ async function crawlSite(domain: string): Promise<{ pages: string[]; pageCount: 
   const origin = new URL(base).origin;
 
   // Fetch homepage
-  const homepageRes = await fetch(base, {
+  const homepageRes = await safeFetch(base, {
     headers: { "User-Agent": "Mozilla/5.0 (compatible; SEOBot/1.0)" },
     signal: AbortSignal.timeout(8000),
   });
@@ -54,6 +56,13 @@ async function crawlSite(domain: string): Promise<{ pages: string[]; pageCount: 
 }
 
 export async function POST(req: NextRequest) {
+  // Fully unauthenticated (the free /audit tool) — an IP-based cap is the
+  // only thing standing between this and unlimited free OpenAI/crawl usage.
+  const allowed = await checkRateLimit("analyze", clientIp(req), 5, 3600);
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many requests — please try again in a bit." }, { status: 429 });
+  }
+
   const { domain } = await req.json();
   if (!domain) return NextResponse.json({ error: "domain is required" }, { status: 400 });
 

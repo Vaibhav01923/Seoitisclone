@@ -600,9 +600,14 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 border-t border-[var(--line)] pt-6 text-xs text-[var(--ink-faint)] sm:flex-row">
           <span>© 2026 RankOnGeo. Grown under a night sky.</span>
           <div className="flex gap-4">
-            {["Privacy", "Terms", "DPA", "Security"].map((l) => (
-              <a key={l} href="#" className="rounded transition-colors hover:text-[var(--rust)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)]">
-                {l}
+            {[
+              { label: "Privacy", href: "/privacy" },
+              { label: "Terms", href: "/terms" },
+              { label: "DPA", href: "#" },
+              { label: "Security", href: "#" },
+            ].map(({ label, href }) => (
+              <a key={label} href={href} className="rounded transition-colors hover:text-[var(--rust)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rust)]">
+                {label}
               </a>
             ))}
           </div>

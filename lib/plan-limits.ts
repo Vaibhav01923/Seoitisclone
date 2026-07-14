@@ -27,6 +27,42 @@ export function analyticsEventQuotaForPlan(plan: string | null | undefined): num
   return plan ? PLAN_ANALYTICS_EVENT_QUOTAS[plan] ?? 0 : 0;
 }
 
+// Grace period after a renewal payment fails (Dodo's `subscription.on_hold`
+// webhook — see app/api/dodo/webhook/route.ts) before we lock the account
+// out, on top of whatever retries Dodo's own dunning process runs.
+export const PAYMENT_GRACE_PERIOD_MS = 3 * 24 * 60 * 60 * 1000;
+
+type UserPlanRow = {
+  dodo_customer_id: string | null;
+  dodo_subscription_id: string | null;
+  payment_failed_at?: string | null;
+};
+
+// True once a subscriber should be fully locked out of the product — no
+// brand data visible, no scans running — until they reactivate. Two paths:
+// Dodo has fully cancelled/expired the subscription (dodo_subscription_id
+// cleared), or a renewal payment has been failing longer than our grace
+// period. Does not delete any data — reactivating restores access instantly.
+export function isLapsedSubscriber(row: UserPlanRow | null | undefined): boolean {
+  if (!row) return false;
+  if (row.dodo_customer_id && !row.dodo_subscription_id) return true;
+  if (row.payment_failed_at) {
+    return Date.now() - new Date(row.payment_failed_at).getTime() > PAYMENT_GRACE_PERIOD_MS;
+  }
+  return false;
+}
+
+// Days left in the failed-payment grace period, for a dashboard warning
+// banner — null when there's nothing to warn about (no failure, or already
+// past grace, in which case isLapsedSubscriber is the relevant check).
+export function gracePeriodDaysLeft(row: UserPlanRow | null | undefined): number | null {
+  if (!row?.payment_failed_at) return null;
+  if (row.dodo_customer_id && !row.dodo_subscription_id) return null;
+  const remainingMs = PAYMENT_GRACE_PERIOD_MS - (Date.now() - new Date(row.payment_failed_at).getTime());
+  if (remainingMs <= 0) return null;
+  return Math.ceil(remainingMs / (24 * 60 * 60 * 1000));
+}
+
 // Costs scale with how many prompts actually get scanned — paused ones are
 // skipped by every scan (see isDueForScheduledScan), so only active prompts
 // count against the limit. Existing brands already over their limit are

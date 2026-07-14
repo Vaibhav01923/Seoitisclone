@@ -593,6 +593,12 @@ function DashboardPage() {
   // Default true (fail-safe: blur first) so free-tier data never flashes unblurred
   // before the /api/credits fetch resolves.
   const [isFreeTier, setIsFreeTier] = useState(true);
+  // Cancelled/expired, or a renewal payment failing past the grace period —
+  // full lockout, not just the free-tier blur. Gated on creditsLoaded (below)
+  // so this never flashes an unlocked dashboard before we know the real state.
+  const [isLapsed, setIsLapsed] = useState(false);
+  const [graceDaysLeft, setGraceDaysLeft] = useState<number | null>(null);
+  const [creditsLoaded, setCreditsLoaded] = useState(false);
   const [confirmingSubscription, setConfirmingSubscription] = useState(false);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const openPaywall = () => setShowPaywallModal(true);
@@ -880,6 +886,9 @@ function DashboardPage() {
       fetch("/api/credits").then((r) => r.json()).then((d) => {
         if (typeof d.balance === "number") setCredits({ plan: d.plan ?? null, balance: d.balance, canPurchase: d.canPurchase !== false });
         setIsFreeTier(!!d.isFree);
+        setIsLapsed(!!d.isLapsed);
+        setGraceDaysLeft(typeof d.graceDaysLeft === "number" ? d.graceDaysLeft : null);
+        setCreditsLoaded(true);
         return d;
       });
 
@@ -936,6 +945,8 @@ function DashboardPage() {
             fetch(`/api/credits?brandId=${id}`).then((r) => r.json()).then((d) => {
               if (typeof d.balance === "number") setCredits({ plan: d.plan ?? null, balance: d.balance, canPurchase: d.canPurchase !== false });
               setIsFreeTier(!!d.isFree);
+              setIsLapsed(!!d.isLapsed);
+              setGraceDaysLeft(typeof d.graceDaysLeft === "number" ? d.graceDaysLeft : null);
             });
           }
           fetch(`/api/history?brandId=${id}`).then((r) => r.json()).then((d) => setScanHistory(d.runs ?? []));
@@ -1738,7 +1749,10 @@ function DashboardPage() {
     router.push("/auth");
   }
 
-  if (loadingBrand) {
+  // Wait for credits too, not just the brand — otherwise a lapsed
+  // subscriber's full (unlocked) dashboard can flash before isLapsed flips
+  // true, since the two fetches aren't sequenced together.
+  if (loadingBrand || !creditsLoaded) {
     return (
       <div className="min-h-screen bg-[var(--cream)] flex items-center justify-center">
         <span className="w-7 h-7 border-2 border-[var(--rust)] border-t-transparent rounded-full animate-spin" />
@@ -1746,6 +1760,41 @@ function DashboardPage() {
     );
   }
   if (!brand) return null;
+
+  // Full lockout — cancelled/expired, or a renewal payment failed past the
+  // grace period. No brand data, scores, or scans; data itself is untouched
+  // and everything comes back the moment the subscription is reactivated.
+  if (isLapsed) {
+    const isOwner = brand.role !== "member";
+    return (
+      <div className="min-h-screen bg-[var(--cream)] flex items-center justify-center px-6">
+        <div className="max-w-md w-full rounded-3xl bg-[var(--surface)] border border-[var(--line)] p-8 text-center">
+          <div className="w-12 h-12 rounded-full bg-[var(--rust-wash)] text-[var(--rust-deep)] flex items-center justify-center mx-auto mb-5">
+            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+          </div>
+          <h1 className="font-signal-serif text-2xl text-[var(--ink)] mb-2">Subscription ended</h1>
+          <p className="text-sm text-[var(--ink-soft)] mb-6">
+            Your data is safe and untouched — brands, prompts, scan history, and articles are all still here. Reactivate to pick up right where you left off.
+          </p>
+          {isOwner ? (
+            <a
+              href="/settings"
+              className="inline-block w-full bg-[var(--rust)] hover:bg-[var(--rust-deep)] text-[var(--surface)] font-semibold py-3 rounded-full text-sm transition-colors"
+            >
+              Reactivate your plan →
+            </a>
+          ) : (
+            <p className="text-sm text-[var(--ink-faint)]">Ask the workspace owner to reactivate their subscription to restore access.</p>
+          )}
+          <button onClick={signOut} className="mt-4 text-xs text-[var(--ink-faint)] hover:text-[var(--ink-soft)] transition-colors">
+            Sign out
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const newThreadCount = redditThreads.filter((t) => t.status === "new").length;
   const brandInitial = brand.name[0]?.toUpperCase() ?? "B";
@@ -2069,6 +2118,18 @@ function DashboardPage() {
 
       {/* Main content */}
       <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
+        {graceDaysLeft !== null && (
+          <div className="bg-[var(--rust-wash)] border-b border-[var(--rust)]/25 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3 shrink-0 text-sm">
+            <span className="text-[var(--rust-deep)]">
+              Your last payment failed — update your payment method within {graceDaysLeft} day{graceDaysLeft === 1 ? "" : "s"} to keep your subscription active.
+            </span>
+            {brand.role !== "member" && (
+              <a href="/settings" className="font-semibold text-[var(--rust-deep)] underline underline-offset-2 shrink-0 whitespace-nowrap">
+                Update payment →
+              </a>
+            )}
+          </div>
+        )}
         {/* Top bar */}
         <div className="bg-[var(--surface)]/70 backdrop-blur-sm border-b border-[var(--line)] px-4 sm:px-6 py-3 flex items-center justify-between gap-2 shrink-0">
           <div className="flex items-center gap-2 text-sm min-w-0">
