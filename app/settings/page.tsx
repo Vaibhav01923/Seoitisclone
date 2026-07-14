@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Instrument_Serif, Work_Sans, IBM_Plex_Mono } from "next/font/google";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { PricingCards, PRICING } from "@/app/_components/PricingCards";
+import { ThemeToggle } from "@/app/_components/ThemeToggle";
 import { BRAND_LIMITS, FREE_BRAND_LIMIT } from "@/lib/plan-limits";
 
 const instrumentSerif = Instrument_Serif({
@@ -101,9 +102,12 @@ function SettingsContent() {
         <a href="/dashboard" className="font-bold text-xl tracking-tight">
           RankOn<span className="text-[var(--rust)]">Geo</span>
         </a>
-        <a href="/dashboard" className="text-sm text-[var(--ink-soft)] hover:text-[var(--ink)] transition-colors">
-          ← Back to dashboard
-        </a>
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+          <a href="/dashboard" className="text-sm text-[var(--ink-soft)] hover:text-[var(--ink)] transition-colors">
+            ← Back to dashboard
+          </a>
+        </div>
       </header>
 
       <main className="max-w-2xl mx-auto px-6 py-12 space-y-8">
@@ -189,25 +193,10 @@ function SettingsContent() {
 }
 
 export default function SettingsPage() {
-  const signalVars = {
-    "--cream": "oklch(0.965 0.013 80)",
-    "--surface": "oklch(0.99 0.006 80)",
-    "--ink": "oklch(0.19 0.014 55)",
-    "--ink-soft": "oklch(0.46 0.02 55)",
-    "--ink-faint": "oklch(0.62 0.02 60)",
-    "--rust": "oklch(0.56 0.15 38)",
-    "--rust-deep": "oklch(0.46 0.14 36)",
-    "--rust-wash": "oklch(0.56 0.15 38 / 12%)",
-    "--olive": "oklch(0.52 0.1 130)",
-    "--olive-wash": "oklch(0.52 0.1 130 / 12%)",
-    "--line": "oklch(0.19 0.014 55 / 10%)",
-    "--line-soft": "oklch(0.19 0.014 55 / 6%)",
-  } as React.CSSProperties;
-
   return (
     <div
       className={`${instrumentSerif.variable} ${workSans.variable} ${ibmPlexMono.variable}`}
-      style={{ ...signalVars, fontFamily: "var(--font-work-sans), sans-serif" }}
+      style={{ fontFamily: "var(--font-work-sans), sans-serif" }}
     >
       <Suspense><SettingsContent /></Suspense>
     </div>

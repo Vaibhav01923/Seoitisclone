@@ -7,6 +7,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { PricingCards } from "@/app/_components/PricingCards";
+import { ThemeToggle, useIsDarkMode } from "@/app/_components/ThemeToggle";
 import { promptLimitForPlan, BRAND_LIMITS, FREE_BRAND_LIMIT } from "@/lib/plan-limits";
 
 const ENGINE_LABELS: Record<AIEngine, string> = {
@@ -46,14 +47,23 @@ const TASK_STATUS_BADGE: Record<string, { label: string; className: string; dotC
    (--rust, --rust-deep, --olive, --ink, --ink-soft, --cream), needed
    wherever a color must be a literal hex (inline SVG stroke/fill attrs
    can't resolve CSS custom properties reliably across engines). Keep
-   these in sync with the --rust/--olive values on the dashboard root. */
+   these in sync with the --rust/--olive values on the dashboard root.
+   _DARK variants mirror :root[data-theme="dark"] in app/globals.css —
+   picked between via useIsDarkMode() (see chartRust etc. below). */
 const RUST_HEX = "#b1552e";
+const RUST_HEX_DARK = "#f0764f";
 const RUST_DEEP_HEX = "#8f4322";
 const OLIVE_HEX = "#6f7f3f";
+const OLIVE_HEX_DARK = "#88ac61";
 const INK_HEX = "#302821";
 const INK_SOFT_HEX = "#6b5f52";
 const INK_FAINT_HEX = "#96897a";
+const INK_FAINT_HEX_DARK = "#9d8f83";
 const CREAM_HEX = "#f6f2e9";
+// Solid "guideline" gray used for chart hover crosshairs — not one of the
+// named Signal tokens (--line is an alpha color, unusable as a flat SVG fill).
+const LINE_HEX_LIGHT = "#d0cac3";
+const LINE_HEX_DARK = "#51453e";
 
 /* One harmonized engine palette, tuned for contrast on the cream Signal
    surface — distinct hues per engine, rust/olive reserved as the
@@ -303,7 +313,9 @@ function computeGaps(results: ScanResult[], brand: BrandData): GapItem[] {
 }
 
 function MiniTrendChart({ runs }: { runs: ScanRun[] }) {
+  const isDark = useIsDarkMode();
   if (runs.length < 2) return null;
+  const rustStroke = isDark ? RUST_HEX_DARK : RUST_HEX;
   const ordered = [...runs].reverse();
   const scores = ordered.map((r) => r.overall_score ?? 0);
   const max = Math.max(...scores, 1);
@@ -313,9 +325,9 @@ function MiniTrendChart({ runs }: { runs: ScanRun[] }) {
   return (
     <div className="mt-2">
       <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
-        <polyline points={points} fill="none" stroke={RUST_HEX} strokeWidth="1.5" strokeLinejoin="round" strokeOpacity="0.5" />
+        <polyline points={points} fill="none" stroke={rustStroke} strokeWidth="1.5" strokeLinejoin="round" strokeOpacity="0.5" />
         {scores.map((s, i) => (
-          <circle key={i} cx={(i / (scores.length - 1)) * width} cy={height - (s / max) * height} r="2.5" fill={RUST_HEX} fillOpacity="0.6" />
+          <circle key={i} cx={(i / (scores.length - 1)) * width} cy={height - (s / max) * height} r="2.5" fill={rustStroke} fillOpacity="0.6" />
         ))}
       </svg>
     </div>
@@ -534,6 +546,18 @@ const AI_RESPONSE_MARKDOWN_COMPONENTS: Record<string, (props: { className?: stri
 function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  // Charts below draw with literal SVG hex (CSS custom properties aren't
+  // reliable in stroke/fill across engines — see the comment on RUST_HEX
+  // etc.), so they need their own reactive read of the theme.
+  const isDark = useIsDarkMode();
+  const chartRust = isDark ? RUST_HEX_DARK : RUST_HEX;
+  const chartOlive = isDark ? OLIVE_HEX_DARK : OLIVE_HEX;
+  const chartInkFaint = isDark ? INK_FAINT_HEX_DARK : INK_FAINT_HEX;
+  const chartLine = isDark ? LINE_HEX_DARK : LINE_HEX_LIGHT;
+  // The citation chart below uses its own cool-gray palette (pre-existing,
+  // left as-is in light mode) rather than the warm Signal tones above.
+  const chartNeutralLine = isDark ? "#51453e" : "#d1d5db";
+  const chartNeutralEmphasis = isDark ? "#f7f1e9" : "#374151";
   const [brand, setBrand] = useState<BrandData | null>(null);
   const [allBrands, setAllBrands] = useState<{ id: string; name: string; domain: string; role?: "owner" | "member" }[]>([]);
   const [loadingBrand, setLoadingBrand] = useState(true);
@@ -1882,25 +1906,9 @@ function DashboardPage() {
   const draftCount = savedArticles.filter((a) => a.status === "draft" || a.status === "writing").length;
   const avgSeoScore = savedArticles.length ? Math.round(savedArticles.reduce((s, a) => s + a.seoScore, 0) / savedArticles.length) : null;
 
-  const signalVars = {
-    "--cream": "oklch(0.965 0.013 80)",
-    "--surface": "oklch(0.99 0.006 80)",
-    "--ink": "oklch(0.19 0.014 55)",
-    "--ink-soft": "oklch(0.46 0.02 55)",
-    "--ink-faint": "oklch(0.62 0.02 60)",
-    "--rust": "oklch(0.56 0.15 38)",
-    "--rust-deep": "oklch(0.46 0.14 36)",
-    "--rust-wash": "oklch(0.56 0.15 38 / 12%)",
-    "--olive": "oklch(0.52 0.1 130)",
-    "--olive-wash": "oklch(0.52 0.1 130 / 12%)",
-    "--line": "oklch(0.19 0.014 55 / 10%)",
-    "--line-soft": "oklch(0.19 0.014 55 / 6%)",
-  } as React.CSSProperties;
-
   return (
     <div
       className="dashboard-signal flex h-screen overflow-hidden bg-[var(--cream)] text-[var(--ink)]"
-      style={signalVars}
     >
       {/* Sidebar — fixed off-canvas drawer below lg, static column at lg+ */}
       {sidebarOpen && (
@@ -2101,6 +2109,7 @@ function DashboardPage() {
               <p className="text-xs font-medium text-[var(--ink-soft)] truncate">{userEmail || brand.domain}</p>
               <p className="text-[10px] text-[var(--ink-faint)]">Workspace</p>
             </div>
+            <ThemeToggle className="text-[var(--ink-faint)] hover:text-[var(--ink-soft)] transition-colors shrink-0" iconSize={14} />
             <a href="/settings" title="Settings & billing" className="text-[var(--ink-faint)] hover:text-[var(--ink-soft)] transition-colors shrink-0">
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -2373,7 +2382,7 @@ function DashboardPage() {
                     const iW = W - PAD.l - PAD.r, iH = H - PAD.t - PAD.b;
                     const xOf = (i: number) => PAD.l + (runs.length === 1 ? iW / 2 : (i / (runs.length - 1)) * iW);
                     const yOf = (v: number) => PAD.t + iH - (v / 100) * iH;
-                    const ENGINE_HEX: Record<string, string> = { chatgpt: "#4f8a5b", claude: "#a8791f", gemini: "#3f6fa8", perplexity: "#2f8f96", google: OLIVE_HEX, grok: "#6b6358" };
+                    const ENGINE_HEX: Record<string, string> = { chatgpt: "#4f8a5b", claude: "#a8791f", gemini: "#3f6fa8", perplexity: "#2f8f96", google: chartOlive, grok: "#6b6358" };
                     const hovered = hoveredScanIdx !== null ? runs[hoveredScanIdx] : null;
 
                     return (
@@ -2389,7 +2398,7 @@ function DashboardPage() {
                             {[0, 25, 50, 75, 100].map((pct) => (
                               <g key={pct}>
                                 <line x1={PAD.l} y1={yOf(pct)} x2={W - PAD.r} y2={yOf(pct)} stroke="rgba(48,40,33,0.07)" strokeWidth="1" />
-                                <text x={PAD.l - 4} y={yOf(pct) + 4} textAnchor="end" fontSize="9" fill="#96897a">{pct}%</text>
+                                <text x={PAD.l - 4} y={yOf(pct) + 4} textAnchor="end" fontSize="9" fill={chartInkFaint}>{pct}%</text>
                               </g>
                             ))}
 
@@ -2410,7 +2419,7 @@ function DashboardPage() {
                             <polyline
                               points={runs.map((r, i) => `${xOf(i)},${yOf(r.overall_score)}`).join(" ")}
                               fill="none"
-                              stroke="#b1552e"
+                              stroke={chartRust}
                               strokeWidth="2"
                               strokeLinecap="round"
                               strokeLinejoin="round"
@@ -2419,19 +2428,19 @@ function DashboardPage() {
 
                             {/* Hover crosshair */}
                             {hoveredScanIdx !== null && (
-                              <line x1={xOf(hoveredScanIdx)} y1={PAD.t} x2={xOf(hoveredScanIdx)} y2={H - PAD.b} stroke="#d0cac3" strokeWidth="1" strokeDasharray="3 2" />
+                              <line x1={xOf(hoveredScanIdx)} y1={PAD.t} x2={xOf(hoveredScanIdx)} y2={H - PAD.b} stroke={chartLine} strokeWidth="1" strokeDasharray="3 2" />
                             )}
 
                             {/* Dots */}
                             {runs.map((r, i) => (
-                              <circle key={i} cx={xOf(i)} cy={yOf(r.overall_score)} r={hoveredScanIdx === i ? 4 : 3} fill="#b1552e" />
+                              <circle key={i} cx={xOf(i)} cy={yOf(r.overall_score)} r={hoveredScanIdx === i ? 4 : 3} fill={chartRust} />
                             ))}
 
                             {/* X-axis labels */}
                             {runs.map((r, i) => {
                               if (runs.length > 6 && i % 2 !== 0) return null;
                               return (
-                                <text key={i} x={xOf(i)} y={H - 4} textAnchor="middle" fontSize="9" fill="#96897a">
+                                <text key={i} x={xOf(i)} y={H - 4} textAnchor="middle" fontSize="9" fill={chartInkFaint}>
                                   {new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                                 </text>
                               );
@@ -2660,7 +2669,7 @@ function DashboardPage() {
                             <div className="relative w-12 h-12 mx-auto mb-1">
                               <svg viewBox="0 0 44 44" className="w-12 h-12 -rotate-90">
                                 <circle cx="22" cy="22" r="17" fill="none" stroke="rgba(48,40,33,0.1)" strokeWidth="3.5"/>
-                                <circle cx="22" cy="22" r="17" fill="none" stroke="#b1552e" strokeWidth="3.5" strokeDasharray={`${visibility * 1.068} 106.8`} strokeLinecap="round"/>
+                                <circle cx="22" cy="22" r="17" fill="none" stroke={chartRust} strokeWidth="3.5" strokeDasharray={`${visibility * 1.068} 106.8`} strokeLinecap="round"/>
                               </svg>
                               <div className="absolute inset-0 flex flex-col items-center justify-center">
                                 <svg className="w-3 h-3 text-[var(--ink-soft)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
@@ -2692,20 +2701,20 @@ function DashboardPage() {
                         <svg viewBox={`0 0 ${W2} ${H2}`} className="w-full" style={{ height: H2 }}>
                           <defs>
                             <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#b1552e" stopOpacity="0.15"/>
-                              <stop offset="100%" stopColor="#b1552e" stopOpacity="0.01"/>
+                              <stop offset="0%" stopColor={chartRust} stopOpacity="0.15"/>
+                              <stop offset="100%" stopColor={chartRust} stopOpacity="0.01"/>
                             </linearGradient>
                           </defs>
                           {[0, 25, 50, 75, 100].map((v) => (
                             <g key={v}>
                               <line x1={pL} x2={W2 - pR} y1={ty2(v)} y2={ty2(v)} stroke="rgba(48,40,33,0.06)" strokeWidth="1"/>
-                              <text x={pL - 6} y={ty2(v) + 4} textAnchor="end" fontSize="9" fill="#96897a">{v}%</text>
+                              <text x={pL - 6} y={ty2(v) + 4} textAnchor="end" fontSize="9" fill={chartInkFaint}>{v}%</text>
                             </g>
                           ))}
                           <path d={fillPath} fill="url(#areaGrad)"/>
-                          <path d={areaPath} fill="none" stroke="#b1552e" strokeWidth="2.5" strokeLinecap="round"/>
+                          <path d={areaPath} fill="none" stroke={chartRust} strokeWidth="2.5" strokeLinecap="round"/>
                           {chartDates.map((d, i) => (
-                            <text key={i} x={tx2(i)} y={H2 - 8} textAnchor="middle" fontSize="9" fill="#96897a">{d}</text>
+                            <text key={i} x={tx2(i)} y={H2 - 8} textAnchor="middle" fontSize="9" fill={chartInkFaint}>{d}</text>
                           ))}
                         </svg>
                       </div>
@@ -3601,7 +3610,7 @@ function DashboardPage() {
                                 {yTicks.map((v) => (
                                   <g key={v}>
                                     <line x1={padL} x2={W - padR} y1={toY(v)} y2={toY(v)} stroke="rgba(48,40,33,0.06)" strokeWidth="1"/>
-                                    <text x={padL - 4} y={toY(v) + 3} textAnchor="end" fontSize="8" fill="#96897a">{v}</text>
+                                    <text x={padL - 4} y={toY(v) + 3} textAnchor="end" fontSize="8" fill={chartInkFaint}>{v}</text>
                                   </g>
                                 ))}
 
@@ -3638,12 +3647,12 @@ function DashboardPage() {
 
                                 {/* Hover vertical line */}
                                 {citationChartHover && allDates.length > 1 && (
-                                  <line x1={toX(citationChartHover.idx)} x2={toX(citationChartHover.idx)} y1={padT} y2={H - padB} stroke="#d1d5db" strokeWidth="1" strokeDasharray="3 2"/>
+                                  <line x1={toX(citationChartHover.idx)} x2={toX(citationChartHover.idx)} y1={padT} y2={H - padB} stroke={chartNeutralLine} strokeWidth="1" strokeDasharray="3 2"/>
                                 )}
 
                                 {/* X labels */}
                                 {allDates.map((d, i) => (
-                                  <text key={i} x={toX(i)} y={H - 6} textAnchor="middle" fontSize="8" fill={citationChartHover?.idx === i ? "#374151" : "#9ca3af"} fontWeight={citationChartHover?.idx === i ? "600" : "400"}>
+                                  <text key={i} x={toX(i)} y={H - 6} textAnchor="middle" fontSize="8" fill={citationChartHover?.idx === i ? chartNeutralEmphasis : "#9ca3af"} fontWeight={citationChartHover?.idx === i ? "600" : "400"}>
                                     {new Date(d).toLocaleDateString("en-US",{month:"short",day:"numeric"})}
                                   </text>
                                 ))}
@@ -6330,10 +6339,10 @@ function DashboardPage() {
                         setEngageGenerating(false);
                       }}
                       disabled={engageGenerating}
-                      className="flex items-center gap-1.5 text-xs font-medium text-brand hover:text-brand-dark disabled:opacity-50 transition-colors"
+                      className="flex items-center gap-1.5 text-xs font-medium text-[var(--olive)] hover:opacity-80 disabled:opacity-50 transition-colors"
                     >
                       {engageGenerating ? (
-                        <><span className="w-3 h-3 border border-brand border-t-transparent rounded-full animate-spin" /> Generating…</>
+                        <><span className="w-3 h-3 border border-[var(--olive)] border-t-transparent rounded-full animate-spin" /> Generating…</>
                       ) : (
                         <><svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> AI suggest</>
                       )}
@@ -6344,7 +6353,7 @@ function DashboardPage() {
                     onChange={(e) => setEngageDraft(e.target.value)}
                     placeholder="Write your reply here, or click AI suggest to generate one…"
                     rows={6}
-                    className="w-full text-sm text-[var(--ink)]/90 placeholder:text-[var(--ink-faint)] border border-[var(--line)] rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand/40 bg-[var(--line-soft)]"
+                    className="w-full text-sm text-[var(--ink)]/90 placeholder:text-[var(--ink-faint)] border border-[var(--line)] rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-[var(--olive)]/20 focus:border-[var(--olive)]/40 bg-[var(--line-soft)]"
                   />
                   {engageDraft && (
                     <p className="text-xs text-[var(--ink-faint)]">{engageDraft.trim().split(/\s+/).length} words · edit freely before posting</p>

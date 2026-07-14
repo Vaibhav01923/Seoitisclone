@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { MobileNav } from "./MobileNav";
+import { ThemeToggle } from "./ThemeToggle";
 import { DEMO_CALL_URL } from "@/lib/links";
 
 function LogoMark({ size = 26 }: { size?: number }) {
@@ -67,6 +68,7 @@ export function SiteNav() {
           >
             Dashboard
           </a>
+          <ThemeToggle />
           <MobileNav />
         </div>
       </div>

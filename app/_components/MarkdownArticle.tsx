@@ -28,7 +28,7 @@ export function MarkdownArticle({ content }: { content: string }) {
           if (isBlock) {
             return (
               <div className="my-5 rounded-xl overflow-hidden border border-gray-800">
-                {lang && <div className="bg-white/[0.1] px-4 py-2 text-xs text-faint font-mono">{lang}</div>}
+                {lang && <div className="bg-white/[0.1] px-4 py-2 text-xs text-gray-400 font-mono">{lang}</div>}
                 <pre className="bg-gray-950 text-gray-100 px-5 py-4 overflow-x-auto text-sm font-mono leading-6"><code>{children}</code></pre>
               </div>
             );

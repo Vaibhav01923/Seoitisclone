@@ -2,72 +2,63 @@
 
 /* ============================================================
    RANKONGEO — Signal design system
-   Every page now uses the cream/rust Signal theme (each page scopes
-   its own --cream/--surface/--ink/--rust vars via an inline style on
-   its root wrapper). --background/--foreground below are just the
-   ambient default so there's no flash of the old dark night theme
-   before a page's own wrapper paints (e.g. on hard refresh, or during
-   an early loading-state return before a page's data has loaded).
+   Every page uses the cream/rust Signal theme. Tokens live here as
+   real CSS custom properties (:root for light, :root[data-theme="dark"]
+   for dark) — pages/components just consume var(--cream) etc. and
+   never redeclare the values themselves. See app/_components/ThemeToggle.tsx
+   and the inline init script in app/layout.tsx for how data-theme gets set.
    ============================================================ */
 
 :root {
-  /* surfaces */
-  --background: #f6f2e9;
-  --surface: #0c1e15;
-  --surface-2: #12281c;
-  --overlay: #16301f;
+  --cream: oklch(0.965 0.013 80);
+  --surface: oklch(0.99 0.006 80);
+  --ink: oklch(0.19 0.014 55);
+  --ink-soft: oklch(0.46 0.02 55);
+  --ink-faint: oklch(0.62 0.02 60);
+  --rust: oklch(0.56 0.15 38);
+  --rust-deep: oklch(0.46 0.14 36);
+  --rust-wash: oklch(0.56 0.15 38 / 12%);
+  --olive: oklch(0.52 0.1 130);
+  --olive-wash: oklch(0.52 0.1 130 / 12%);
+  --line: oklch(0.19 0.014 55 / 10%);
+  --line-soft: oklch(0.19 0.014 55 / 6%);
+}
 
-  /* text */
-  --foreground: #302821;
-  --ink: #eaf6ee;
-  --muted: #9db5a8;
-  --faint: #6f8a7b;
-
-  /* brand */
-  --mint: #8cf5c3;
-  --mint-deep: #37c98d;
-  --amber: #ffb469;
-  --amber-hot: #ff9a4d;
-  --rose: #ff7d6b;
-
-  /* legacy aliases (older components reference these) */
-  --brand: #37c98d;
-  --brand-dark: #2aa974;
-
-  /* hairlines */
-  --line: rgba(234, 246, 238, 0.1);
-  --line-2: rgba(234, 246, 238, 0.18);
+/* Warm dark counterpart — same hues, inverted lightness. Not a cold
+   slate/navy dark and not near-black: the brand reads as approachable,
+   not "hacker terminal", so the dark base stays a warm espresso tone
+   (hue ~50, matching --ink's hue) rather than a desaturated gray.
+   Every text-pair value here clears WCAG AA's 4.5:1 against both
+   --cream and --surface (computed via OKLCH->sRGB relative luminance,
+   not eyeballed) — see the design plan for the full contrast table. */
+:root[data-theme="dark"] {
+  --cream: oklch(0.185 0.016 50);
+  --surface: oklch(0.235 0.018 50);
+  --ink: oklch(0.96 0.012 75);
+  --ink-soft: oklch(0.8 0.02 65);
+  --ink-faint: oklch(0.66 0.025 65);
+  --rust: oklch(0.7 0.16 38);
+  --rust-deep: oklch(0.62 0.15 36);
+  --rust-wash: oklch(0.7 0.16 38 / 16%);
+  --olive: oklch(0.7 0.11 130);
+  --olive-wash: oklch(0.7 0.11 130 / 16%);
+  --line: oklch(0.96 0.012 75 / 12%);
+  --line-soft: oklch(0.96 0.012 75 / 7%);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --color-overlay: var(--overlay);
-  --color-foreground: var(--foreground);
-  --color-ink: var(--ink);
-  --color-muted: var(--muted);
-  --color-faint: var(--faint);
-  --color-mint: var(--mint);
-  --color-mint-deep: var(--mint-deep);
-  --color-amber: var(--amber);
-  --color-amber-hot: var(--amber-hot);
-  --color-rose: var(--rose);
-  --color-brand: var(--brand);
-  --color-brand-dark: var(--brand-dark);
-  --color-line: var(--line);
-  --color-line-2: var(--line-2);
   --font-sans: var(--font-instrument-sans);
   --font-serif: var(--font-fraunces);
 }
 
 html {
   scroll-behavior: smooth;
+  color-scheme: light dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--cream);
+  color: var(--ink);
   font-family: var(--font-sans, system-ui, sans-serif);
 }
 

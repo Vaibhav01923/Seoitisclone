@@ -2,21 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const signalVars = {
-  "--cream": "oklch(0.965 0.013 80)",
-  "--surface": "oklch(0.99 0.006 80)",
-  "--ink": "oklch(0.19 0.014 55)",
-  "--ink-soft": "oklch(0.46 0.02 55)",
-  "--ink-faint": "oklch(0.62 0.02 60)",
-  "--rust": "oklch(0.56 0.15 38)",
-  "--rust-deep": "oklch(0.46 0.14 36)",
-  "--rust-wash": "oklch(0.56 0.15 38 / 12%)",
-  "--olive": "oklch(0.52 0.1 130)",
-  "--olive-wash": "oklch(0.52 0.1 130 / 12%)",
-  "--line": "oklch(0.19 0.014 55 / 10%)",
-  "--line-soft": "oklch(0.19 0.014 55 / 6%)",
-} as React.CSSProperties;
+import { ThemeToggle } from "@/app/_components/ThemeToggle";
 
 function LogoIcon({ size = 22 }: { size?: number }) {
   return (
@@ -43,7 +29,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-[var(--cream)] text-[var(--ink)]" style={signalVars}>
+    <div className="min-h-screen bg-[var(--cream)] text-[var(--ink)]">
       <header className="border-b border-[var(--line)] bg-[var(--surface)] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
@@ -54,6 +40,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
           <nav className="flex items-center gap-6 text-sm font-medium text-[var(--ink-soft)]">
             <Link href="/#pricing" className="hover:text-[var(--ink)] transition-colors">Pricing</Link>
             <Link href="/dashboard" className="hover:text-[var(--ink)] transition-colors">Dashboard</Link>
+            <ThemeToggle />
           </nav>
         </div>
       </header>

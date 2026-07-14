@@ -21,28 +21,11 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500", "600", "700"],
 });
 
-// Same scoped Signal theme vars as the blog layout, so SiteNav and the
-// shared markdown renderer pick up the right palette.
-const signalVars = {
-  "--cream": "oklch(0.965 0.013 80)",
-  "--surface": "oklch(0.99 0.006 80)",
-  "--ink": "oklch(0.19 0.014 55)",
-  "--ink-soft": "oklch(0.46 0.02 55)",
-  "--ink-faint": "oklch(0.62 0.02 60)",
-  "--rust": "oklch(0.56 0.15 38)",
-  "--rust-deep": "oklch(0.46 0.14 36)",
-  "--rust-wash": "oklch(0.56 0.15 38 / 12%)",
-  "--olive": "oklch(0.52 0.1 130)",
-  "--olive-wash": "oklch(0.52 0.1 130 / 12%)",
-  "--line": "oklch(0.19 0.014 55 / 10%)",
-  "--line-soft": "oklch(0.19 0.014 55 / 6%)",
-} as React.CSSProperties;
-
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
       className={`${instrumentSerif.variable} ${workSans.variable} ${ibmPlexMono.variable} flex min-h-screen flex-col bg-[var(--cream)] text-[var(--ink)]`}
-      style={{ ...signalVars, fontFamily: "var(--font-work-sans), sans-serif" }}
+      style={{ fontFamily: "var(--font-work-sans), sans-serif" }}
     >
       <SiteNav />
       <main className="flex-1 px-6 pt-32 pb-24">{children}</main>

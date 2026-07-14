@@ -357,7 +357,7 @@ function ArticleContent() {
                       if (isBlock) {
                         return (
                           <div className="my-5 rounded-xl overflow-hidden border border-gray-800">
-                            {lang && <div className="bg-white/[0.1] px-4 py-2 text-xs text-faint font-mono">{lang}</div>}
+                            {lang && <div className="bg-white/[0.1] px-4 py-2 text-xs text-gray-400 font-mono">{lang}</div>}
                             <pre className="bg-gray-950 text-gray-100 px-5 py-4 overflow-x-auto text-sm font-mono leading-6"><code>{children}</code></pre>
                           </div>
                         );
@@ -494,25 +494,10 @@ function ArticleContent() {
 }
 
 export default function ArticlePage() {
-  const signalVars = {
-    "--cream": "oklch(0.965 0.013 80)",
-    "--surface": "oklch(0.99 0.006 80)",
-    "--ink": "oklch(0.19 0.014 55)",
-    "--ink-soft": "oklch(0.46 0.02 55)",
-    "--ink-faint": "oklch(0.62 0.02 60)",
-    "--rust": "oklch(0.56 0.15 38)",
-    "--rust-deep": "oklch(0.46 0.14 36)",
-    "--rust-wash": "oklch(0.56 0.15 38 / 12%)",
-    "--olive": "oklch(0.52 0.1 130)",
-    "--olive-wash": "oklch(0.52 0.1 130 / 12%)",
-    "--line": "oklch(0.19 0.014 55 / 10%)",
-    "--line-soft": "oklch(0.19 0.014 55 / 6%)",
-  } as React.CSSProperties;
-
   return (
     <div
       className={`${instrumentSerif.variable} ${workSans.variable} ${ibmPlexMono.variable} text-[var(--ink)]`}
-      style={{ ...signalVars, fontFamily: "var(--font-work-sans), sans-serif" }}
+      style={{ fontFamily: "var(--font-work-sans), sans-serif" }}
     >
       <Suspense><ArticleContent /></Suspense>
     </div>
