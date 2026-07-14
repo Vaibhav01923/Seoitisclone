@@ -501,6 +501,36 @@ const CHANNEL_ICONS: Record<string, string> = {
   wordpress: "📝", webflow: "🌊", webhook: "🔗", discord: "💬", framer: "🎨",
 };
 
+// Styling for the dark "full response" modal — not Tailwind Typography's
+// `prose` classes (not installed in this project; the div's `prose` classes
+// were already dead no-op class names before this), just explicit per-tag
+// styles matching the modal's existing gray-on-black palette.
+const AI_RESPONSE_MARKDOWN_COMPONENTS: Record<string, (props: { className?: string; href?: string; children?: React.ReactNode }) => React.ReactNode> = {
+  p: ({ children }) => <p className="text-gray-200 mb-3 last:mb-0">{children}</p>,
+  h1: ({ children }) => <h1 className="text-base font-semibold text-white mt-4 mb-2 first:mt-0">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-base font-semibold text-white mt-4 mb-2 first:mt-0">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-sm font-semibold text-white mt-3 mb-1.5">{children}</h3>,
+  ul: ({ children }) => <ul className="list-disc pl-5 mb-3 space-y-1 text-gray-200">{children}</ul>,
+  ol: ({ children }) => <ol className="list-decimal pl-5 mb-3 space-y-1 text-gray-200">{children}</ol>,
+  li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+  strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+  a: ({ href, children }) => (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="text-[var(--rust)] underline underline-offset-2 hover:text-[var(--rust-deep)]">
+      {children}
+    </a>
+  ),
+  blockquote: ({ children }) => <blockquote className="border-l-2 border-gray-700 pl-3 italic text-gray-400 my-3">{children}</blockquote>,
+  code: ({ className, children }) => {
+    const isBlock = className?.startsWith("language-");
+    if (isBlock) {
+      return <pre className="bg-black/40 rounded-lg px-4 py-3 overflow-x-auto text-xs font-mono leading-6 my-3"><code>{children}</code></pre>;
+    }
+    return <code className="bg-white/10 text-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">{children}</code>;
+  },
+  pre: ({ children }) => <>{children}</>,
+  hr: () => <hr className="border-gray-700 my-4" />,
+};
+
 function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -1017,9 +1047,26 @@ function DashboardPage() {
       )
       .subscribe();
 
+    // Articles are generated on the separate /article page (often a different
+    // tab), which only writes to the DB — it has no reference back to this
+    // dashboard's state. Realtime is what makes a newly-generated article
+    // show up here without the user refreshing.
+    const articlesChannel = supabase
+      .channel("articles_live")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "articles", filter: `brand_id=eq.${brand.id}` },
+        (payload) => {
+          const newArticle = mapArticleFromDb(payload.new as Record<string, unknown>);
+          setSavedArticles((prev) => (prev.some((a) => a.id === newArticle.id) ? prev : [newArticle, ...prev]));
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(runsChannel);
       supabase.removeChannel(resultsChannel);
+      supabase.removeChannel(articlesChannel);
     };
   }, [brand?.id]);
 
@@ -2731,7 +2778,17 @@ function DashboardPage() {
                             <p className="text-xs text-[var(--ink-faint)] mb-1">Prompt</p>
                             <p className="text-sm text-white">{selectedResponseResult.promptText}</p>
                           </div>
-                          <div className="prose prose-invert prose-sm max-w-none text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">{selectedResponseResult.response}</div>
+                          <div className="max-w-none text-sm leading-relaxed">
+                            {selectedResponseResult.response.trim() ? (
+                              <ReactMarkdown remarkPlugins={[remarkGfm]} components={AI_RESPONSE_MARKDOWN_COMPONENTS}>
+                                {selectedResponseResult.response}
+                              </ReactMarkdown>
+                            ) : (
+                              <p className="italic text-gray-500">
+                                {selectedResponseResult.engine === "google" ? "No AI Overview appeared for this query on this scan" : "No response captured on this scan"}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
                     )}

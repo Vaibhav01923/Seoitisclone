@@ -7,6 +7,12 @@ import { requireAdmin } from "@/lib/admin";
 import { promptStrategy, enforceBrandCap } from "@/lib/prompt-strategy";
 import { PLAN_PROMPT_LIMITS, FREE_PROMPT_LIMIT, BRAND_LIMITS, FREE_BRAND_LIMIT } from "@/lib/plan-limits";
 
+// Crawling up to 6 pages (8s timeout each) plus a synchronous gpt-5.5 call
+// generating up to ~6000 tokens (max_completion_tokens below) can realistically
+// take 20-50s+ — well past the platform's 10-15s default, which would silently
+// fail brand setup for real users regardless of concurrent load.
+export const maxDuration = 120;
+
 const getClient = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function fetchPage(url: string): Promise<string> {
