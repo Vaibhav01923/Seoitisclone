@@ -8,7 +8,7 @@ const FAQS = [
   },
   {
     q: "Which AI engines do you track?",
-    a: "Seven: ChatGPT, Claude, Gemini, Perplexity, Grok, Google AI Mode and AI Overviews. Pro plans track 3 engines, Business tracks 6, and Scale covers all 7 with expanded confidence checks and daily refresh cycles.",
+    a: "Five: ChatGPT, Claude, Gemini, Perplexity, and Google AI Overviews. Every plan — Pro, Business, and Scale — tracks all five; higher tiers get more tracked prompts and websites, not more engines.",
   },
   {
     q: "How is this different from Peec AI, Otterly, or similar tools?",

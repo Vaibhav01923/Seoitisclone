@@ -11,8 +11,7 @@ export const PRICING = [
     highlight: false,
     features: [
       "50 credits for Reddit upvotes, comments, comment upvotes & more",
-      "20 tracked prompts",
-      "3 AI engines",
+      "10 tracked prompts × 5 AI engines = 50 checks/scan",
       "1 website",
       "20,000 web + LLM analytics events / mo",
       "Unlimited SEO articles",
@@ -31,8 +30,7 @@ export const PRICING = [
     highlight: true,
     features: [
       "100 credits for Reddit upvotes, comments, comment upvotes & more",
-      "50 tracked prompts",
-      "6 AI engines",
+      "20 tracked prompts × 5 AI engines = 100 checks/scan",
       "2 websites",
       "100,000 web + LLM analytics events / mo",
       "Unlimited SEO articles",
@@ -51,8 +49,7 @@ export const PRICING = [
     highlight: false,
     features: [
       "150 credits for Reddit upvotes, comments, comment upvotes & more",
-      "100 tracked prompts",
-      "All 7 AI engines",
+      "50 tracked prompts × 5 AI engines = 250 checks/scan",
       "3 websites",
       "500,000 web + LLM analytics events / mo",
       "Unlimited SEO articles",

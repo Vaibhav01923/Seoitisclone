@@ -373,7 +373,7 @@ function GlobeSection() {
             </p>
             <div className="grid grid-cols-2 gap-3.5">
               {[
-                { b: "7", s: "AI engines tracked, from ChatGPT to AI Overviews" },
+                { b: "5", s: "AI engines tracked, from ChatGPT to AI Overviews" },
                 { b: "~60s", s: "to your first visibility score. No credit card." },
                 { b: "Daily", s: "refresh cycles on Business & Scale plans" },
                 { b: "25", s: "competitor brands tracked side-by-side" },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Instrument_Serif, Work_Sans, IBM_Plex_Mono } from "next/font/google";
 import { BrandData, TrackedPrompt } from "@/lib/types";
@@ -25,9 +25,11 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500", "600", "700"],
 });
 
-const PLAN_AUTO_COUNTS: Record<string, number> = { starter: 50, growth: 150, enterprise: 400 };
-const PLAN_CUSTOM_LIMITS: Record<string, number> = { starter: 10, growth: 25, enterprise: 50 };
-const FREE_CUSTOM_LIMIT = 5;
+// Remainder of each plan's tracked-prompt allowance after PLAN_AUTO_GENERATED_PROMPTS
+// (lib/plan-limits.ts) is used to AI-generate prompts — left for the user to
+// fill in themselves here in the onboarding wizard.
+const PLAN_CUSTOM_LIMITS: Record<string, number> = { starter: 0, growth: 5, enterprise: 10 };
+const FREE_CUSTOM_LIMIT = 0;
 
 type Step = "url" | "brand" | "prompts";
 
@@ -75,6 +77,16 @@ function SetupContent() {
   const [newPrompt, setNewPrompt] = useState("");
   const [userPlan, setUserPlan] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const addPromptRef = useRef<HTMLDivElement>(null);
+
+  // Draw attention to the "add your own" slot as soon as the generated
+  // prompts are on screen, instead of leaving it below the fold where people
+  // never scroll down far enough to notice it's there.
+  useEffect(() => {
+    if (step !== "prompts") return;
+    const t = setTimeout(() => addPromptRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 400);
+    return () => clearTimeout(t);
+  }, [step]);
 
   async function triggerAnalyze(d: string, comps: string[]) {
     if (!d.trim()) return;
@@ -362,7 +374,8 @@ function SetupContent() {
           <div>
             <h1 className="font-signal-serif text-3xl text-[var(--ink)] mb-2">Review search queries</h1>
             <p className="text-[var(--ink-soft)] text-sm mb-2">
-              These are questions people ask AI about businesses like yours. We&apos;ll track your brand&apos;s visibility for each.
+              These are questions people ask AI about businesses like yours. We&apos;ll track your brand&apos;s visibility for each —
+              go through the list below and deselect anything that doesn&apos;t fit before you continue.
             </p>
             {(() => {
               const selectedCount = prompts.filter((p) => !deselectedIds.has(p.id)).length;
@@ -410,18 +423,35 @@ function SetupContent() {
               })}
             </div>
 
-            <div className="flex gap-2 mb-6">
-              <input
-                value={newPrompt}
-                onChange={(e) => setNewPrompt(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addPrompt(); } }}
-                placeholder="Add custom prompt…"
-                className="flex-1 border border-[var(--line)] bg-[var(--surface)] rounded-lg px-4 py-2.5 text-sm outline-none text-[var(--ink)] focus:ring-2 focus:ring-[var(--rust)] focus:border-transparent"
-              />
-              <button onClick={addPrompt} className="px-4 py-2.5 text-sm font-semibold bg-[var(--rust)] text-[var(--surface)] rounded-lg hover:bg-[var(--rust-deep)] transition-colors">
-                Add
-              </button>
-            </div>
+            {(() => {
+              const customCount = prompts.filter((p) => p.category === "custom").length;
+              const customLimit = userPlan ? PLAN_CUSTOM_LIMITS[userPlan] ?? FREE_CUSTOM_LIMIT : FREE_CUSTOM_LIMIT;
+              const remaining = customLimit - customCount;
+              if (customLimit <= 0) return null;
+              return (
+                <div ref={addPromptRef} className="mb-6">
+                  <p className="text-sm font-medium text-[var(--ink)] mb-2">
+                    Add your own (optional) —{" "}
+                    {remaining > 0 ? `${remaining} more slot${remaining === 1 ? "" : "s"} available` : "limit reached"}
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      value={newPrompt}
+                      onChange={(e) => setNewPrompt(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addPrompt(); } }}
+                      placeholder="Add custom prompt…"
+                      className="flex-1 border border-[var(--line)] bg-[var(--surface)] rounded-lg px-4 py-2.5 text-sm outline-none text-[var(--ink)] focus:ring-2 focus:ring-[var(--rust)] focus:border-transparent"
+                    />
+                    <button onClick={addPrompt} className="px-4 py-2.5 text-sm font-semibold bg-[var(--rust)] text-[var(--surface)] rounded-lg hover:bg-[var(--rust-deep)] transition-colors">
+                      Add
+                    </button>
+                  </div>
+                  {remaining <= 0 && (
+                    <p className="text-xs text-[var(--rust-deep)] font-medium mt-2">Custom limit reached · <a href="/pricing" className="underline">upgrade for more</a></p>
+                  )}
+                </div>
+              );
+            })()}
 
             <div className="bg-[var(--line-soft)] border border-[var(--line)] rounded-lg px-4 py-3 mb-6">
               <p className="text-xs font-semibold text-[var(--ink-soft)] mb-1.5">Prompt Tips</p>
@@ -431,14 +461,6 @@ function SetupContent() {
                 <li>· Avoid overly specific or branded terms</li>
               </ul>
             </div>
-
-            {(() => {
-              const customCount = prompts.filter((p) => p.category === "custom").length;
-              const customLimit = userPlan ? PLAN_CUSTOM_LIMITS[userPlan] ?? FREE_CUSTOM_LIMIT : FREE_CUSTOM_LIMIT;
-              return customCount >= customLimit ? (
-                <p className="text-xs text-[var(--rust-deep)] font-medium mb-4">Custom limit reached · <a href="/pricing" className="underline">upgrade for more</a></p>
-              ) : null;
-            })()}
 
             <div className="flex gap-3">
               <button

@@ -41,13 +41,13 @@ export async function POST(req: NextRequest) {
 
 ## Platform knowledge (use this to answer support questions):
 - **Overview tab**: visibility score ring, per-engine breakdown, recent scan history
-- **Prompts tab**: all tracked queries — click one to see per-engine responses and citations. Add custom prompts (up to 5 on Starter). Each prompt is scanned across ChatGPT, Gemini, and Google AI Overview.
+- **Prompts tab**: all tracked queries — click one to see per-engine responses and citations. You can edit/replace prompts up to your plan's cap (10 on Starter). Each prompt is scanned across ChatGPT, Claude, Gemini, Perplexity, and Google AI Overview.
 - **Citations tab**: domains that AI engines cite when mentioning your niche. Click "Engage" on Reddit links to draft a reply via the Tasks tab.
 - **Competitors tab**: share of voice vs tracked competitors. Click "Edit" to add/remove competitors anytime — changes apply on the next scan.
 - **Research tab**: gaps where competitors appear but your brand doesn't — prioritized opportunities.
 - **Articles tab**: AI-written articles targeting your gap prompts. Published to your connected channels.
 - **Tasks tab**: Reddit/forum engagement tasks you've submitted. Track status and upvotes here.
-- **Scans**: click "Re-scan" top right to run a new scan. Scans run in background — results appear within a few minutes. On Starter plan, 20 prompts are auto-generated; you can add 5 custom ones (25 total).
+- **Scans**: click "Re-scan" top right to run a new scan. Scans run in background — results appear within a few minutes. On Starter plan, 10 prompts are auto-generated at setup, and that's also the plan's total tracked-prompt cap.
 - **Competitors not showing**: go to Competitors tab → click Edit → add competitor names → Save → re-scan. They were either not added during setup or setup was skipped.
 - **Citations not showing**: citations only populate after a scan. If you see "dataforseo.com" links, those are filtered automatically.
 - **Visibility score**: % of your tracked prompts where your brand is mentioned by that AI engine. 60% means 6 out of 10 prompts mention you.

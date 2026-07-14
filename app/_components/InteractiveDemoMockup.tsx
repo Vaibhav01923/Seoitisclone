@@ -70,7 +70,7 @@ function OverviewContent() {
             <span className="mt-0.5 text-[7px] font-semibold uppercase tracking-wider text-[var(--ink-faint)]">Composite</span>
           </div>
         </div>
-        <p className="text-[11px] text-[var(--ink-soft)]">Composite visibility across 3 AI engines</p>
+        <p className="text-[11px] text-[var(--ink-soft)]">Composite visibility across 5 AI engines</p>
         <svg width="220" height="38" viewBox="0 0 390 65" aria-hidden="true">
           <defs>
             <linearGradient id="demoSpark" x1="0" y1="0" x2="0" y2="1">
