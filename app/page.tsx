@@ -136,7 +136,7 @@ function LoopSection() {
               <svg className="spin-slow h-[15px] w-[15px]" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 1.5v3h-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              The loop re-runs daily — no babysitting required
+              The loop re-runs daily no babysitting required
             </span>
           </div>
         </ScrollReveal>
@@ -164,6 +164,19 @@ function LoopSection() {
         </div>
       </div>
     </section>
+  );
+}
+
+// Ties each proof-card group below back to its stage in the measure → research →
+// write → publish loop (LOOP_STEPS above) — without this, the cards read as an
+// unconnected pile of stats instead of evidence for a pipeline already explained.
+function StageLabel({ children }: { children: string }) {
+  return (
+    <div className="mb-3">
+      <span className="inline-block rounded-full bg-[var(--rust-wash)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--rust-deep)]">
+        {children}
+      </span>
+    </div>
   );
 }
 
@@ -212,8 +225,9 @@ function FeatureBento() {
           </div>
         </ScrollReveal>
 
-        <div className="space-y-5">
+        <div className="space-y-10">
           <ScrollReveal>
+            <StageLabel>Measure</StageLabel>
             <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
               <div className={`${panel} md:col-span-2`}>
                 <h3 className="mb-5 font-signal-serif text-2xl font-[400] leading-tight text-[var(--ink)]">
@@ -259,57 +273,62 @@ function FeatureBento() {
                 </div>
               </div>
 
-              <div className={`${panel} flex flex-col`}>
-                <div className="font-signal-mono text-6xl font-semibold leading-none text-[var(--ink)]">{ENGINE_NAMES.length}</div>
-                <div className="mb-6 mt-1 text-sm text-[var(--ink-soft)]">AI engines tracked</div>
-                <div className="mt-auto flex flex-wrap gap-x-4 gap-y-2.5">
-                  {ENGINE_NAMES.map((e) => (
-                    <span key={e} className="text-[12px] font-medium text-[var(--ink-faint)]">
-                      {e}
-                    </span>
-                  ))}
+              <div className="flex flex-col gap-5">
+                <div className={`${panel} flex flex-1 flex-col`}>
+                  <div className="font-signal-mono text-5xl font-semibold leading-none text-[var(--ink)]">{ENGINE_NAMES.length}</div>
+                  <div className="mb-4 mt-1 text-sm text-[var(--ink-soft)]">AI engines tracked</div>
+                  <div className="mt-auto flex flex-wrap gap-x-3 gap-y-2">
+                    {ENGINE_NAMES.map((e) => (
+                      <span key={e} className="text-[11px] font-medium text-[var(--ink-faint)]">
+                        {e}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex flex-1 flex-col justify-between rounded-3xl bg-gradient-to-b from-[var(--rust-wash)] to-[var(--surface)] border border-[var(--rust)]/20 p-6">
+                  <span className="text-[13px] text-[var(--rust-deep)]">Time to first data</span>
+                  <div className="font-signal-mono text-5xl font-semibold leading-none text-[var(--rust)]">~60s</div>
+                  <div className="mt-1 text-[11px] text-[var(--ink-faint)]">Free visibility score · no card required</div>
                 </div>
               </div>
             </div>
           </ScrollReveal>
 
           <ScrollReveal delay={100}>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-              <div className="flex min-h-[220px] flex-col justify-between rounded-3xl bg-gradient-to-b from-[var(--rust-wash)] to-[var(--surface)] border border-[var(--rust)]/20 p-6">
-                <span className="text-[13px] text-[var(--rust-deep)]">Time to first data</span>
-                <div>
-                  <div className="mt-3 font-signal-mono text-6xl font-semibold leading-none text-[var(--rust)]">~60s</div>
-                  <div className="mt-2 text-sm leading-snug text-[var(--ink-soft)]">domain entry to first visibility score</div>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div>
+                <StageLabel>Research</StageLabel>
+                <div className={panel}>
+                  <h3 className="mb-4 font-signal-serif text-xl font-[400] leading-tight text-[var(--ink)]">Mine the gaps AI is about to fill.</h3>
+                  <div className="space-y-2">
+                    {gaps.map((r) => (
+                      <div key={r.q} className="flex items-center gap-2 border-b border-[var(--line)] py-1 last:border-0">
+                        <span className="flex-1 truncate text-[11px] text-[var(--ink-soft)]">{r.q}</span>
+                        <span className="shrink-0 text-[11px] font-semibold text-[var(--rust-deep)]">{r.score}%</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 text-[10px] text-[var(--ink-faint)]">AI overlap score · 247 gaps found</div>
                 </div>
-                <div className="mt-2 text-[11px] text-[var(--ink-faint)]">Free · no card required</div>
               </div>
 
-              <div className={panel}>
-                <h3 className="mb-4 font-signal-serif text-xl font-[400] leading-tight text-[var(--ink)]">Mine the gaps AI is about to fill.</h3>
-                <div className="space-y-2">
-                  {gaps.map((r) => (
-                    <div key={r.q} className="flex items-center gap-2 border-b border-[var(--line)] py-1 last:border-0">
-                      <span className="flex-1 truncate text-[11px] text-[var(--ink-soft)]">{r.q}</span>
-                      <span className="shrink-0 text-[11px] font-semibold text-[var(--rust-deep)]">{r.score}%</span>
+              <div>
+                <StageLabel>Write</StageLabel>
+                <div className={panel}>
+                  <h3 className="mb-4 font-signal-serif text-xl font-[400] leading-tight text-[var(--ink)]">Write what citation engines quote.</h3>
+                  <div className="rounded-xl bg-[var(--line-soft)] p-3.5 text-[10px]">
+                    <div className="mb-2 text-[9px] uppercase tracking-[0.14em] text-[var(--ink-faint)]">Outline · 1,840 / 2,400 words</div>
+                    {outline.map((s, i) => (
+                      <div key={s} className="flex gap-2 py-0.5">
+                        <span className="text-[var(--ink-faint)]/60">{i + 1}.</span>
+                        <span className="text-[var(--ink-soft)]">{s}</span>
+                      </div>
+                    ))}
+                    <div className="mt-2 flex items-center gap-1.5 border-t border-[var(--line)] pt-2">
+                      <span className="animate-pulse text-[var(--rust)] motion-reduce:animate-none" aria-hidden="true">▋</span>
+                      <span className="text-[var(--ink-faint)]">Writing claim-dense passage…</span>
                     </div>
-                  ))}
-                </div>
-                <div className="mt-3 text-[10px] text-[var(--ink-faint)]">AI overlap score · 247 gaps found</div>
-              </div>
-
-              <div className={panel}>
-                <h3 className="mb-4 font-signal-serif text-xl font-[400] leading-tight text-[var(--ink)]">Write what citation engines quote.</h3>
-                <div className="rounded-xl bg-[var(--line-soft)] p-3.5 text-[10px]">
-                  <div className="mb-2 text-[9px] uppercase tracking-[0.14em] text-[var(--ink-faint)]">Outline · 1,840 / 2,400 words</div>
-                  {outline.map((s, i) => (
-                    <div key={s} className="flex gap-2 py-0.5">
-                      <span className="text-[var(--ink-faint)]/60">{i + 1}.</span>
-                      <span className="text-[var(--ink-soft)]">{s}</span>
-                    </div>
-                  ))}
-                  <div className="mt-2 flex items-center gap-1.5 border-t border-[var(--line)] pt-2">
-                    <span className="animate-pulse text-[var(--rust)] motion-reduce:animate-none" aria-hidden="true">▋</span>
-                    <span className="text-[var(--ink-faint)]">Writing claim-dense passage…</span>
                   </div>
                 </div>
               </div>
@@ -317,6 +336,7 @@ function FeatureBento() {
           </ScrollReveal>
 
           <ScrollReveal delay={200}>
+            <StageLabel>Publish</StageLabel>
             <div className={panel}>
               <div className="flex flex-col gap-8 sm:flex-row sm:items-center">
                 <div className="shrink-0 sm:w-56">
@@ -444,7 +464,7 @@ export default function LandingPage() {
               style={{ fontSize: "clamp(1.02rem, 1.6vw, 1.15rem)", "--d": ".32s" } as React.CSSProperties}
             >
               See exactly what <strong className="font-medium text-[var(--ink)]">ChatGPT, Claude, Gemini, Perplexity and Google AI</strong>{" "}
-              say about your brand — then close the gaps with research, articles, and one-click publishing.
+              say about your brand then close the gaps with research, articles, and one-click publishing.
             </p>
             <div className="rise mx-auto mb-5 max-w-xl" style={{ "--d": ".46s" } as React.CSSProperties}>
               <DomainForm variant="hero" />
