@@ -2177,8 +2177,10 @@ function DashboardPage() {
                 Next check in: <span className="font-medium text-[var(--ink-soft)]">{nextCheckIn}</span>
               </div>
             )}
-            {/* Scan button — hidden on tabs where it doesn't apply */}
-            {!scanning && !loadingResults && activeTab !== "tasks" && activeTab !== "articles" && activeTab !== "publishing" && activeTab !== "alerts" && activeTab !== "agent" && activeTab !== "admin" && (
+            {/* Scan button — hidden on tabs where it doesn't apply. Everyone gets the
+                one-time initial scan; after that, re-scanning is admin-only (cron
+                handles ongoing scans for everyone else — see scheduledScanAll). */}
+            {!scanning && !loadingResults && (!scanned || isAdmin) && activeTab !== "tasks" && activeTab !== "articles" && activeTab !== "publishing" && activeTab !== "alerts" && activeTab !== "agent" && activeTab !== "admin" && (
               <button
                 onClick={runScan}
                 disabled={selectedEngines.length === 0}

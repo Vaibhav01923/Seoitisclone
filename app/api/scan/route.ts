@@ -4,6 +4,7 @@ import { clientFromRequest } from "@/lib/supabase";
 import { inngest } from "@/inngest/client";
 import { requireBrandAccess } from "@/lib/team";
 import { isLapsedSubscriber } from "@/lib/plan-limits";
+import { requireAdmin } from "@/lib/admin";
 
 export async function POST(req: NextRequest) {
   const { brandId, engines, promptIds }: { brandId: string; engines: AIEngine[]; promptIds?: string[] } = await req.json();
@@ -29,6 +30,25 @@ export async function POST(req: NextRequest) {
       JSON.stringify({ error: "This workspace's subscription has ended. Reactivate to run scans again.", upgradeRequired: true }),
       { status: 402 }
     );
+  }
+
+  // Everyone gets one manual scan to kick off monitoring on a brand new to
+  // the platform; once that first scan has produced results, further manual
+  // re-scans are admin-only (cron handles ongoing scans for everyone else —
+  // see scheduledScanAll) — mirrors the button-hiding in app/dashboard/page.tsx,
+  // enforced here too since a hidden button alone doesn't stop a direct call.
+  const isAdmin = !!(await requireAdmin(req));
+  if (!isAdmin) {
+    const { count: priorScans } = await db
+      .from("scan_results")
+      .select("id", { count: "exact", head: true })
+      .eq("brand_id", brandId);
+    if ((priorScans ?? 0) > 0) {
+      return new Response(
+        JSON.stringify({ error: "This brand's initial scan is done — future scans run automatically on schedule." }),
+        { status: 403 }
+      );
+    }
   }
 
   // Cap manual re-scans at 2/day per brand — each one burns real AI-provider
