@@ -35,6 +35,11 @@ const nextConfig: NextConfig = {
     return [
       { source: "/blogs", destination: "/blog", permanent: true },
       { source: "/blogs/:slug", destination: "/blog/:slug", permanent: true },
+      {
+        source: "/blog/profound-alternatives-that-actually-compete-in-geo-and-how-we-put-rankongeo-1",
+        destination: "/blog/profound-alternatives-geo-tools-compared",
+        permanent: true,
+      },
     ];
   },
   async headers() {
