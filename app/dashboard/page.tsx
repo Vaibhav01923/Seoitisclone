@@ -2541,7 +2541,7 @@ function DashboardPage() {
                 const avgPos = ranks.length ? (ranks.reduce((s, r) => s + r, 0) / ranks.length) : null;
 
                 // Top brands — extract from ranked list items in the response directly (no pre-config needed)
-                const compMap: Record<string, { name: string; domain: string | null; count: number; totalRank: number; engines: AIEngine[] }> = {};
+                const compMap: Record<string, { name: string; domain: string | null; count: number; rankedCount: number; totalRank: number; engines: AIEngine[] }> = {};
                 const brandNameLower = brand.name.toLowerCase();
                 promptResults.forEach((r) => {
                   const listItems = r.response.match(/\d+[\.\)]\s+([^\n]+)/g) ?? [];
@@ -2556,9 +2556,10 @@ function DashboardPage() {
                     // Try to extract a domain from a URL in the same list item
                     const urlMatch = item.match(/https?:\/\/(?:www\.)?([^\s\)\"<>\/]+)/);
                     const domain = urlMatch ? urlMatch[1] : null;
-                    if (!compMap[name]) compMap[name] = { name, domain, count: 0, totalRank: 0, engines: [] };
+                    if (!compMap[name]) compMap[name] = { name, domain, count: 0, rankedCount: 0, totalRank: 0, engines: [] };
                     if (!compMap[name].domain && domain) compMap[name].domain = domain;
                     compMap[name].count++;
+                    compMap[name].rankedCount++;
                     compMap[name].totalRank += idx + 1;
                     if (!compMap[name].engines.includes(r.engine)) compMap[name].engines.push(r.engine);
                   });
@@ -2567,9 +2568,16 @@ function DashboardPage() {
                   r.competitorMentions.forEach((cm) => {
                     if (seen.has(cm.name.toLowerCase()) || cm.name.toLowerCase() === brandNameLower) return;
                     seen.add(cm.name.toLowerCase());
-                    if (!compMap[cm.name]) compMap[cm.name] = { name: cm.name, domain: null, count: 0, totalRank: 0, engines: [] };
+                    if (!compMap[cm.name]) compMap[cm.name] = { name: cm.name, domain: null, count: 0, rankedCount: 0, totalRank: 0, engines: [] };
                     compMap[cm.name].count++;
-                    if (cm.rank) compMap[cm.name].totalRank += cm.rank;
+                    // Only counts toward the average when a real rank was found —
+                    // otherwise a plain-text mention (no rank) drags the average
+                    // below the minimum possible rank of 1 (e.g. rank 1 once + one
+                    // unranked mention averaged over 2 previously produced "#0.5").
+                    if (cm.rank) {
+                      compMap[cm.name].rankedCount++;
+                      compMap[cm.name].totalRank += cm.rank;
+                    }
                     if (!compMap[cm.name].engines.includes(r.engine)) compMap[cm.name].engines.push(r.engine);
                   });
                 });
@@ -2579,7 +2587,7 @@ function DashboardPage() {
                     name: c.name,
                     domain: c.domain ?? `${c.name.toLowerCase()}.com`,
                     visibility: Math.round(c.count / promptResults.length * 100),
-                    avgPos: c.count ? c.totalRank / c.count || null : null,
+                    avgPos: c.rankedCount ? c.totalRank / c.rankedCount : null,
                     engines: c.engines,
                     isOwn: false,
                   })),
