@@ -36,6 +36,14 @@ export default function DocsIndexPage() {
           <p className="text-sm font-semibold text-[var(--ink)] mb-1">How to Set Up AI Crawler &amp; Bot Analytics →</p>
           <p className="text-sm text-[var(--ink-soft)]">See when ChatGPT, Claude, Perplexity, and other AI crawlers actually visit your site.</p>
         </Link>
+
+        <Link
+          href="/docs/autopublish"
+          className="block panel rounded-xl border border-[var(--line)] bg-[var(--surface)] p-5 hover:border-[var(--rust)]/40 transition-colors"
+        >
+          <p className="text-sm font-semibold text-[var(--ink)] mb-1">How to Set Up Auto-Publishing →</p>
+          <p className="text-sm text-[var(--ink-soft)]">Connect WordPress, Discord, or your own website/CMS so finished articles publish automatically.</p>
+        </Link>
       </div>
     </div>
   );

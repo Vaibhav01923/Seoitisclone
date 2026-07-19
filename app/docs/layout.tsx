@@ -21,6 +21,7 @@ const NAV_SECTIONS: { title: string; items: { href: string; label: string }[] }[
     items: [
       { href: "/docs/web-analytics", label: "How to Set Up Web Analytics" },
       { href: "/docs/llm-analytics", label: "How to Set Up AI Crawler & Bot Analytics" },
+      { href: "/docs/autopublish", label: "How to Set Up Auto-Publishing" },
     ],
   },
 ];

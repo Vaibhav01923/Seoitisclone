@@ -36,9 +36,17 @@ export async function POST(req: NextRequest) {
 
   try {
     if (channel.type === "webhook") {
+      // api_key doubles as a shared secret for webhook channels (unused by
+      // this type otherwise) — sent so the receiver can verify the request
+      // actually came from RankOnGeo. See the "Copy AI setup prompt" flow
+      // in the dashboard's Add Channel modal, which generates this secret
+      // and tells the user's endpoint to check for it.
       const res = await fetch(channel.url, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(channel.api_key ? { "X-RankOnGeo-Secret": channel.api_key } : {}),
+        },
         body: JSON.stringify({
           title: article.title,
           content: article.content,
@@ -67,7 +75,12 @@ export async function POST(req: NextRequest) {
       if (!res.ok) throw new Error(`Discord returned ${res.status} ${res.statusText}`);
       success = true;
     } else if (channel.type === "wordpress") {
-      const auth = Buffer.from(`admin:${channel.api_key ?? ""}`).toString("base64");
+      // username wasn't collected from the user before — hardcoding "admin"
+      // silently 401s for anyone whose WP admin username isn't literally
+      // that. Existing channels with no username saved keep the old
+      // behavior via this fallback.
+      const wpUser = (channel.username as string) || "admin";
+      const auth = Buffer.from(`${wpUser}:${channel.api_key ?? ""}`).toString("base64");
       const wpUrl = (channel.url as string).replace(/\/$/, "") + "/wp-json/wp/v2/posts";
       const res = await fetch(wpUrl, {
         method: "POST",

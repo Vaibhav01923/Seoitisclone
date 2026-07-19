@@ -513,6 +513,42 @@ const CHANNEL_ICONS: Record<string, string> = {
   wordpress: "📝", webflow: "🌊", webhook: "🔗", discord: "💬", framer: "🎨",
 };
 
+// A ready-to-paste prompt for an AI coding assistant (Claude Code, Cursor,
+// ChatGPT) to build the receiving endpoint on the user's own site/CMS —
+// this is what makes "any website or CMS" an auto-publish target without
+// RankOnGeo needing a dedicated integration for each one. The exact JSON
+// shape and header name here must stay in sync with the real request sent
+// in app/api/publishing/publish/route.ts's "webhook" branch.
+function buildAiSetupPrompt(secret: string, stack: string): string {
+  const stackLine = stack.trim() || "{describe your site/CMS/stack here}";
+  return `I want to receive blog posts automatically from RankOnGeo and publish them on my site.
+
+My site/stack: ${stackLine}
+
+RankOnGeo will POST to an endpoint I create whenever a new article is ready. Please help me:
+
+1. Create an API endpoint (in whatever way fits my stack above) that accepts POST requests with this JSON body:
+   {
+     "title": string,       // article headline
+     "content": string,     // full article body, as HTML
+     "keyword": string,     // the target SEO keyword this article targets
+     "status": "publish",
+     "source": "rankongeo"
+   }
+
+2. Verify the request is really from RankOnGeo: reject (401) any request where the
+   \`X-RankOnGeo-Secret\` header doesn't exactly equal: ${secret}
+
+3. Use the title/content to create and publish a new post through my site's existing
+   content system (CMS API, database, static-file commit — whatever fits my stack above).
+
+4. Return { "ok": true } with a 200 status on success, and a clear error status/message
+   otherwise (RankOnGeo shows the response back to me if something fails).
+
+5. Tell me the final URL of that endpoint so I can paste it into RankOnGeo's
+   "Your endpoint URL" field.`;
+}
+
 // Styling for the dark "full response" modal — not Tailwind Typography's
 // `prose` classes (not installed in this project; the div's `prose` classes
 // were already dead no-op class names before this), just explicit per-tag
@@ -848,8 +884,10 @@ function DashboardPage() {
   const [publishingChannels, setPublishingChannels] = useState<PublishingChannel[]>([]);
   const [publishingLog, setPublishingLog] = useState<PublishingLogEntry[]>([]);
   const [showAddChannel, setShowAddChannel] = useState(false);
-  const [newChannel, setNewChannel] = useState({ name: "", type: "webhook", url: "", apiKey: "" });
+  const [newChannel, setNewChannel] = useState({ name: "", type: "webhook", url: "", apiKey: "", username: "" });
   const [addingChannel, setAddingChannel] = useState(false);
+  const [stackDescription, setStackDescription] = useState("");
+  const [promptCopied, setPromptCopied] = useState(false);
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [publishArticleId, setPublishArticleId] = useState("");
   const [publishChannelId, setPublishChannelId] = useState("");
@@ -1256,9 +1294,14 @@ function DashboardPage() {
   async function addChannel() {
     if (!brand?.id || !newChannel.name || !newChannel.url) return;
     setAddingChannel(true);
-    const res = await fetch("/api/publishing/channels", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ brandId: brand.id, name: newChannel.name, type: newChannel.type, url: newChannel.url, apiKey: newChannel.apiKey }) });
+    const res = await fetch("/api/publishing/channels", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ brandId: brand.id, name: newChannel.name, type: newChannel.type, url: newChannel.url, apiKey: newChannel.apiKey, username: newChannel.username }) });
     const d = await res.json();
-    if (d.channel) { setPublishingChannels((prev) => [...prev, d.channel]); setShowAddChannel(false); setNewChannel({ name: "", type: "webhook", url: "", apiKey: "" }); }
+    if (d.channel) {
+      setPublishingChannels((prev) => [...prev, d.channel]);
+      setShowAddChannel(false);
+      setNewChannel({ name: "", type: "webhook", url: "", apiKey: "", username: "" });
+      setStackDescription("");
+    }
     setAddingChannel(false);
   }
 
@@ -4999,6 +5042,14 @@ function DashboardPage() {
                   </div>
                 </div>
 
+                <div className="bg-[var(--line-soft)] border border-[var(--line)] rounded-xl px-4 py-3 mb-5 flex items-start gap-3">
+                  <span className="text-base shrink-0">⚡</span>
+                  <p className="text-xs text-[var(--ink-soft)] leading-relaxed">
+                    <span className="font-semibold text-[var(--ink)]">3 ways to auto-publish:</span> WordPress (one click), Discord (post to a channel), or your own website / CMS via webhook (~5 min setup, an AI coding assistant can build it for you).{" "}
+                    <a href="/docs/autopublish" target="_blank" rel="noopener noreferrer" className="text-[var(--rust)] font-medium hover:underline">Full setup guide →</a>
+                  </p>
+                </div>
+
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
                   <StatCard label="Published / Mo" value={publishedThisMonth} sub={`${publishingLog.filter(e => e.status === "published").length} total`} />
                   <StatCard label="Syndications" value={publishingLog.filter(e => e.status === "published").length} sub="across all channels" />
@@ -5018,21 +5069,29 @@ function DashboardPage() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {publishingChannels.map((ch) => (
-                        <div key={ch.id} className="border border-[var(--line)] rounded-xl p-4">
-                          <div className="flex items-center gap-2 mb-3">
-                            <span className="text-base">{CHANNEL_ICONS[ch.type] ?? "🔗"}</span>
-                            <span className="text-sm font-semibold text-[var(--ink)]">{ch.name}</span>
-                            <button onClick={() => toggleChannel(ch.id, ch.status)} className="ml-auto text-[10px] text-[var(--ink-faint)] hover:text-[var(--ink-soft)]">
-                              {ch.status === "active" ? "Pause" : "Resume"}
-                            </button>
+                      {publishingChannels.map((ch) => {
+                        const lastEntry = publishingLog
+                          .filter((e) => e.channel_id === ch.id)
+                          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+                        return (
+                          <div key={ch.id} className="border border-[var(--line)] rounded-xl p-4">
+                            <div className="flex items-center gap-2 mb-3">
+                              <span className="text-base">{CHANNEL_ICONS[ch.type] ?? "🔗"}</span>
+                              <span className="text-sm font-semibold text-[var(--ink)]">{ch.name}</span>
+                              <button onClick={() => toggleChannel(ch.id, ch.status)} className="ml-auto text-[10px] text-[var(--ink-faint)] hover:text-[var(--ink-soft)]">
+                                {ch.status === "active" ? "Pause" : "Resume"}
+                              </button>
+                            </div>
+                            <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${ch.status === "active" ? "bg-[var(--rust)]/10 text-[var(--rust)]" : "bg-[var(--line)] text-[var(--ink)]/80"}`}>{ch.status === "active" ? "Active" : "Paused"}</span>
+                            <p className="text-[10px] text-[var(--ink-faint)] mt-2 truncate">{ch.url}</p>
+                            <p className="text-[10px] text-[var(--ink-faint)]">Last: {ch.last_published_at ? timeAgo(ch.last_published_at) + " ago" : "—"}</p>
+                            {lastEntry?.status === "failed" && (
+                              <p className="text-[10px] text-red-700 mt-1.5 leading-snug">⚠ Last attempt failed — {(lastEntry.error_message ?? "unknown error").slice(0, 80)}</p>
+                            )}
+                            <button onClick={() => deleteChannel(ch.id)} className="mt-2 text-[10px] text-red-700/80 hover:text-red-700">Remove</button>
                           </div>
-                          <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${ch.status === "active" ? "bg-[var(--rust)]/10 text-[var(--rust)]" : "bg-[var(--line)] text-[var(--ink)]/80"}`}>{ch.status === "active" ? "Active" : "Paused"}</span>
-                          <p className="text-[10px] text-[var(--ink-faint)] mt-2 truncate">{ch.url}</p>
-                          <p className="text-[10px] text-[var(--ink-faint)]">Last: {ch.last_published_at ? timeAgo(ch.last_published_at) + " ago" : "—"}</p>
-                          <button onClick={() => deleteChannel(ch.id)} className="mt-2 text-[10px] text-red-700/80 hover:text-red-700">Remove</button>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -5865,35 +5924,123 @@ function DashboardPage() {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setShowAddChannel(false)}>
           <div className="bg-[var(--surface)] rounded-2xl shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="text-base font-semibold text-[var(--ink)]">Add publishing channel</h3>
-                <button onClick={() => setShowAddChannel(false)} className="text-[var(--ink-faint)] hover:text-[var(--ink-soft)] text-xl">×</button>
-              </div>
-              <div className="space-y-3">
+              <div className="flex items-start justify-between mb-4">
                 <div>
-                  <label className="text-xs font-medium text-[var(--ink-soft)] block mb-1">Channel type</label>
-                  <select value={newChannel.type} onChange={(e) => setNewChannel((p) => ({ ...p, type: e.target.value, url: "", apiKey: "" }))} className="w-full border border-[var(--line)] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--rust)]/40">
-                    <option value="webhook">Webhook — send JSON to any URL</option>
-                    <option value="discord">Discord — post to a channel</option>
-                    <option value="wordpress">WordPress — publish directly to your blog</option>
-                  </select>
+                  <h3 className="text-base font-semibold text-[var(--ink)]">Add publishing channel</h3>
+                  <p className="text-xs text-[var(--ink-faint)] mt-0.5">Where should finished articles go automatically?</p>
                 </div>
+                <button onClick={() => setShowAddChannel(false)} className="text-[var(--ink-faint)]/70 hover:text-[var(--ink-soft)] text-xl leading-none ml-4 shrink-0">×</button>
+              </div>
+              <div className="space-y-4">
+                {/* Type selector — clickable cards */}
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { value: "wordpress", label: "WordPress" },
+                    { value: "discord", label: "Discord" },
+                    { value: "webhook", label: "My website / CMS" },
+                  ] as { value: string; label: string }[]).map(({ value, label }) => {
+                    const active = newChannel.type === value;
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setNewChannel((p) => p.type === value ? p : { ...p, type: value, url: "", username: "", apiKey: value === "webhook" ? crypto.randomUUID() : "" })}
+                        className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border-2 text-xs font-medium transition-all ${
+                          active
+                            ? "border-[var(--rust)] bg-[var(--rust)] text-[var(--surface)]"
+                            : "border-[var(--line)] text-[var(--ink-soft)] hover:border-[var(--line)] hover:text-[var(--ink)]/80"
+                        }`}
+                      >
+                        <span className="text-lg">{CHANNEL_ICONS[value] ?? "🔗"}</span>
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* WordPress guide */}
+                {newChannel.type === "wordpress" && (
+                  <div className="bg-[#21759b]/5 border border-[#21759b]/20 rounded-xl p-4">
+                    <p className="text-xs font-semibold text-[#21759b] mb-2">How to connect WordPress</p>
+                    <ol className="space-y-1.5 text-xs text-[var(--ink-soft)]">
+                      <li className="flex gap-2"><span className="text-[#21759b] font-semibold shrink-0">1.</span>In WP Admin, go to <span className="font-medium">Users → Profile</span> (your own user)</li>
+                      <li className="flex gap-2"><span className="text-[#21759b] font-semibold shrink-0">2.</span>Scroll to <span className="font-medium">Application Passwords</span>, name it &quot;RankOnGeo&quot;, click <span className="font-medium">Add New Application Password</span></li>
+                      <li className="flex gap-2"><span className="text-[#21759b] font-semibold shrink-0">3.</span>Copy the generated password below — WordPress only shows it once</li>
+                      <li className="flex gap-2"><span className="text-[#21759b] font-semibold shrink-0">4.</span>Enter your WP username exactly as shown on that Users page (not your display name)</li>
+                    </ol>
+                    <p className="text-[10px] text-[#21759b]/80 mt-2">Publishing failing with a 401? A security plugin may be blocking the REST API — allowlist <span className="font-mono">/wp-json/wp/v2/posts</span>.</p>
+                  </div>
+                )}
+
+                {/* Discord guide */}
+                {newChannel.type === "discord" && (
+                  <div className="bg-[#5865f2]/5 border border-[#5865f2]/20 rounded-xl p-4">
+                    <p className="text-xs font-semibold text-[#5865f2] mb-2">How to get a Discord webhook URL</p>
+                    <ol className="space-y-1.5 text-xs text-[var(--ink-soft)]">
+                      <li className="flex gap-2"><span className="text-[#5865f2] font-semibold shrink-0">1.</span>Open your Discord server → right-click the channel you want articles posted in</li>
+                      <li className="flex gap-2"><span className="text-[#5865f2] font-semibold shrink-0">2.</span>Click <span className="font-medium">Edit Channel</span> → <span className="font-medium">Integrations</span> → <span className="font-medium">Webhooks</span></li>
+                      <li className="flex gap-2"><span className="text-[#5865f2] font-semibold shrink-0">3.</span>Click <span className="font-medium">New Webhook</span>, give it a name, then click <span className="font-medium">Copy Webhook URL</span></li>
+                      <li className="flex gap-2"><span className="text-[#5865f2] font-semibold shrink-0">4.</span>Paste the URL below — it starts with <span className="font-mono bg-[#5865f2]/10 px-1 rounded">discord.com/api/webhooks/…</span></li>
+                    </ol>
+                  </div>
+                )}
+
+                {/* Webhook / custom site guide + AI prompt */}
+                {newChannel.type === "webhook" && (
+                  <div className="bg-[var(--rust)]/5 border border-[var(--rust)]/20 rounded-xl p-4 space-y-3">
+                    <div>
+                      <p className="text-xs font-semibold text-[var(--rust-deep)] mb-1">Works with any website or CMS</p>
+                      <p className="text-xs text-[var(--ink-soft)]">Paste the prompt below into an AI coding assistant (Claude Code, Cursor, ChatGPT) — it builds the endpoint that receives your articles. About 5 minutes, no plugin needed.</p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-[var(--ink-soft)] block mb-1">Your secret (auto-generated)</label>
+                      <div className="flex gap-2">
+                        <input readOnly value={newChannel.apiKey} className="flex-1 border border-[var(--line)] rounded-lg px-3 py-2 text-xs font-mono bg-[var(--line-soft)] text-[var(--ink-soft)] outline-none" />
+                        <button type="button" onClick={() => navigator.clipboard.writeText(newChannel.apiKey)} className="text-xs font-medium border border-[var(--line)] rounded-lg px-3 hover:bg-[var(--line-soft)] transition-colors shrink-0">Copy</button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-[var(--ink-soft)] block mb-1">Describe your site <span className="text-[var(--ink-faint)] font-normal">(optional — makes the prompt more accurate)</span></label>
+                      <input value={stackDescription} onChange={(e) => setStackDescription(e.target.value)} placeholder="e.g. Next.js blog, WordPress, Webflow CMS collection, custom Express app" className="w-full border border-[var(--line)] rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-[var(--rust)]/40" />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { navigator.clipboard.writeText(buildAiSetupPrompt(newChannel.apiKey, stackDescription)); setPromptCopied(true); setTimeout(() => setPromptCopied(false), 2000); }}
+                      className="w-full text-xs font-semibold bg-[var(--rust)] text-[var(--surface)] rounded-lg py-2.5 hover:bg-[var(--rust-deep)] transition-colors"
+                    >
+                      {promptCopied ? "Copied — paste it into your AI assistant →" : "📋 Copy AI setup prompt"}
+                    </button>
+                    <details className="text-xs text-[var(--ink-faint)]">
+                      <summary className="cursor-pointer hover:text-[var(--ink-soft)]">Just want the raw payload? (no AI needed)</summary>
+                      <pre className="mt-2 bg-[var(--line-soft)] border border-[var(--line)] rounded-lg p-3 overflow-x-auto text-[10px] font-mono whitespace-pre">{`POST <your endpoint URL>
+Header: X-RankOnGeo-Secret: ${newChannel.apiKey || "<secret>"}
+Body: {
+  "title": string,
+  "content": string,   // HTML
+  "keyword": string,
+  "status": "publish",
+  "source": "rankongeo"
+}`}</pre>
+                    </details>
+                  </div>
+                )}
+
+                {/* Name field */}
                 <div>
                   <label className="text-xs font-medium text-[var(--ink-soft)] block mb-1">Name</label>
                   <input value={newChannel.name} onChange={(e) => setNewChannel((p) => ({ ...p, name: e.target.value }))} placeholder="e.g. Company blog" className="w-full border border-[var(--line)] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--rust)]/40" />
                 </div>
+
                 {newChannel.type === "webhook" && (
                   <div>
-                    <label className="text-xs font-medium text-[var(--ink-soft)] block mb-1">Webhook URL</label>
-                    <input value={newChannel.url} onChange={(e) => setNewChannel((p) => ({ ...p, url: e.target.value }))} placeholder="https://hooks.example.com/..." className="w-full border border-[var(--line)] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--rust)]/40" />
-                    <p className="text-[10px] text-[var(--ink-faint)] mt-1">RankOnGeo will POST the article as JSON to this URL. Use <span className="font-mono">webhook.site</span> to test.</p>
+                    <label className="text-xs font-medium text-[var(--ink-soft)] block mb-1">Your endpoint URL <span className="text-[var(--ink-faint)] font-normal">(paste it here once it&apos;s built)</span></label>
+                    <input value={newChannel.url} onChange={(e) => setNewChannel((p) => ({ ...p, url: e.target.value }))} placeholder="https://yoursite.com/api/rankongeo-publish" className="w-full border border-[var(--line)] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--rust)]/40" />
                   </div>
                 )}
                 {newChannel.type === "discord" && (
                   <div>
                     <label className="text-xs font-medium text-[var(--ink-soft)] block mb-1">Discord webhook URL</label>
                     <input value={newChannel.url} onChange={(e) => setNewChannel((p) => ({ ...p, url: e.target.value }))} placeholder="https://discord.com/api/webhooks/..." className="w-full border border-[var(--line)] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--rust)]/40" />
-                    <p className="text-[10px] text-[var(--ink-faint)] mt-1">In Discord: channel Settings → Integrations → Webhooks → New Webhook → Copy URL</p>
                   </div>
                 )}
                 {newChannel.type === "wordpress" && (
@@ -5903,14 +6050,20 @@ function DashboardPage() {
                       <input value={newChannel.url} onChange={(e) => setNewChannel((p) => ({ ...p, url: e.target.value }))} placeholder="https://yourblog.com" className="w-full border border-[var(--line)] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--rust)]/40" />
                     </div>
                     <div>
+                      <label className="text-xs font-medium text-[var(--ink-soft)] block mb-1">Username</label>
+                      <input value={newChannel.username} onChange={(e) => setNewChannel((p) => ({ ...p, username: e.target.value }))} placeholder="admin" className="w-full border border-[var(--line)] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--rust)]/40" />
+                    </div>
+                    <div>
                       <label className="text-xs font-medium text-[var(--ink-soft)] block mb-1">Application password</label>
                       <input type="password" value={newChannel.apiKey} onChange={(e) => setNewChannel((p) => ({ ...p, apiKey: e.target.value }))} placeholder="xxxx xxxx xxxx xxxx xxxx xxxx" className="w-full border border-[var(--line)] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--rust)]/40" />
-                      <p className="text-[10px] text-[var(--ink-faint)] mt-1">WP Admin → Users → Edit your user → Application Passwords → Generate</p>
                     </div>
                   </>
                 )}
               </div>
-              <div className="flex gap-2 mt-5">
+              <p className="text-[10px] text-[var(--ink-faint)] mt-4 text-center">
+                <a href="/docs/autopublish" target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--ink-soft)]">Full setup guide with troubleshooting →</a>
+              </p>
+              <div className="flex gap-2 mt-3">
                 <button onClick={() => setShowAddChannel(false)} className="flex-1 text-sm border border-[var(--line)] rounded-lg py-2 hover:bg-[var(--line-soft)] transition-colors">Cancel</button>
                 <button onClick={addChannel} disabled={addingChannel || !newChannel.name || !newChannel.url} className="flex-1 text-sm font-medium bg-[var(--rust)] text-[var(--surface)] rounded-lg py-2 hover:bg-[var(--rust-deep)] disabled:opacity-50 transition-colors">
                   {addingChannel ? "Adding…" : "Add channel"}

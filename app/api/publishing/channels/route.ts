@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await db.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const { brandId, name, type, url, apiKey } = await req.json();
+  const { brandId, name, type, url, apiKey, username } = await req.json();
   if (!brandId || !name || !type || !url) {
     return NextResponse.json({ error: "brandId, name, type, url required" }, { status: 400 });
   }
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await db
     .from("publishing_channels")
-    .insert({ brand_id: brandId, user_id: user.id, name, type, url, api_key: apiKey ?? null })
+    .insert({ brand_id: brandId, user_id: user.id, name, type, url, api_key: apiKey ?? null, username: username ?? null })
     .select()
     .single();
 
@@ -59,7 +59,7 @@ export async function PUT(req: NextRequest) {
   const { data: { user } } = await db.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const { id, status, name, url, apiKey } = await req.json();
+  const { id, status, name, url, apiKey, username } = await req.json();
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
   const access = await requireChannelAccess(db, user.id, id);
@@ -70,6 +70,7 @@ export async function PUT(req: NextRequest) {
   if (name !== undefined) updates.name = name;
   if (url !== undefined) updates.url = url;
   if (apiKey !== undefined) updates.api_key = apiKey;
+  if (username !== undefined) updates.username = username;
 
   const { data, error } = await db
     .from("publishing_channels")
