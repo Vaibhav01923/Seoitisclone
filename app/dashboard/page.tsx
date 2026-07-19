@@ -2441,6 +2441,11 @@ function DashboardPage() {
                           Visibility up to {isFreeTier ? <BlurInline onUnlock={openPaywall}>{decoyPct(brand.id ?? brand.name)}%</BlurInline> : `${overallScore}%`} composite, across {scores.map((s) => ENGINE_LABELS[s.engine]).join(", ")}.
                         </p>
                       )}
+                      {isFreeTier && (
+                        <p className="text-[13px] text-[var(--ink-faint)]">
+                          This score is just the start — Research and Tasks below turn it into content and engagement that get AI engines to actually mention you.
+                        </p>
+                      )}
                     </div>
                   </div>
 

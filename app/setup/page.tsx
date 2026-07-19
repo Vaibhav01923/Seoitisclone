@@ -246,12 +246,17 @@ function SetupContent() {
           <div>
             <h1 className="font-signal-serif text-3xl text-[var(--ink)] mb-2">Enter your website</h1>
             <p className="text-[var(--ink-soft)] text-sm mb-8">
-              We&apos;ll crawl it to understand your brand and generate the right tracking prompts.
+              We&apos;ll crawl it to understand your brand and generate the right tracking prompts —
+              RankOnGeo doesn&apos;t just score your AI visibility, it closes the gap and gets you mentioned.
             </p>
             {loading && (
               <div className="flex flex-col items-center py-16 gap-4">
                 <span className="w-8 h-8 border-2 border-[var(--rust)] border-t-transparent rounded-full animate-spin" />
                 <p className="text-sm text-[var(--ink-soft)]">Analyzing your site…</p>
+                <p className="text-xs text-[var(--ink-faint)] max-w-xs text-center">
+                  In a moment you&apos;ll see where ChatGPT, Claude, Gemini, Perplexity and Google AI mention you today —
+                  then the research and content that get them to mention you more.
+                </p>
               </div>
             )}
             {!loading && <form onSubmit={handleAnalyze} className="space-y-5">
