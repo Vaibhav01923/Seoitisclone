@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { MarkdownArticle } from "../../_components/MarkdownArticle";
 import type { BlogPost } from "@/lib/blog";
@@ -65,6 +65,9 @@ export default function AdminBlogPage() {
   const [genNotes, setGenNotes] = useState("");
 
   const [imagePrompt, setImagePrompt] = useState("");
+  const coverFileRef = useRef<HTMLInputElement>(null);
+  const contentFileRef = useRef<HTMLInputElement>(null);
+  const contentRef = useRef<HTMLTextAreaElement>(null);
 
   const loadPosts = useCallback(async () => {
     const res = await fetch("/api/admin/blog");
@@ -199,6 +202,58 @@ export default function AdminBlogPage() {
       const { description, tags } = await res.json();
       setEditor((e) => (e ? { ...e, description, tags: (tags as string[]).join(", ") } : e));
       flash("Meta description & tags filled from the article");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    const form = new FormData();
+    form.append("file", file);
+    const res = await fetch("/api/admin/blog/upload-image", { method: "POST", body: form });
+    if (!res.ok) {
+      await fail(res);
+      return null;
+    }
+    const { imageUrl } = await res.json();
+    return imageUrl;
+  };
+
+  const uploadCoverImage = async (file: File) => {
+    setBusy("upload-cover");
+    setError(null);
+    try {
+      const url = await uploadImage(file);
+      if (url) setField("coverImageUrl", url);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  // Inserts markdown image syntax at the textarea's current cursor position
+  // (or appends it if the textarea isn't focused/mounted) rather than always
+  // appending to the end, so it lands where the writer is actually working.
+  const insertContentImage = async (file: File) => {
+    if (!editor) return;
+    setBusy("upload-content-image");
+    setError(null);
+    try {
+      const url = await uploadImage(file);
+      if (!url) return;
+      const markdown = `![](${url})`;
+      const ta = contentRef.current;
+      const current = editor.content;
+      const start = ta?.selectionStart ?? current.length;
+      const end = ta?.selectionEnd ?? current.length;
+      const nextContent = current.slice(0, start) + markdown + current.slice(end);
+      setField("content", nextContent);
+      requestAnimationFrame(() => {
+        if (!ta) return;
+        ta.focus();
+        const pos = start + markdown.length;
+        ta.setSelectionRange(pos, pos);
+      });
+      flash("Image uploaded and inserted");
     } finally {
       setBusy(null);
     }
@@ -436,13 +491,33 @@ export default function AdminBlogPage() {
               />
             )}
 
-            <input
-              id="post-cover"
-              className={`${inputCls} mb-3`}
-              placeholder="Paste an image URL, or generate one with AI below — blank = night-sky cover art"
-              value={editor.coverImageUrl}
-              onChange={(e) => setField("coverImageUrl", e.target.value)}
-            />
+            <div className="mb-3 flex gap-2">
+              <input
+                id="post-cover"
+                className={inputCls}
+                placeholder="Paste an image URL, upload one, or generate with AI below — blank = night-sky cover art"
+                value={editor.coverImageUrl}
+                onChange={(e) => setField("coverImageUrl", e.target.value)}
+              />
+              <input
+                ref={coverFileRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  if (file) uploadCoverImage(file);
+                }}
+              />
+              <button
+                onClick={() => coverFileRef.current?.click()}
+                disabled={busy === "upload-cover"}
+                className={`${btnGhost} shrink-0 whitespace-nowrap`}
+              >
+                {busy === "upload-cover" ? "Uploading…" : "Upload"}
+              </button>
+            </div>
 
             <label className={labelCls} htmlFor="post-image-prompt">
               AI image prompt {imagePrompt ? "(edit, then regenerate)" : "(leave blank to use the post title)"}
@@ -471,12 +546,34 @@ export default function AdminBlogPage() {
           <div className="mt-4">
             <div className="mb-2 flex items-center justify-between">
               <label className={labelCls} htmlFor="post-content">Content (markdown)</label>
-              <button
-                onClick={() => setPreview(!preview)}
-                className="text-xs font-medium text-[var(--rust)] hover:text-[var(--rust-deep)]"
-              >
-                {preview ? "✎ Edit markdown" : "◉ Preview"}
-              </button>
+              <div className="flex items-center gap-3">
+                <input
+                  ref={contentFileRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = "";
+                    if (file) insertContentImage(file);
+                  }}
+                />
+                {!preview && (
+                  <button
+                    onClick={() => contentFileRef.current?.click()}
+                    disabled={busy === "upload-content-image"}
+                    className="text-xs font-medium text-[var(--rust)] hover:text-[var(--rust-deep)] disabled:opacity-50"
+                  >
+                    {busy === "upload-content-image" ? "Uploading…" : "🖼 Insert image"}
+                  </button>
+                )}
+                <button
+                  onClick={() => setPreview(!preview)}
+                  className="text-xs font-medium text-[var(--rust)] hover:text-[var(--rust-deep)]"
+                >
+                  {preview ? "✎ Edit markdown" : "◉ Preview"}
+                </button>
+              </div>
             </div>
             {preview ? (
               <div className="max-h-[560px] overflow-y-auto rounded-lg border border-[var(--line)] bg-[var(--cream)] px-6 py-5">
@@ -485,6 +582,7 @@ export default function AdminBlogPage() {
               </div>
             ) : (
               <textarea
+                ref={contentRef}
                 id="post-content"
                 className={`${inputCls} min-h-[420px] resize-y font-signal-mono leading-relaxed`}
                 value={editor.content}

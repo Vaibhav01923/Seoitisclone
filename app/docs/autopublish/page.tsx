@@ -12,7 +12,7 @@ RankOnGeo will POST to an endpoint I create whenever a new article is ready. Ple
 1. Create an API endpoint (in whatever way fits my stack above) that accepts POST requests with this JSON body:
    {
      "title": string,       // article headline
-     "content": string,     // full article body, as HTML
+     "content": string,     // full article body, as Markdown
      "keyword": string,     // the target SEO keyword this article targets
      "status": "publish",
      "source": "rankongeo"
@@ -41,7 +41,7 @@ Content-Type: application/json
 
 {
   "title": "string — article headline",
-  "content": "string — full article body, as HTML",
+  "content": "string — full article body, as Markdown",
   "keyword": "string — the target SEO keyword",
   "status": "publish",
   "source": "rankongeo"

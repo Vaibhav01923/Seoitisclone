@@ -530,7 +530,7 @@ RankOnGeo will POST to an endpoint I create whenever a new article is ready. Ple
 1. Create an API endpoint (in whatever way fits my stack above) that accepts POST requests with this JSON body:
    {
      "title": string,       // article headline
-     "content": string,     // full article body, as HTML
+     "content": string,     // full article body, as Markdown
      "keyword": string,     // the target SEO keyword this article targets
      "status": "publish",
      "source": "rankongeo"
@@ -6030,7 +6030,7 @@ function DashboardPage() {
 Header: X-RankOnGeo-Secret: ${newChannel.apiKey || "<secret>"}
 Body: {
   "title": string,
-  "content": string,   // HTML
+  "content": string,   // Markdown
   "keyword": string,
   "status": "publish",
   "source": "rankongeo"
