@@ -545,8 +545,12 @@ RankOnGeo will POST to an endpoint I create whenever a new article is ready. Ple
 4. Return { "ok": true } with a 200 status on success, and a clear error status/message
    otherwise (RankOnGeo shows the response back to me if something fails).
 
-5. Tell me the final URL of that endpoint so I can paste it into RankOnGeo's
-   "Your endpoint URL" field.`;
+5. Once it's built (and deployed, if that's needed for it to be reachable), end your reply
+   with a clearly labeled "What to do next" section for me, spelling out:
+   - The exact endpoint URL to paste into RankOnGeo's "Your endpoint URL" field
+   - Any manual step I still need to do myself (deploy, set an env var, restart something, etc.)
+   Put this at the very end and make it stand out — I might not read back through
+   the rest of this prompt.`;
 }
 
 // Styling for the dark "full response" modal — not Tailwind Typography's
