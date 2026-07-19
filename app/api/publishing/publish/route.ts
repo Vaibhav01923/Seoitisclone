@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { marked } from "marked";
 import { clientFromRequest } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
@@ -82,6 +83,9 @@ export async function POST(req: NextRequest) {
       const wpUser = (channel.username as string) || "admin";
       const auth = Buffer.from(`${wpUser}:${channel.api_key ?? ""}`).toString("base64");
       const wpUrl = (channel.url as string).replace(/\/$/, "") + "/wp-json/wp/v2/posts";
+      // article.content is Markdown (see generate-article's prompt); WordPress's
+      // REST API expects HTML in the content field, so convert before sending.
+      const contentHtml = await marked.parse(article.content as string, { gfm: true });
       const res = await fetch(wpUrl, {
         method: "POST",
         headers: {
@@ -90,7 +94,7 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           title: article.title,
-          content: article.content,
+          content: contentHtml,
           status: "publish",
         }),
       });
