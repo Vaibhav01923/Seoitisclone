@@ -56,7 +56,8 @@ function OverviewContent() {
     <div className="p-5" style={{ animation: "fadeUp 0.3s ease forwards" }}>
       <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--rust)]">Overview</p>
       <h2 className="font-signal-serif mb-0.5 text-2xl text-[var(--ink)]">AI Visibility</h2>
-      <p className="mb-4 text-xs text-[var(--ink-faint)]">Visibility up to 92% composite, across ChatGPT, Gemini, Google AI.</p>
+      <p className="mb-1 text-xs text-[var(--ink-faint)]">Visibility up to 92% composite, across ChatGPT, Gemini, Google AI.</p>
+      <p className="mb-4 text-[11px] text-[var(--ink-faint)]/80">We don&apos;t just track this — Research and Tasks turn it into content and engagement that raise it.</p>
 
       <div className={`${card} mb-3 flex flex-col items-center gap-2 p-4`}>
         <div className="relative h-24 w-24">
