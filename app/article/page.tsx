@@ -46,6 +46,14 @@ function ArticleContent() {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
+  // Publish
+  const [showPublishModal, setShowPublishModal] = useState(false);
+  const [channels, setChannels] = useState<{ id: string; name: string; type: string }[]>([]);
+  const [channelsLoaded, setChannelsLoaded] = useState(false);
+  const [selectedChannelId, setSelectedChannelId] = useState("");
+  const [publishing, setPublishing] = useState(false);
+  const [publishResult, setPublishResult] = useState<{ success: boolean; error?: string } | null>(null);
+
   // Cover image
   const [imageUrl, setImageUrl] = useState("");
   const [imageUrlDraft, setImageUrlDraft] = useState("");
@@ -201,6 +209,35 @@ function ArticleContent() {
     }
   }
 
+  function openPublishModal() {
+    setShowPublishModal(true);
+    setPublishResult(null);
+    if (!channelsLoaded && brandId) {
+      fetch(`/api/publishing/channels?brandId=${brandId}`)
+        .then((r) => r.json())
+        .then((d) => {
+          const chs = d.channels ?? [];
+          setChannels(chs);
+          if (chs.length === 1) setSelectedChannelId(chs[0].id);
+        })
+        .finally(() => setChannelsLoaded(true));
+    }
+  }
+
+  async function publishNow() {
+    if (!articleId || !selectedChannelId) return;
+    setPublishing(true);
+    setPublishResult(null);
+    const res = await fetch("/api/publishing/publish", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ channelId: selectedChannelId, articleId }),
+    });
+    const d = await res.json();
+    setPublishResult(d);
+    setPublishing(false);
+  }
+
   function enterEditMode() {
     setEditedContent(article);
     setEditedTitle(title);
@@ -319,6 +356,14 @@ function ArticleContent() {
                 <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M11.5 2.5l2 2L5 13H3v-2L11.5 2.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 Edit
               </button>
+              {articleId && brandId && (
+                <button
+                  onClick={openPublishModal}
+                  className="text-sm px-4 py-2 border border-[var(--rust)]/40 text-[var(--rust)] rounded-lg hover:bg-[var(--rust-wash)] transition-colors"
+                >
+                  Publish now
+                </button>
+              )}
             </>
           )}
           {editMode && (
@@ -616,6 +661,11 @@ function ArticleContent() {
                   <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M11.5 2.5l2 2L5 13H3v-2L11.5 2.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   Edit manually
                 </button>
+                {articleId && brandId && (
+                  <button onClick={openPublishModal} className="px-5 py-2.5 border border-[var(--rust)]/40 text-[var(--rust)] text-sm font-medium rounded-lg hover:bg-[var(--rust-wash)] transition-colors">
+                    Publish now
+                  </button>
+                )}
                 <button onClick={() => router.push(brandId ? `/dashboard?brandId=${brandId}` : "/dashboard")} className="px-5 py-2.5 border border-[var(--line)] text-[var(--ink)]/80 text-sm font-medium rounded-lg hover:bg-[var(--line-soft)] transition-colors">
                   Back to dashboard →
                 </button>
@@ -624,6 +674,59 @@ function ArticleContent() {
           </div>
         )}
       </main>
+
+      {showPublishModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => { if (!publishing) { setShowPublishModal(false); setPublishResult(null); } }}>
+          <div className="bg-[var(--surface)] rounded-2xl shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-base font-semibold text-[var(--ink)]">Publish article</h3>
+                <button onClick={() => { setShowPublishModal(false); setPublishResult(null); }} className="text-[var(--ink-faint)] hover:text-[var(--ink-soft)] text-xl">×</button>
+              </div>
+              {publishResult ? (
+                <div className={`rounded-xl p-4 mb-5 ${publishResult.success ? "bg-[var(--rust)]/10 border border-[var(--rust)]/20" : "bg-red-500/10 border border-red-500/25"}`}>
+                  <p className={`text-sm font-medium ${publishResult.success ? "text-[var(--rust)]" : "text-red-700"}`}>{publishResult.success ? "Published successfully!" : "Publish failed"}</p>
+                  {publishResult.error && <p className="text-xs text-red-700 mt-1">{publishResult.error}</p>}
+                </div>
+              ) : (
+                <div className="space-y-3 mb-5">
+                  <div>
+                    <label className="text-xs font-medium text-[var(--ink-soft)] block mb-1">Channel</label>
+                    {!channelsLoaded ? (
+                      <p className="text-xs text-[var(--ink-faint)]">Loading channels…</p>
+                    ) : channels.length === 0 ? (
+                      <p className="text-xs text-[var(--ink-faint)]">
+                        No channels —{" "}
+                        <button onClick={() => router.push(`/dashboard?brandId=${brandId}`)} className="text-[var(--rust)] underline">
+                          add one from the Publishing tab first
+                        </button>
+                      </p>
+                    ) : (
+                      <select value={selectedChannelId} onChange={(e) => setSelectedChannelId(e.target.value)} className="w-full border border-[var(--line)] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--rust)]/40">
+                        <option value="">Select channel…</option>
+                        {channels.map((c) => (
+                          <option key={c.id} value={c.id}>{c.name} ({c.type})</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <button onClick={() => { setShowPublishModal(false); setPublishResult(null); }} className="flex-1 text-sm border border-[var(--line)] rounded-lg py-2 hover:bg-[var(--line-soft)] transition-colors">
+                  {publishResult ? "Close" : "Cancel"}
+                </button>
+                {!publishResult && (
+                  <button onClick={publishNow} disabled={publishing || !selectedChannelId} className="flex-1 text-sm font-medium bg-[var(--rust)] text-[var(--surface)] rounded-lg py-2 hover:bg-[var(--rust-deep)] disabled:opacity-50 transition-colors flex items-center justify-center gap-2">
+                    {publishing && <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+                    {publishing ? "Publishing…" : "⚡ Publish"}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
