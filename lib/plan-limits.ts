@@ -63,6 +63,15 @@ export function isLapsedSubscriber(row: UserPlanRow | null | undefined): boolean
   return false;
 }
 
+// True for any account that isn't a currently-paying subscriber — never
+// subscribed at all, or lapsed (cancelled/expired/payment-grace-exceeded).
+// Shared sync predicate behind requiresPaywall (per-request DB check) and
+// the scheduled-scan cron (bulk-filters an already-fetched plan list) so
+// the two can't drift out of sync on what counts as "not paying".
+export function isUnpaidPlan(row: UserPlanRow | null | undefined): boolean {
+  return !row?.dodo_subscription_id || isLapsedSubscriber(row);
+}
+
 // True when the requester's real, sensitive data should be redacted server-
 // side (never subscribed, OR cancelled/expired/payment-grace-exceeded).
 // requireBrandAccess only verifies *ownership* — this is the plan check that
@@ -77,7 +86,7 @@ export async function requiresPaywall(db: any, ownerId: string): Promise<boolean
     .select("dodo_customer_id, dodo_subscription_id, payment_failed_at")
     .eq("user_id", ownerId)
     .maybeSingle();
-  return !row?.dodo_subscription_id || isLapsedSubscriber(row);
+  return isUnpaidPlan(row);
 }
 
 // Days left in the failed-payment grace period, for a dashboard warning

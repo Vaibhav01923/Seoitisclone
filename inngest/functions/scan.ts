@@ -3,7 +3,7 @@ import { serverClient } from "@/lib/supabase";
 import { extractMentions, queryWithRetry, computeScores } from "@/lib/scan-engine";
 import { fireAlerts } from "@/lib/alerts";
 import { isDueForScheduledScan, updatePromptCadence } from "@/lib/prompt-cadence";
-import { isLapsedSubscriber } from "@/lib/plan-limits";
+import { isUnpaidPlan } from "@/lib/plan-limits";
 import { AIEngine, BrandData, ScanResult } from "@/lib/types";
 
 const SCAN_ENGINES: AIEngine[] = ["chatgpt", "gemini", "google", "claude", "perplexity"];
@@ -18,10 +18,13 @@ export const scheduledScanAll = inngest.createFunction(
   async ({ step }) => {
     const db = serverClient();
 
-    // Lapsed subscribers (cancelled/expired, or a renewal payment failed past
-    // the grace period) are fully locked out in the dashboard — scans should
-    // stop too, both to respect that lockout and to stop burning scan cost
-    // on an account that isn't paying for it.
+    // Recurring scans are a paid perk (see pricing: "Daily refresh cycles on
+    // Business & Scale plans") — free tier gets its one-time initial scan
+    // (app/api/scan's manual allowance) and nothing further. Excludes both
+    // lapsed subscribers (cancelled/expired/payment-grace-exceeded — also
+    // fully locked out in the dashboard) and accounts that never subscribed
+    // at all, which the old lapsed-only filter let straight through, quietly
+    // burning real AI-provider cost on every account that ever ran /setup.
     const brands = await step.run("fetch-brands", async () => {
       const { data: brandRows, error } = await db.from("brands").select("id, name, user_id");
       if (error) throw new Error(error.message);
@@ -30,11 +33,9 @@ export const scheduledScanAll = inngest.createFunction(
       const { data: planRows } = await db
         .from("user_plans")
         .select("user_id, dodo_customer_id, dodo_subscription_id, payment_failed_at");
-      const lapsedUserIds = new Set(
-        (planRows ?? []).filter((p) => isLapsedSubscriber(p)).map((p) => p.user_id)
-      );
+      const planByUserId = new Map((planRows ?? []).map((p) => [p.user_id, p]));
 
-      return brandRows.filter((b) => !lapsedUserIds.has(b.user_id));
+      return brandRows.filter((b) => !isUnpaidPlan(planByUserId.get(b.user_id)));
     });
 
     if (!brands.length) return { queued: 0 };
