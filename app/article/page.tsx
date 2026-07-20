@@ -470,7 +470,7 @@ function ArticleContent() {
                         disabled={imageBusy === "generate"}
                         className="text-xs font-medium border border-[var(--line)] rounded-lg px-3 py-2 hover:bg-[var(--line-soft)] transition-colors disabled:opacity-50 shrink-0"
                       >
-                        {imageBusy === "generate" ? "Generating…" : "✨ Generate"}
+                        {imageBusy === "generate" ? "Generating…" : "Generate"}
                       </button>
                     </div>
                     {imageError && <p className="text-xs text-red-700 mt-2">{imageError}</p>}

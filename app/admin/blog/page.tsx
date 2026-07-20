@@ -457,7 +457,7 @@ export default function AdminBlogPage() {
                   disabled={busy === "autofill" || !editor.content.trim()}
                   className="mb-1.5 text-xs font-medium text-[var(--rust)] hover:text-[var(--rust-deep)] disabled:opacity-50"
                 >
-                  {busy === "autofill" ? "Autofilling…" : "✨ Autofill description & tags"}
+                  {busy === "autofill" ? "Autofilling…" : "Autofill description & tags"}
                 </button>
               </div>
               <input id="post-desc" className={inputCls} value={editor.description} onChange={(e) => setField("description", e.target.value)} />
@@ -539,7 +539,7 @@ export default function AdminBlogPage() {
                 ? "Generating… (~20s)"
                 : imagePrompt.trim()
                 ? "🔄 Regenerate with this prompt"
-                : "✨ Generate thumbnail"}
+                : "Generate thumbnail"}
             </button>
           </div>
 
