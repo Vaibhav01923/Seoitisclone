@@ -3880,9 +3880,14 @@ function DashboardPage() {
                                 <div
                                   className="absolute z-10 panel rounded-xl shadow-lg p-3 pointer-events-none"
                                   style={{
-                                    left: citationChartHover.x / W * 100 > 60 ? "auto" : `calc(${(citationChartHover.x / W) * 100}% + 8px)`,
-                                    right: citationChartHover.x / W * 100 > 60 ? `calc(${100 - (citationChartHover.x / W) * 100}% + 8px)` : "auto",
-                                    top: 0,
+                                    // Anchored off whichever half of the chart the cursor is in
+                                    // (extends away from the plotted line, not over it), and
+                                    // follows the cursor's Y position offset upward — previously
+                                    // pinned to top:0 regardless of hover position, so it sat
+                                    // directly on top of the curve for most of the chart's width.
+                                    left: citationChartHover.x / W > 0.5 ? "auto" : `calc(${(citationChartHover.x / W) * 100}% + 12px)`,
+                                    right: citationChartHover.x / W > 0.5 ? `calc(${100 - (citationChartHover.x / W) * 100}% + 12px)` : "auto",
+                                    top: `${Math.max(4, citationChartHover.y - 130)}px`,
                                   }}
                                 >
                                   <p className="text-xs font-semibold text-[var(--ink)]/80 mb-2">{new Date(allDates[citationChartHover.idx]).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</p>
