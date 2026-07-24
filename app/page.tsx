@@ -125,7 +125,7 @@ const LOOP_STEPS = [
   { n: "2", title: "Research", desc: "Generative query mining surfaces every question where AI answers without you." },
   { n: "3", title: "Write", desc: "Source-grounded articles engineered for citation — schema, FAQs and internal links included." },
   { n: "4", title: "Publish", desc: "One click to WordPress, Shopify or Framer. Webhooks and REST API for everything else." },
-  { n: "5", title: "Re-measure", desc: "Daily refresh proves the lift — watch citations appear engine by engine." },
+  { n: "5", title: "Re-measure", desc: "Automatic refresh every 3 days proves the lift — watch citations appear engine by engine." },
 ];
 
 function LoopSection() {
@@ -151,7 +151,7 @@ function LoopSection() {
               <svg className="spin-slow h-[15px] w-[15px]" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 1.5v3h-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              The loop re-runs daily no babysitting required
+              The loop re-runs every 3 days no babysitting required
             </span>
           </div>
         </ScrollReveal>
@@ -410,7 +410,7 @@ function GlobeSection() {
               {[
                 { b: "5", s: "AI engines tracked, from ChatGPT to Google AI" },
                 { b: "~60s", s: "to your first visibility score. No credit card." },
-                { b: "Daily", s: "refresh cycles on Business & Scale plans" },
+                { b: "3-day", s: "refresh cycles on Business & Scale plans" },
                 { b: "25", s: "competitor brands tracked side-by-side" },
               ].map((st) => (
                 <div

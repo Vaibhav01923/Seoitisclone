@@ -1355,14 +1355,15 @@ function DashboardPage() {
       .then((d) => { if (d.series) setCitationHistory(d.series); });
   }, [activeTab, brand]);
 
-  // Countdown to next daily cron scan (8am UTC daily)
+  // Countdown to next scheduled cron scan (8am UTC, every 3rd day of the
+  // month — matches the "0 8 */3 * *" schedule in scheduled-scan-all).
   useEffect(() => {
     function computeCountdown() {
       const now = new Date();
-      // Find next 8am UTC
-      const next = new Date();
+      const next = new Date(now);
       next.setUTCHours(8, 0, 0, 0);
       if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
+      while (next.getUTCDate() % 3 !== 1) next.setUTCDate(next.getUTCDate() + 1);
       const diffMs = next.getTime() - now.getTime();
       const h = Math.floor(diffMs / 3600000);
       const m = Math.floor((diffMs % 3600000) / 60000);
@@ -1597,8 +1598,8 @@ function DashboardPage() {
     }
   }
 
-  // A brand with zero scan history only otherwise gets data from the daily
-  // cron (see nextCheckIn) — up to 24h of staring at an empty dashboard.
+  // A brand with zero scan history only otherwise gets data from the
+  // scheduled cron (see nextCheckIn) — up to 3 days of staring at an empty dashboard.
   // Auto-fires the same one-time initial scan the "Start monitoring" button
   // triggers, the moment a freshly loaded brand is confirmed to have never
   // been scanned. Guarded by a ref (not just !scanned) so a failed attempt
@@ -2785,7 +2786,7 @@ function DashboardPage() {
               {!scanned && loadingResults ? (
                 <div className="flex items-center justify-center py-32"><span className="w-6 h-6 border-2 border-[var(--line)] border-t-[var(--rust)] rounded-full animate-spin" /></div>
               ) : !scanned ? (
-                <EmptyState label="No prompt data" sub="Monitoring starts automatically — check back after your first daily scan" />
+                <EmptyState label="No prompt data" sub="Monitoring starts automatically — check back after your first scan" />
               ) : selectedPromptId ? (() => {
                 /* ── PROMPT DETAIL VIEW ── */
                 const prompt = brand.trackedPrompts.find((p) => p.id === selectedPromptId);
@@ -3362,7 +3363,7 @@ function DashboardPage() {
                                 })()}
                                 <span className="text-sm text-[var(--ink)]/90 font-medium leading-snug line-clamp-2">{p.text}</span>
                                 {p.status !== "paused" && p.cadence === "weekly" && (
-                                  <span title="Won every scan for a week straight — now checked weekly. Drops back to daily if visibility slips." className="shrink-0 text-[9px] font-semibold uppercase tracking-wide bg-[var(--olive-wash)] text-[var(--olive)] px-1.5 py-0.5 rounded-full">Monitoring</span>
+                                  <span title="Won its last 7 scans in a row — now checked about weekly instead of every cycle. Drops back to every scan if visibility slips." className="shrink-0 text-[9px] font-semibold uppercase tracking-wide bg-[var(--olive-wash)] text-[var(--olive)] px-1.5 py-0.5 rounded-full">Monitoring</span>
                                 )}
                               </button>
                               {/* Engine mention dots */}
@@ -3855,7 +3856,7 @@ function DashboardPage() {
                             </div>
                           </div>
                           {citationHistory.length === 0 ? (
-                            <div className="flex items-center justify-center h-36 text-xs text-[var(--ink-faint)] mt-3">Chart data loads after first few daily scans</div>
+                            <div className="flex items-center justify-center h-36 text-xs text-[var(--ink-faint)] mt-3">Chart data loads after your first few scans</div>
                           ) : (
                             <div className="relative mt-3">
                               <svg
@@ -3954,7 +3955,7 @@ function DashboardPage() {
                               )}
                             </div>
                           )}
-                          {allDates.length === 1 && <p className="text-[10px] text-[var(--ink-faint)] mt-1">More data after your first week of daily scans</p>}
+                          {allDates.length === 1 && <p className="text-[10px] text-[var(--ink-faint)] mt-1">More data after your next few scans</p>}
                         </div>
 
                         {/* Top Cited Domains card */}
