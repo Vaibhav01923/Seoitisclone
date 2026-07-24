@@ -21,6 +21,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getPublishedPostBySlug(slug);
   if (!post) return { title: "Post not found" };
 
+  const postImage = post.cover_image_url || `${SITE_URL}/opengraph-image`;
+
   return {
     title: post.title,
     description: post.description,
@@ -30,6 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `${SITE_URL}/blog/${post.slug}`,
       title: post.title,
       description: post.description,
+      images: [postImage],
       publishedTime: post.published_at ?? undefined,
       modifiedTime: post.updated_at,
       authors: [post.author_name],
@@ -39,6 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
       title: post.title,
       description: post.description,
+      images: [postImage],
     },
   };
 }
